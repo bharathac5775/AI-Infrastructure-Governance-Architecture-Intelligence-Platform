@@ -63,29 +63,17 @@ Initially a single prompt was used per agent. This caused **concept leakage** �
 - Reliability: RDS Multi-AZ/backups/deletion protection, ASG health checks, standalone EC2, S3 versioning, DynamoDB PITR, ElastiCache failover, Lambda/SQS DLQ, ELB cross-zone, CloudWatch alarms
 - Cost: expensive EC2/RDS/Azure instance types (prefix matching), large RDS storage/EBS, NAT Gateways, unattached EIPs, S3 lifecycle, CloudWatch log retention, EBS io1/io2, DynamoDB provisioned mode, ElastiCache expensive node types
 
-### Bugs Fixed During Phase 1
+### Challenges Addressed
 
-| Bug | Root Cause | Fix |
-|-----|-----------|-----|
-| Pod-level securityContext false positive | Only checked container-level `runAsNonRoot`, not pod-level | Check both `pod_spec.securityContext` and `container.securityContext` with proper cascading |
-| LLM fallback scoring set to 80 | When LLM unavailable, score defaulted to 80 instead of using rule score | Use `rule_score` directly when LLM fails |
-| HPA flagged as HIGH severity | Missing HPA was over-penalized | Changed to LOW — HPA is a nice-to-have, not critical |
-| Anti-affinity flagged as HIGH | Over-severity for missing anti-affinity | Changed to LOW |
-| Redis single-replica flagged as HIGH | Same severity as stateful workloads | Changed to MEDIUM — cache workloads are more resilient to restarts |
-| Duplicate findings between rules and LLM | Exact title matching was too strict | Implemented keyword + synonym overlap dedup with 0.25 threshold |
-| Hardcoded secrets undetected | No rule for env vars containing passwords | Added rule checking env var names for password/secret/token/key keywords |
-| Terraform files ignored | Supervisor only parsed K8s YAML | Added TF parsing in supervisor, `tf_resources` passed to all agents |
-| IAM wildcard policy not detected | HCL2 parses `jsonencode()` with single quotes | Adjusted string matching for HCL2 output format |
-| EC2 instance type matching too broad | Substring matching caused false positives | Changed to prefix matching with tuples |
-| K8s/Terraform concept leakage | Single LLM prompt per agent mixed K8s and TF concepts | Created 6 separate prompts (K8s + TF per agent) with explicit guardrails |
-| Pasted TF content detected as K8s | File extension checked first (`.yaml` default in UI) | Changed `_detect_infra_type()` to check content before extension |
-| Docker frontend can't reach API | `localhost` inside container resolves to frontend, not api | Made API_URL configurable via env var, set to `http://api:8000/api/v1` in docker-compose |
-| CORS `*` + credentials | Browsers reject wildcard origin with `allow_credentials=True` | Set `allow_credentials=False` |
-| ECS privileged check never matches | `.replace(" ", "")` strips space but check still looks for `": true"` with space | Fixed to check `":true"` (no space) |
-| Dedup code duplicated across 3 agents | Same `_STOP_WORDS`, `_SYNONYMS`, `_is_duplicate` copy-pasted | Extracted to shared `app/core/dedup.py`, agents import from it |
-| LangGraph rebuilt on every request | `build_analysis_graph()` called inside `run_analysis()` | Moved to module-level singleton `_compiled_graph` |
-| Loose LangChain version pins | `>=` pins could break on minor version changes | Pinned to exact tested versions |
-| Cost agent dedup threshold inconsistent | Cost used 0.35 while others used 0.25 | Unified to 0.25 via shared dedup module |
+- Severity calibration — tuned findings like HPA, anti-affinity, and cache replicas to appropriate severity levels
+- Scoring accuracy — fixed LLM fallback scoring and score blending logic
+- Deduplication — evolved from exact title matching to keyword + synonym overlap to prevent duplicate findings
+- K8s/Terraform concept leakage — separated LLM prompts per infrastructure type to prevent cross-domain confusion
+- Content-aware detection — prioritized file content analysis over extension-based routing
+- Terraform integration — extended the full pipeline (parser, supervisor, all 3 agents) to support HCL
+- Docker networking — resolved inter-container communication for frontend-to-API connectivity
+- CORS configuration — fixed browser-rejected wildcard origin + credentials combination
+- Code maintainability — consolidated duplicated logic into shared modules, pinned dependency versions
 
 ### Sample Files Created
 
