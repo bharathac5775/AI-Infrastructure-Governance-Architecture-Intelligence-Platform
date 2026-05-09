@@ -1,6 +1,7 @@
 import json
 from langchain_core.prompts import ChatPromptTemplate
 from app.core.llm import get_llm
+from app.core.dedup import is_duplicate as _is_duplicate
 from app.models import AgentReport, Finding, Severity
 from app.agents.security import _detect_infra_type
 from app.parsers.kubernetes import get_pod_spec, get_containers, get_resource_name
@@ -22,57 +23,6 @@ Do NOT apply Kubernetes concepts (pods, containers, resource requests/limits, pr
 Respond ONLY with valid JSON:
 {{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment", "score": 0-100}}
 """
-
-_STOP_WORDS = frozenset({
-    "a", "an", "the", "is", "are", "was", "be", "been", "being", "have", "has",
-    "had", "do", "does", "did", "will", "would", "could", "should", "may",
-    "might", "can", "shall", "to", "of", "in", "for", "on", "with", "at",
-    "by", "from", "as", "into", "through", "during", "before", "after",
-    "and", "but", "or", "nor", "not", "no", "so", "if", "than", "too",
-    "it", "its", "this", "that", "these", "those", "set", "add", "use",
-})
-
-
-_SYNONYMS = {
-    "missing": "no", "no": "missing", "lacks": "missing", "absent": "missing",
-    "without": "missing", "undefined": "missing",
-    "limits": "limit", "limit": "limits",
-    "requests": "request", "request": "requests",
-    "probes": "probe", "probe": "probes",
-    "replicas": "replica", "replica": "replicas",
-    "securitycontext": "security", "security": "securitycontext",
-    "root": "nonroot", "nonroot": "root", "runasnonroot": "root",
-    "image": "tag", "tag": "image", "latest": "untagged", "untagged": "latest",
-    "secret": "password", "password": "secret",
-    "loadbalancer": "public", "public": "loadbalancer",
-    "hpa": "autoscaling", "autoscaling": "hpa", "autoscaler": "hpa",
-    "pdb": "disruption", "disruption": "pdb",
-    "affinity": "antiaffinity", "antiaffinity": "affinity",
-    "liveness": "health", "readiness": "health", "health": "liveness",
-}
-
-
-def _extract_keywords(text: str) -> set[str]:
-    words = set()
-    for w in text.lower().replace("-", " ").replace("_", " ").replace("/", " ").split():
-        w = w.strip(".,;:!?()[]{}\"'`")
-        if len(w) > 2 and w not in _STOP_WORDS:
-            words.add(w)
-            if w in _SYNONYMS:
-                words.add(_SYNONYMS[w])
-    return words
-
-
-def _is_duplicate(llm_finding: Finding, rule_findings: list[Finding]) -> bool:
-    llm_keywords = _extract_keywords(llm_finding.title + " " + llm_finding.description)
-    if not llm_keywords:
-        return False
-    for rf in rule_findings:
-        rule_keywords = _extract_keywords(rf.title + " " + rf.description + " " + rf.category)
-        overlap = llm_keywords & rule_keywords
-        if len(overlap) >= max(2, len(llm_keywords) * 0.25):
-            return True
-    return False
 
 
 def run_reliability_rules(resources: dict) -> list[Finding]:

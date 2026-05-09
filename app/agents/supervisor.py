@@ -176,9 +176,13 @@ def build_analysis_graph() -> StateGraph:
     return graph.compile()
 
 
+# Module-level singleton — compiled graph is stateless and reusable
+_compiled_graph = build_analysis_graph()
+
+
 async def run_analysis(file_contents: dict[str, str]) -> AnalysisReport:
     """Run the complete multi-agent analysis pipeline."""
-    graph = build_analysis_graph()
+    graph = _compiled_graph
 
     initial_state: AnalysisState = {
         "file_contents": file_contents,

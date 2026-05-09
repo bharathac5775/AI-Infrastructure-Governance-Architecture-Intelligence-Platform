@@ -1,9 +1,10 @@
+import os
 import streamlit as st
 import httpx
 import json
 import time
 
-API_URL = "http://localhost:8000/api/v1"
+API_URL = os.getenv("API_URL", "http://localhost:8000/api/v1")
 
 st.set_page_config(
     page_title="AI Infrastructure Governance Platform",
