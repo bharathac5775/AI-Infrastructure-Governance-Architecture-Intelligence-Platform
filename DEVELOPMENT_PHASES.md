@@ -47,7 +47,7 @@ Initially a single prompt was used per agent. This caused **concept leakage** �
 | **K8s Parser** | Multi-document YAML parsing, resource grouping by kind |
 | **Terraform Parser** | HCL parsing via `hcl2` library, resource extraction |
 | **Dedup Engine** | Shared stop words, domain synonyms, keyword overlap matching |
-| **Report System** | Weighted scoring (Security 40%, Reliability 35%, Cost 25%) |
+| **Report System** | Weighted scoring (Security 40%, Reliability 35%, Cost 25%) — rebalanced in Phase 2 |
 | **Docker Setup** | `docker-compose.yml` with api + frontend services |
 | **Sample Files** | 7 test files: good/average/vulnerable/critical for K8s and TF |
 
@@ -149,10 +149,17 @@ Three root causes of duplicate findings were fixed in `dedup.py`:
 - **Stop word injection via synonyms**: Generic qualifiers (`missing`, `lacks`, `absent`, `without`) added to stop words and filtered during synonym expansion to prevent them polluting keyword sets
 - **Threshold tuning**: Minimum overlap raised from 2 to 3, percentage lowered from 25% to 20%, improving precision
 
-**7. Supervisor Architecture Awareness**  
+**7. Scoring Rebalanced**  
+With the Architecture Reviewer added as a 4th scoring dimension, overall score weights were rebalanced:
+- Security: 40% → **34%**
+- Reliability: 35% → **30%**
+- Cost: 25% → **21%**
+- Architecture: **15%** (new)
+
+**8. Supervisor Architecture Awareness**  
 The supervisor node now receives architecture review data (score, gap count, gap titles) alongside the three agent summaries. The skill prompt was updated with an explicit rule: even if Security/Reliability/Cost all score 100/100, the supervisor **must** include HIGH/CRITICAL architecture gaps in the risk summary.
 
-**8. HPA-Aware Reliability Rules**  
+**9. HPA-Aware Reliability Rules**  
 The "Single replica (SPOF)" rule now checks whether an HPA targets the workload before firing. When a Deployment intentionally omits `replicas:` because HPA manages scaling, the rule no longer generates a false positive.
 
 ---
@@ -237,9 +244,19 @@ parse_files → security → reliability → cost → architecture_review → su
 - **GCP SSL deprecation**: Cloud SQL SSL check handles both deprecated `require_ssl` and modern `ssl_mode` attribute
 - **Azure disk encryption false positive**: Managed disk check changed from `encryption_type` (always missing — PMK is default) to `disk_encryption_set_id` (CMK-specific), severity lowered to LOW
 
+### Sample Terraform Files (Phase 2)
+
+| File | Cloud | Purpose | Expected Score |
+|------|-------|---------|---------------|
+| `azure-average.tf` | Azure | Mixed gaps (open NSG, no KV purge protection, SQL not zone-redundant, VM no availability zone) | 55–70 |
+| `gcp-average.tf` | GCP | Mixed gaps (open firewall, Cloud SQL public IP/no HA/no SSL, GCS no lifecycle, no shielded VM) | 50–65 |
+| `production-good.tf` | AWS | Enterprise production-grade (Zero Trust, Multi-AZ, encryption everywhere, IAM least privilege) | 90–100 |
+
 ### Sample Helm Charts
 
 | Chart | Version | Purpose | Expected Score |
 |-------|---------|---------|---------------|
 | `my-chart-1.0.0.tgz` | 1.0.0 | Intentionally flawed (hardcoded password, no probes, no HPA, no security context) | 30–50 |
-| `good-chart-1.2.0.tgz` | 1.2.0 | Best practices (NetworkPolicy, HPA, PDB, ServiceMonitor, security context, rolling update, graceful shutdown) | 95–98 |
+| `good-chart-1.0.0.tgz` | 1.0.0 | Initial best-practices chart | 85–95 |
+| `good-chart-1.1.0.tgz` | 1.1.0 | Iterative improvements over 1.0.0 | 90–96 |
+| `good-chart-1.2.0.tgz` | 1.2.0 | Full best practices (NetworkPolicy, HPA, PDB, ServiceMonitor, security context, rolling update, graceful shutdown) | 95–98 |
