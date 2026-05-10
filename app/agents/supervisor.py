@@ -43,15 +43,15 @@ def parse_files_node(state: AnalysisState) -> dict:
                 resources = extract_k8s_resources(docs)
                 for kind, items in resources.items():
                     all_k8s_resources.setdefault(kind, []).extend(items)
-            except (ValueError, Exception):
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to parse {fname} as Kubernetes YAML: {e}")
         elif fname.endswith((".tf", ".hcl")):
             try:
                 parsed = parse_terraform(content)
                 tf_res = extract_tf_resources(parsed)
                 all_tf_resources.extend(tf_res)
-            except (ValueError, Exception):
-                pass
+            except Exception as e:
+                logger.warning(f"Failed to parse {fname} as Terraform HCL: {e}")
         elif fname.endswith(".json"):
             # Try Kubernetes JSON first, then Terraform JSON
             try:

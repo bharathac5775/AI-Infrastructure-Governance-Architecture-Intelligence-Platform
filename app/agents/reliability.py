@@ -6,6 +6,7 @@ from app.core.skills import get_agent_prompt
 from app.models import AgentReport, Finding, Severity
 from app.agents.security import _detect_infra_type
 from app.parsers.kubernetes import get_pod_spec, get_containers, get_resource_name
+from app.parsers.terraform import resources_with_companion
 
 
 def run_reliability_rules(resources: dict) -> list[Finding]:
@@ -37,8 +38,9 @@ def run_reliability_rules(resources: dict) -> list[Finding]:
             metadata = resource.get("metadata", {})
             res_name = metadata.get("name", "")
 
-            # Single replica — severity depends on workload type
-            if kind in ("Deployment", "StatefulSet") and replicas <= 1:
+            # Single replica — skip if an HPA manages this workload (replicas field is intentionally omitted)
+            target_key_pre = f"{kind}/{res_name}"
+            if kind in ("Deployment", "StatefulSet") and replicas <= 1 and target_key_pre not in hpa_targets:
                 is_cache = any(
                     kw in res_name.lower()
                     for kw in ("redis", "memcached", "cache")
@@ -186,6 +188,9 @@ def run_terraform_reliability_rules(tf_resources: list) -> list[Finding]:
     """Run deterministic reliability checks on parsed Terraform resources."""
     findings = []
 
+    # S3 buckets with companion versioning resource (AWS provider v4+)
+    versioned_s3 = resources_with_companion(tf_resources, "aws_s3_bucket_versioning")
+
     for res in tf_resources:
         rtype = res.get("type", "")
         rname = res.get("name", "")
@@ -262,7 +267,7 @@ def run_terraform_reliability_rules(tf_resources: list) -> list[Finding]:
             versioning = config.get("versioning", {})
             if isinstance(versioning, list):
                 versioning = versioning[0] if versioning else {}
-            if not versioning or not versioning.get("enabled"):
+            if (not versioning or not versioning.get("enabled")) and rname not in versioned_s3:
                 findings.append(Finding(
                     agent="Reliability Agent", category="backup",
                     severity=Severity.MEDIUM,
@@ -352,6 +357,196 @@ def run_terraform_reliability_rules(tf_resources: list) -> list[Finding]:
                     resource=full_name,
                     recommendation="Set deletion_protection = true for production databases.",
                 ))
+
+        # =========================================================
+        # AZURE RELIABILITY RULES
+        # =========================================================
+
+        # --- Azure SQL: no geo-replication ---
+        if rtype in ("azurerm_mssql_database", "azurerm_sql_database"):
+            zone_redundant = config.get("zone_redundant")
+            if not zone_redundant or zone_redundant in (False, [False]):
+                findings.append(Finding(
+                    agent="Reliability Agent", category="high-availability",
+                    severity=Severity.MEDIUM,
+                    title="Azure SQL database not zone-redundant",
+                    description=f"{full_name} is not zone-redundant. Single zone failure risk.",
+                    resource=full_name,
+                    recommendation="Set zone_redundant = true for production databases.",
+                ))
+
+        # --- Azure SQL: no long-term backup (inline or companion resource) ---
+        if rtype in ("azurerm_mssql_database", "azurerm_sql_database"):
+            ltr = config.get("long_term_retention_policy")
+            if not ltr:
+                findings.append(Finding(
+                    agent="Reliability Agent", category="backup",
+                    severity=Severity.LOW,
+                    title="Azure SQL without inline long-term retention",
+                    description=f"{full_name} has no inline long_term_retention_policy. This may be configured via a separate resource (azurerm_mssql_database_extended_auditing_policy).",
+                    resource=full_name,
+                    recommendation="Configure long_term_retention_policy inline or via a separate retention policy resource.",
+                ))
+
+        # --- Azure App Service: no backup ---
+        if rtype in ("azurerm_app_service", "azurerm_linux_web_app", "azurerm_windows_web_app"):
+            backup = config.get("backup")
+            if not backup:
+                findings.append(Finding(
+                    agent="Reliability Agent", category="backup",
+                    severity=Severity.MEDIUM,
+                    title="App Service without backup configuration",
+                    description=f"{full_name} has no backup configured. No point-in-time recovery.",
+                    resource=full_name,
+                    recommendation="Configure backup block with schedule and storage account.",
+                ))
+
+        # --- AKS: no availability zones ---
+        if rtype == "azurerm_kubernetes_cluster":
+            default_pool = config.get("default_node_pool", {})
+            if isinstance(default_pool, list):
+                default_pool = default_pool[0] if default_pool else {}
+            zones = default_pool.get("zones", default_pool.get("availability_zones", [])) if isinstance(default_pool, dict) else []
+            if not zones:
+                findings.append(Finding(
+                    agent="Reliability Agent", category="high-availability",
+                    severity=Severity.HIGH,
+                    title="AKS without availability zones",
+                    description=f"{full_name} node pool has no availability zones. Single zone failure risk.",
+                    resource=full_name,
+                    recommendation="Set zones = [\"1\", \"2\", \"3\"] in default_node_pool.",
+                ))
+
+        # --- AKS: auto-upgrade not enabled ---
+        if rtype == "azurerm_kubernetes_cluster":
+            auto_upgrade = config.get("automatic_channel_upgrade")
+            if not auto_upgrade:
+                findings.append(Finding(
+                    agent="Reliability Agent", category="maintenance",
+                    severity=Severity.LOW,
+                    title="AKS without automatic upgrade",
+                    description=f"{full_name} has no automatic_channel_upgrade. Cluster may fall behind on patches.",
+                    resource=full_name,
+                    recommendation="Set automatic_channel_upgrade = \"stable\" or \"patch\".",
+                ))
+
+        # --- Azure Cosmos DB: no multi-region ---
+        if rtype == "azurerm_cosmosdb_account":
+            geo_locations = config.get("geo_location", [])
+            if isinstance(geo_locations, dict):
+                geo_locations = [geo_locations]
+            if len(geo_locations) <= 1:
+                findings.append(Finding(
+                    agent="Reliability Agent", category="high-availability",
+                    severity=Severity.MEDIUM,
+                    title="Cosmos DB single-region deployment",
+                    description=f"{full_name} has only {len(geo_locations)} geo_location. No multi-region failover.",
+                    resource=full_name,
+                    recommendation="Add additional geo_location blocks for multi-region redundancy.",
+                ))
+
+        # =========================================================
+        # GCP RELIABILITY RULES
+        # =========================================================
+
+        # --- Cloud SQL: no HA ---
+        if rtype == "google_sql_database_instance":
+            settings = config.get("settings", {})
+            if isinstance(settings, list):
+                settings = settings[0] if settings else {}
+            availability_type = settings.get("availability_type", "ZONAL") if isinstance(settings, dict) else "ZONAL"
+            if isinstance(availability_type, list):
+                availability_type = availability_type[0] if availability_type else "ZONAL"
+            if availability_type != "REGIONAL":
+                findings.append(Finding(
+                    agent="Reliability Agent", category="high-availability",
+                    severity=Severity.HIGH,
+                    title="Cloud SQL without high availability",
+                    description=f"{full_name} has availability_type={availability_type}. No automatic failover.",
+                    resource=full_name,
+                    recommendation="Set availability_type = \"REGIONAL\" for production databases.",
+                ))
+            # Backup
+            backup_config = settings.get("backup_configuration", {}) if isinstance(settings, dict) else {}
+            if isinstance(backup_config, list):
+                backup_config = backup_config[0] if backup_config else {}
+            if not backup_config or (isinstance(backup_config, dict) and not backup_config.get("enabled", False)):
+                findings.append(Finding(
+                    agent="Reliability Agent", category="backup",
+                    severity=Severity.HIGH,
+                    title="Cloud SQL backups not enabled",
+                    description=f"{full_name} does not have automated backups enabled.",
+                    resource=full_name,
+                    recommendation="Set backup_configuration { enabled = true, binary_log_enabled = true }.",
+                ))
+            # Deletion protection
+            dp = config.get("deletion_protection")
+            if not dp or dp in (False, [False]):
+                findings.append(Finding(
+                    agent="Reliability Agent", category="protection",
+                    severity=Severity.MEDIUM,
+                    title="Cloud SQL without deletion protection",
+                    description=f"{full_name} can be accidentally deleted.",
+                    resource=full_name,
+                    recommendation="Set deletion_protection = true.",
+                ))
+
+        # --- GKE: node auto-repair ---
+        if rtype == "google_container_node_pool":
+            management = config.get("management", {})
+            if isinstance(management, list):
+                management = management[0] if management else {}
+            if isinstance(management, dict):
+                auto_repair = management.get("auto_repair")
+                if auto_repair in (False, [False]):
+                    findings.append(Finding(
+                        agent="Reliability Agent", category="maintenance",
+                        severity=Severity.MEDIUM,
+                        title="GKE node pool without auto-repair",
+                        description=f"{full_name} has auto_repair disabled. Unhealthy nodes won't be replaced.",
+                        resource=full_name,
+                        recommendation="Set auto_repair = true in management block.",
+                    ))
+                auto_upgrade = management.get("auto_upgrade")
+                if auto_upgrade in (False, [False]):
+                    findings.append(Finding(
+                        agent="Reliability Agent", category="maintenance",
+                        severity=Severity.LOW,
+                        title="GKE node pool without auto-upgrade",
+                        description=f"{full_name} has auto_upgrade disabled. Nodes may miss security patches.",
+                        resource=full_name,
+                        recommendation="Set auto_upgrade = true in management block.",
+                    ))
+
+        # --- GKE: cluster without maintenance window ---
+        if rtype == "google_container_cluster":
+            maint = config.get("maintenance_policy")
+            if not maint:
+                findings.append(Finding(
+                    agent="Reliability Agent", category="maintenance",
+                    severity=Severity.LOW,
+                    title="GKE cluster without maintenance window",
+                    description=f"{full_name} has no maintenance_policy. Upgrades may happen at peak hours.",
+                    resource=full_name,
+                    recommendation="Configure maintenance_policy with a preferred maintenance window.",
+                ))
+
+        # --- GCP Compute: no preemptible/spot protection check ---
+        if rtype == "google_compute_instance":
+            scheduling = config.get("scheduling", {})
+            if isinstance(scheduling, list):
+                scheduling = scheduling[0] if scheduling else {}
+            if isinstance(scheduling, dict):
+                preemptible = scheduling.get("preemptible")
+                if preemptible in (True, [True]):
+                    findings.append(Finding(
+                        agent="Reliability Agent", category="high-availability",
+                        severity=Severity.MEDIUM,
+                        title="GCP instance is preemptible",
+                        description=f"{full_name} is preemptible and can be terminated at any time by GCP.",
+                        resource=full_name,
+                        recommendation="Use standard instances for production workloads. Reserve preemptible for batch/dev.",
+                    ))
 
         # --- CloudWatch alarm missing (heuristic: no alarms at all) ---
         # This is a cross-resource check handled below

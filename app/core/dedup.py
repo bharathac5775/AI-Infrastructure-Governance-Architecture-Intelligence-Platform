@@ -1,8 +1,10 @@
 """Shared utility functions for agent deduplication."""
 
+import re
 from app.models import Finding
 
-# Stop words excluded from keyword matching
+# Stop words excluded from keyword matching — includes generic qualifiers like
+# "missing/no/lacks" that appear in almost every finding and add no signal
 STOP_WORDS = frozenset({
     "a", "an", "the", "is", "are", "was", "be", "been", "being", "have", "has",
     "had", "do", "does", "did", "will", "would", "could", "should", "may",
@@ -10,16 +12,20 @@ STOP_WORDS = frozenset({
     "by", "from", "as", "into", "through", "during", "before", "after",
     "and", "but", "or", "nor", "not", "no", "so", "if", "than", "too",
     "it", "its", "this", "that", "these", "those", "set", "add", "use",
+    # Generic qualifiers — present in almost every finding, not useful for overlap
+    "missing", "lacks", "absent", "without", "undefined",
 })
 
-# Domain synonyms for better dedup matching
+# Domain synonyms for better dedup matching.
+# Rules:
+#  - Plurals normalize to singular (one direction only, e.g. "probes"→"probe")
+#  - Distinct probe types (liveness vs readiness) are NOT collapsed — they are
+#    different findings that should not deduplicate each other
 SYNONYMS = {
-    "missing": "no", "no": "missing", "lacks": "missing", "absent": "missing",
-    "without": "missing", "undefined": "missing",
-    "limits": "limit", "limit": "limits",
-    "requests": "request", "request": "requests",
-    "probes": "probe", "probe": "probes",
-    "replicas": "replica", "replica": "replicas",
+    "limits": "limit",
+    "requests": "request",
+    "probes": "probe",                           # plural→singular only
+    "replicas": "replica",
     "securitycontext": "security", "security": "securitycontext",
     "root": "nonroot", "nonroot": "root", "runasnonroot": "root",
     "image": "tag", "tag": "image", "latest": "untagged", "untagged": "latest",
@@ -29,7 +35,7 @@ SYNONYMS = {
     "hpa": "autoscaling", "autoscaling": "hpa", "autoscaler": "hpa",
     "pdb": "disruption", "disruption": "pdb",
     "affinity": "antiaffinity", "antiaffinity": "affinity",
-    "liveness": "health", "readiness": "health", "health": "liveness",
+    "health": "probe",                           # "health check" → matches probe rules
     "standalone": "single", "single": "standalone",
     "asg": "scaling", "scaling": "asg",
     "deletion": "delete", "delete": "deletion", "protection": "deletion",
@@ -38,15 +44,29 @@ SYNONYMS = {
 }
 
 
+def _split_camelcase(text: str) -> str:
+    """Insert spaces at camelCase and PascalCase boundaries.
+
+    'HorizontalPodAutoscaler' -> 'Horizontal Pod Autoscaler'
+    'PodDisruptionBudget'     -> 'Pod Disruption Budget'
+    'runAsNonRoot'            -> 'run As Non Root'
+    """
+    text = re.sub(r'([A-Z]+)([A-Z][a-z])', r'\1 \2', text)
+    text = re.sub(r'([a-z])([A-Z])', r'\1 \2', text)
+    return text
+
+
 def extract_keywords(text: str) -> set[str]:
     """Extract significant keywords from text, with synonym expansion."""
+    text = _split_camelcase(text)
     words = set()
     for w in text.lower().replace("-", " ").replace("_", " ").replace("/", " ").split():
         w = w.strip(".,;:!?()[]{}\"'`")
         if len(w) > 2 and w not in STOP_WORDS:
             words.add(w)
-            if w in SYNONYMS:
-                words.add(SYNONYMS[w])
+            syn = SYNONYMS.get(w)
+            if syn and syn not in STOP_WORDS:   # don't inject stop words via synonym
+                words.add(syn)
     return words
 
 
@@ -58,6 +78,6 @@ def is_duplicate(llm_finding: Finding, rule_findings: list[Finding]) -> bool:
     for rf in rule_findings:
         rule_keywords = extract_keywords(rf.title + " " + rf.description + " " + rf.category)
         overlap = llm_keywords & rule_keywords
-        if len(overlap) >= max(2, len(llm_keywords) * 0.25):
+        if len(overlap) >= max(3, len(llm_keywords) * 0.20):
             return True
     return False

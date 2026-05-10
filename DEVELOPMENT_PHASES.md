@@ -106,49 +106,140 @@ Reports were validated by external AI review (ChatGPT). Key outcomes:
 
 ---
 
-## Phase 2 — Skill Files, Architecture Reviewer & Report Memory
+## Phase 2 — Skill Files, Architecture Reviewer, Report Memory & Multi-Cloud Expansion
 
 **Status:** Complete
 
 ### What Was Built
 
-Three major capabilities were added: externalized agent prompts via skill files, a new Architecture Reviewer agent for cross-cutting analysis, and ChromaDB-backed persistent report storage with history and comparison.
+Five major capability areas were delivered in Phase 2:
+1. Externalized agent prompts via skill files
+2. Architecture Reviewer agent for cross-cutting analysis
+3. ChromaDB-backed persistent report storage with history, comparison, and similarity search
+4. Native Helm chart support (`.tgz` upload → `helm template` → full analysis pipeline)
+5. Multi-cloud rule expansion: Azure and GCP rules across all three agents
+
+---
 
 ### Architecture Decisions
 
 **1. Skill File System**  
-All agent prompts were extracted from hardcoded Python strings into `.md` skill files with YAML frontmatter. This allows prompt tuning without code changes. The `app/core/skills.py` loader reads skill files at runtime — agents call `get_agent_prompt("security", "kubernetes")` instead of referencing constants.
+All agent prompts were extracted from hardcoded Python strings into `.md` skill files with YAML frontmatter under `skills/`. Prompt tuning no longer requires code changes — agents call `get_agent_prompt("security", "kubernetes")` at runtime via `app/core/skills.py`.
 
 **2. Architecture Reviewer Agent**  
-A new 4th analysis agent that receives all Security/Reliability/Cost findings and performs cross-cutting analysis: tradeoff conflicts (where fixing one area hurts another), architectural pattern detection, cross-cutting gaps that no single agent would catch, and prioritized action plans.
+A new 4th analysis agent that receives all Security/Reliability/Cost findings and the raw infrastructure content. Performs cross-cutting analysis: tradeoff conflicts (where fixing one area hurts another), architectural pattern detection, cross-cutting gaps no single agent would catch, and scope-aware severity calibration.
+
+Scope rules added to prevent hallucinations:
+- For Kubernetes/Helm: DR plan is **not flagged** as a cross-cutting gap (it is a platform concern, not a chart concern)
+- For Terraform: DR plan IS in scope — the infra author controls replication and backup directly
+- Observability severity for a single K8s service is capped at MEDIUM
 
 **3. ChromaDB Report Persistence**  
-Replaced the in-memory `_reports` dict with ChromaDB persistent storage. Reports survive server restarts. Added `/reports` list endpoint and `/reports/compare/{a}/{b}` comparison endpoint that calculates score deltas across all dimensions.
+Replaced the in-memory `_reports` dict with ChromaDB persistent storage. Reports survive server restarts. Vector-indexed for semantic similarity search across historical reports.
+
+**4. Native Helm Chart Support**  
+`.tgz` files are handled server-side: the binary is written to a temp file, `helm template` is called as a subprocess to render it to Kubernetes YAML, and the rendered YAML enters the standard analysis pipeline under the name `{chart}-rendered.yaml`. The frontend sends `.tgz` as multipart binary (not JSON text). Helm CLI is included in the Docker image.
+
+**5. Companion Resource Support (AWS Provider v4+)**  
+AWS Terraform provider v4 split `aws_s3_bucket` config into separate companion resources (`aws_s3_bucket_versioning`, `aws_s3_bucket_server_side_encryption_configuration`, `aws_s3_bucket_lifecycle_configuration`, `aws_s3_bucket_public_access_block`). A generic `resources_with_companion(tf_resources, companion_type)` function in `app/parsers/terraform.py` resolves which parent resources have companions, eliminating false-positive findings on modern provider configurations.
+
+**6. Dedup Engine Improvements**  
+Three root causes of duplicate findings were fixed in `dedup.py`:
+- **CamelCase tokenization**: `_split_camelcase()` added so `HorizontalPodAutoscaler` splits into individual tokens (`Horizontal`, `Pod`, `Autoscaler`) and matches LLM findings
+- **Stop word injection via synonyms**: Generic qualifiers (`missing`, `lacks`, `absent`, `without`) added to stop words and filtered during synonym expansion to prevent them polluting keyword sets
+- **Threshold tuning**: Minimum overlap raised from 2 to 3, percentage lowered from 25% to 20%, improving precision
+
+**7. Supervisor Architecture Awareness**  
+The supervisor node now receives architecture review data (score, gap count, gap titles) alongside the three agent summaries. The skill prompt was updated with an explicit rule: even if Security/Reliability/Cost all score 100/100, the supervisor **must** include HIGH/CRITICAL architecture gaps in the risk summary.
+
+**8. HPA-Aware Reliability Rules**  
+The "Single replica (SPOF)" rule now checks whether an HPA targets the workload before firing. When a Deployment intentionally omits `replicas:` because HPA manages scaling, the rule no longer generates a false positive.
+
+---
 
 ### Components Delivered
 
 | Component | Details |
 |-----------|---------|
 | **Skill Loader** | `app/core/skills.py` — YAML frontmatter parser + prompt loader |
-| **8 Skill Files** | `skills/` directory — one per agent/infra-type (security-k8s, security-tf, reliability-k8s, reliability-tf, cost-k8s, cost-tf, supervisor, architecture-reviewer) |
-| **Architecture Reviewer** | `app/agents/architecture_reviewer.py` — tradeoffs, patterns, gaps, prioritized actions |
+| **8 Skill Files** | `skills/` — security-k8s, security-tf, reliability-k8s, reliability-tf, cost-k8s, cost-tf, supervisor, architecture-reviewer |
+| **Architecture Reviewer** | `app/agents/architecture_reviewer.py` — tradeoffs, patterns, gaps, prioritized actions, scope-aware severity |
 | **New Models** | `ArchitectureReview`, `Tradeoff`, `PatternDetected`, `CrossCuttingGap` |
-| **Report Store** | `app/core/store.py` — ChromaDB-backed persistence with save/get/list/compare |
-| **History API** | `GET /reports` — list recent reports with metadata |
-| **Comparison API** | `GET /reports/compare/{a}/{b}` — score deltas between two reports |
-| **Frontend Updates** | Architecture Review section (tradeoffs, patterns, gaps, actions) + Report History |
+| **Report Store** | `app/core/store.py` — ChromaDB-backed with save/get/list/compare/delete/similar |
+| **Helm Parser** | `app/parsers/helm.py` — `render_helm_chart()` subprocess wrapper |
+| **Companion Resource Lookup** | `app/parsers/terraform.py` — `resources_with_companion()` for AWS provider v4+ |
+| **Dedup Engine v2** | `app/core/dedup.py` — CamelCase splitting, expanded stop words, tuned threshold |
+| **Azure Security Rules** | NSG open to internet, Storage HTTPS/TLS, Key Vault purge/soft-delete, SQL firewall, App Service HTTPS, Managed Disk CMK, AKS RBAC/AD/NetworkPolicy |
+| **Azure Reliability Rules** | SQL zone-redundant/LTR, App Service backup, AKS zones/auto-upgrade, Cosmos DB multi-region, VM availability zone |
+| **Azure Cost Rules** | Expensive VM SKUs, App Service premium plans, SQL Business Critical tier, Managed Disk Premium, Cosmos DB expensive consistency, AKS expensive node size |
+| **GCP Security Rules** | Firewall 0.0.0.0/0, Cloud SQL public IP/SSL (`require_ssl` + `ssl_mode`), GCS uniform access, GKE private nodes/NetworkPolicy/master auth, Compute shielded VM, IAM allUsers |
+| **GCP Reliability Rules** | Cloud SQL HA/backups/deletion protection, GKE node auto-repair/auto-upgrade, cluster maintenance window, Compute preemptible flag |
+| **GCP Cost Rules** | Expensive machine types, premium/large persistent disks, Cloud SQL expensive tiers, GKE expensive node pools, GCS lifecycle rules |
+| **New API Endpoints** | `DELETE /reports/{id}`, `GET /reports/{id}/similar` |
+| **Frontend Updates** | Architecture Review section, Report History, `.tgz` upload support (multipart) |
+| **Docker Update** | Helm CLI installed in image |
+| **Sample Helm Charts** | `samples/my-chart/` (intentional issues), `samples/good-chart/` (best practices, v1.2.0) |
+
+---
+
+### Rule Coverage After Phase 2
+
+**Kubernetes Rules:**
+- Security: host namespaces, privileged containers, runAsRoot, readOnlyRootFilesystem, resource limits, image tags, LoadBalancer exposure, RBAC cluster-admin, hardcoded secrets in env vars
+- Reliability: single replicas (HPA-aware, workload-aware for caches), missing liveness/readiness probes, no HPA, no PDB, no anti-affinity, missing resource requests, no rolling update strategy
+- Cost: unbounded resources, overprovisioning, excessive replicas, LoadBalancer services, large PVCs
+
+**Terraform Rules — AWS:**
+- Security: open security groups, public S3 buckets, S3 encryption + public access block (v4+ companion-aware), RDS public access/encryption, hardcoded DB passwords, IAM wildcard policies, EC2/Launch Template IMDSv2, EBS encryption, CloudTrail (logging/multi-region/validation), VPC flow logs, ALB HTTP listeners, RDS SSL, ECS privileged containers, KMS key rotation, Lambda VPC
+- Reliability: RDS Multi-AZ/backups/deletion protection, ASG health checks, standalone EC2, S3 versioning (v4+ companion-aware), DynamoDB PITR, ElastiCache failover, Lambda/SQS DLQ, ELB cross-zone, CloudWatch alarms
+- Cost: expensive EC2/RDS instance types, large storage, NAT Gateways, unattached EIPs, S3 lifecycle (v4+ companion-aware), CloudWatch log retention, EBS io1/io2, DynamoDB provisioned mode, ElastiCache expensive nodes
+
+**Terraform Rules — Azure:**
+- Security: NSG open to internet, Storage public access/HTTPS/TLS version, Key Vault purge protection/soft delete, SQL firewall permissiveness, App Service HTTPS enforcement, Managed Disk customer-managed key, AKS RBAC/AAD integration/NetworkPolicy
+- Reliability: SQL zone redundancy/LTR, App Service backup, AKS availability zones/auto-upgrade, Cosmos DB multi-region, VM availability set/zone
+- Cost: expensive VM SKUs (E/M/L/N series), App Service premium plans, SQL Business Critical/Hyperscale, large SQL storage, Managed Disk Premium/UltraSSD, Cosmos DB Strong/BoundedStaleness consistency, AKS expensive node VM sizes
+
+**Terraform Rules — GCP:**
+- Security: Compute Firewall 0.0.0.0/0, Cloud SQL public IP + SSL (`require_ssl` and modern `ssl_mode`), GCS uniform bucket access, GKE private nodes/NetworkPolicy/master authorized networks, Compute shielded VM, IAM allUsers/allAuthenticatedUsers
+- Reliability: Cloud SQL HA (REGIONAL)/backups/deletion protection, GKE node pool auto-repair/auto-upgrade, cluster maintenance window, Compute preemptible instances
+- Cost: expensive machine types (n2-highmem, c2, m1-m3, a2-a3, g2), premium/large persistent disks, Cloud SQL expensive tiers, GKE expensive node pool machine types, GCS lifecycle rules
+
+---
 
 ### Pipeline Change
 
-Pipeline expanded from 4 to 5 LLM calls:
+Pipeline expanded from 4 to 6 nodes (5 LLM calls):
 ```
-parse → security → reliability → cost → architecture_review → supervisor
+parse_files → security → reliability → cost → architecture_review → supervisor
 ```
+
+---
 
 ### API Changes
 
-| Endpoint | Method | New in Phase 2 |
-|----------|--------|----------------|
-| `/api/v1/reports` | GET | Yes — list recent reports |
-| `/api/v1/reports/compare/{a}/{b}` | GET | Yes — compare two reports |
-| `/api/v1/health` | GET | Updated — version 0.2.0, includes architecture-reviewer |
+| Endpoint | Method | Added |
+|----------|--------|-------|
+| `/api/v1/reports` | GET | Phase 2.1 — list recent reports |
+| `/api/v1/reports/compare/{a}/{b}` | GET | Phase 2.1 — score deltas between two reports |
+| `/api/v1/reports/{id}` | DELETE | Phase 2.2 — delete a report |
+| `/api/v1/reports/{id}/similar` | GET | Phase 2.2 — semantic similarity search |
+
+---
+
+### Challenges Addressed
+
+- **Helm binary upload**: Frontend switched from JSON text API to multipart to handle binary `.tgz` files; routes.py branches on extension before UTF-8 decode
+- **Duplicate findings across rule/LLM**: Three-root-cause dedup fix (CamelCase tokenization, stop word injection via synonyms, threshold calibration)
+- **Architecture reviewer hallucinations**: Scope rules added to skill prompt preventing out-of-scope DR plan findings for single-service Helm charts
+- **HPA + replica interaction**: Reliability agent now cross-checks HPA targets before firing single-replica SPOF finding
+- **AWS provider v4+ false positives**: Generic companion resource lookup eliminates false encryption/versioning/lifecycle findings on modern Terraform configs
+- **Supervisor blindspot**: Supervisor now receives architecture review data; will include HIGH/CRITICAL architecture gaps in risk summary even when all agent scores are 100/100
+- **GCP SSL deprecation**: Cloud SQL SSL check handles both deprecated `require_ssl` and modern `ssl_mode` attribute
+- **Azure disk encryption false positive**: Managed disk check changed from `encryption_type` (always missing — PMK is default) to `disk_encryption_set_id` (CMK-specific), severity lowered to LOW
+
+### Sample Helm Charts
+
+| Chart | Version | Purpose | Expected Score |
+|-------|---------|---------|---------------|
+| `my-chart-1.0.0.tgz` | 1.0.0 | Intentionally flawed (hardcoded password, no probes, no HPA, no security context) | 30–50 |
+| `good-chart-1.2.0.tgz` | 1.2.0 | Best practices (NetworkPolicy, HPA, PDB, ServiceMonitor, security context, rolling update, graceful shutdown) | 95–98 |

@@ -1,6 +1,6 @@
 # AI Infrastructure Governance & Architecture Intelligence Platform
 
-An AI-powered multi-agent platform that analyzes Kubernetes and Terraform infrastructure configurations for **security vulnerabilities**, **reliability risks**, and **cost optimization** opportunities — delivering actionable governance reports with scored findings and executive summaries.
+An AI-powered multi-agent platform that analyzes Kubernetes, Terraform, and Helm infrastructure configurations for **security vulnerabilities**, **reliability risks**, and **cost optimization** opportunities — delivering actionable governance reports with scored findings and executive summaries.
 
 ## Why This Platform?
 
@@ -9,7 +9,8 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 - Detect issues that rules alone can't express (e.g., "this architecture has no defense-in-depth")
 - Provide contextual recommendations tailored to the specific infrastructure
 - Generate executive summaries and prioritized action plans
-- Score infrastructure posture across security, reliability, and cost dimensions
+- Score infrastructure posture across security, reliability, cost, and architecture dimensions
+- Analyze AWS, Azure, and GCP resources from a single upload
 
 ## Tech Stack
 
@@ -19,8 +20,8 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 | **Agent Orchestration** | LangGraph + LangChain |
 | **Backend** | FastAPI + Uvicorn |
 | **Frontend** | Streamlit |
-| **Parsers** | PyYAML (Kubernetes), python-hcl2 (Terraform) |
-| **Report Storage** | ChromaDB (persistent) |
+| **Parsers** | PyYAML (Kubernetes), python-hcl2 (Terraform), Helm CLI (Charts) |
+| **Report Storage** | ChromaDB (persistent, vector search) |
 | **Data Models** | Pydantic |
 | **Containerization** | Docker + Docker Compose |
 | **Language** | Python 3.11+ |
@@ -32,12 +33,14 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 │   Streamlit UI       │  port 8501
 │   Upload / Paste     │
 │   Report Dashboard   │
+│   Report History     │
 └──────────┬───────────┘
-           │  HTTP
+           │  HTTP (multipart)
            ▼
 ┌──────────────────────┐
 │   FastAPI Backend    │  port 8000
 │   /api/v1/analyze    │
+│   .tgz → helm template → YAML
 └──────────┬───────────┘
            │
            ▼
@@ -45,7 +48,7 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 │   LangGraph Sequential Pipeline      │
 │                                      │
 │   ┌─────────────┐                    │
-│   │ File Parser  │  K8s YAML / HCL   │
+│   │ File Parser  │  K8s / HCL / YAML │
 │   └──────┬──────┘                    │
 │          ▼                           │
 │   ┌─────────────┐  Rules + LLM      │
@@ -56,7 +59,7 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 │   │ Reliability │─────────│        │
 │   └──────┬──────┘         │        │
 │          ▼                 │        │
-│   ┌─────────────┐         │        │
+│   ┌─────────────┐         │         │
 │   │    Cost     │──────────┘        │
 │   └──────┬──────┘                    │
 │          ▼                           │
@@ -84,20 +87,23 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 │   ChromaDB (Persistent Storage)      │
 │   • Report history                   │
 │   • Score comparison over time       │
+│   • Similar report search            │
 └──────────────────────────────────────┘
 ```
 
 ## Supported File Types
 
-| Type | Extensions |
-|------|-----------|
-| Kubernetes | `.yaml`, `.yml`, `.json` |
-| Terraform | `.tf`, `.hcl`, `.json` |
+| Type | Extensions | Notes |
+|------|-----------|-------|
+| Kubernetes | `.yaml`, `.yml`, `.json` | Multi-document YAML supported |
+| Terraform | `.tf`, `.hcl`, `.json` | AWS, Azure, GCP resources |
+| Helm Charts | `.tgz` | Rendered server-side via `helm template` |
 
 ## Prerequisites
 
 - **Python 3.11+**
 - **Ollama** — [install here](https://ollama.com/download)
+- **Helm CLI** — required for `.tgz` chart analysis ([install here](https://helm.sh/docs/intro/install/))
 
 ## Setup
 
@@ -136,6 +142,8 @@ Open **http://localhost:8501** to access the platform.
 docker-compose up --build
 ```
 
+The Docker image automatically installs the Helm CLI.
+
 | Service | URL |
 |---------|-----|
 | Frontend | http://localhost:8501 |
@@ -154,11 +162,13 @@ docker-compose up --build
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/api/v1/analyze` | Upload files (multipart) for analysis |
+| `POST` | `/api/v1/analyze` | Upload files (multipart) — supports `.yaml`, `.tf`, `.tgz` |
 | `POST` | `/api/v1/analyze/text` | Analyze from JSON `{"file_contents": {"file.tf": "..."}}` |
 | `GET` | `/api/v1/reports` | List recent reports with metadata |
 | `GET` | `/api/v1/reports/{id}` | Retrieve a generated report |
+| `DELETE` | `/api/v1/reports/{id}` | Delete a report |
 | `GET` | `/api/v1/reports/compare/{a}/{b}` | Compare two reports (score deltas) |
+| `GET` | `/api/v1/reports/{id}/similar` | Find past reports with similar risk profiles |
 | `GET` | `/api/v1/health` | Health check |
 
 ## Project Structure
@@ -171,24 +181,45 @@ docker-compose up --build
 │   ├── api/
 │   │   └── routes.py          # REST API endpoints
 │   ├── agents/
-│   │   ├── security.py        # Security analysis agent
-│   │   ├── reliability.py     # Reliability analysis agent
-│   │   ├── cost.py            # Cost optimization agent
+│   │   ├── security.py        # Security agent (K8s + AWS/Azure/GCP Terraform)
+│   │   ├── reliability.py     # Reliability agent (K8s + AWS/Azure/GCP Terraform)
+│   │   ├── cost.py            # Cost agent (K8s + AWS/Azure/GCP Terraform)
 │   │   ├── architecture_reviewer.py  # Cross-cutting architecture review
 │   │   └── supervisor.py      # LangGraph pipeline orchestrator
 │   ├── parsers/
 │   │   ├── kubernetes.py      # Kubernetes YAML parser
-│   │   └── terraform.py       # Terraform HCL parser
+│   │   ├── terraform.py       # Terraform HCL parser + companion resource lookup
+│   │   └── helm.py            # Helm chart renderer (helm template)
 │   └── core/
 │       ├── llm.py             # LLM configuration
-│       ├── dedup.py           # Finding deduplication
+│       ├── dedup.py           # Finding deduplication (keyword + synonym overlap)
 │       ├── skills.py          # Skill file loader
 │       ├── store.py           # ChromaDB report persistence
 │       └── report.py          # Score calculation & formatting
 ├── skills/                    # Agent prompt skill files (.md)
+│   ├── security-kubernetes.md
+│   ├── security-terraform.md
+│   ├── reliability-kubernetes.md
+│   ├── reliability-terraform.md
+│   ├── cost-kubernetes.md
+│   ├── cost-terraform.md
+│   ├── architecture-reviewer.md
+│   └── supervisor.md
 ├── frontend/
 │   └── app.py                 # Streamlit UI
-├── samples/                   # Sample infrastructure files
+├── samples/
+│   ├── good-infra.tf          # Well-configured AWS Terraform
+│   ├── average-infra.tf       # Mid-level AWS Terraform
+│   ├── vulnerable-infra.tf    # Insecure AWS Terraform
+│   ├── production-good.tf     # Production-grade AWS Terraform
+│   ├── good-deployment.yaml   # Hardened Kubernetes deployment
+│   ├── hardened-production.yaml
+│   ├── vulnerable-deployment.yaml
+│   ├── critical-security-failure.yaml
+│   ├── my-chart/              # Sample Helm chart (intentional issues)
+│   ├── my-chart-1.0.0.tgz
+│   ├── good-chart/            # Best-practices Helm chart
+│   └── good-chart-1.2.0.tgz
 ├── docker-compose.yml
 ├── Dockerfile
 ├── requirements.txt
@@ -197,7 +228,31 @@ docker-compose up --build
 
 ## Sample Files
 
-Test files are provided in `samples/` covering good, average, vulnerable, and critical scenarios for both Kubernetes and Terraform.
+Test files are provided in `samples/` covering intentionally good, average, vulnerable, and critical scenarios for Kubernetes, Terraform, and Helm.
+
+| File | Type | Purpose |
+|------|------|---------|
+| `good-infra.tf` | Terraform | Well-configured AWS (KMS, restricted SG, encrypted Multi-AZ RDS) |
+| `average-infra.tf` | Terraform | Mid-level AWS (some controls missing) |
+| `vulnerable-infra.tf` | Terraform | 16+ intentional AWS security issues |
+| `production-good.tf` | Terraform | Production-grade AWS — high score reference |
+| `good-deployment.yaml` | Kubernetes | Hardened K8s deployment |
+| `hardened-production.yaml` | Kubernetes | PSS restricted, NetworkPolicies, PDBs, HPAs, RBAC |
+| `vulnerable-deployment.yaml` | Kubernetes | Insecure K8s deployment |
+| `critical-security-failure.yaml` | Kubernetes | Privileged + hostPID + cluster-admin |
+| `my-chart-1.0.0.tgz` | Helm | Intentionally flawed chart (for testing detection) |
+| `good-chart-1.2.0.tgz` | Helm | Best-practices chart (NetworkPolicy, HPA, PDB, ServiceMonitor) |
+
+### Packaging Helm Charts
+
+```bash
+# From samples/ directory
+helm package my-chart/
+helm package good-chart/
+
+# Preview rendered output before uploading
+helm template release good-chart-1.2.0.tgz
+```
 
 ## Development
 

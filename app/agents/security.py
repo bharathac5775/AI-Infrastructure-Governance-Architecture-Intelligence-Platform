@@ -9,6 +9,7 @@ from app.parsers.kubernetes import (
     get_containers,
     get_resource_name,
 )
+from app.parsers.terraform import resources_with_companion
 
 
 def run_security_rules(resources: dict) -> list[Finding]:
@@ -196,6 +197,14 @@ def run_terraform_security_rules(tf_resources: list) -> list[Finding]:
     """Run deterministic security checks on parsed Terraform resources."""
     findings = []
 
+    # S3 buckets with companion resources (AWS provider v4+)
+    encrypted_s3 = resources_with_companion(
+        tf_resources, "aws_s3_bucket_server_side_encryption_configuration"
+    )
+    public_access_blocked_s3 = resources_with_companion(
+        tf_resources, "aws_s3_bucket_public_access_block"
+    )
+
     for res in tf_resources:
         rtype = res.get("type", "")
         rname = res.get("name", "")
@@ -233,10 +242,22 @@ def run_terraform_security_rules(tf_resources: list) -> list[Finding]:
                     recommendation="Set ACL to 'private' and use bucket policies for controlled access.",
                 ))
 
+        # --- S3 bucket without public access block ---
+        if rtype == "aws_s3_bucket":
+            if rname not in public_access_blocked_s3:
+                findings.append(Finding(
+                    agent="Security Agent", category="public-exposure",
+                    severity=Severity.MEDIUM,
+                    title="S3 bucket without public access block",
+                    description=f"{full_name} has no aws_s3_bucket_public_access_block. Public access is not explicitly denied.",
+                    resource=full_name,
+                    recommendation="Add aws_s3_bucket_public_access_block with block_public_acls, block_public_policy, ignore_public_acls, restrict_public_buckets all set to true.",
+                ))
+
         # --- S3 bucket encryption ---
         if rtype == "aws_s3_bucket":
             encryption = config.get("server_side_encryption_configuration")
-            if not encryption:
+            if not encryption and rname not in encrypted_s3:
                 findings.append(Finding(
                     agent="Security Agent", category="encryption",
                     severity=Severity.HIGH,
@@ -312,11 +333,26 @@ def run_terraform_security_rules(tf_resources: list) -> list[Finding]:
             metadata = config.get("metadata_options", {})
             if isinstance(metadata, list):
                 metadata = metadata[0] if metadata else {}
-            if not metadata.get("http_tokens") or metadata.get("http_tokens") != "required":
+            if metadata.get("http_tokens") != "required":
                 findings.append(Finding(
                     agent="Security Agent", category="instance-metadata",
                     severity=Severity.MEDIUM,
                     title="EC2 instance without IMDSv2",
+                    description=f"{full_name} does not enforce IMDSv2 (http_tokens=required).",
+                    resource=full_name,
+                    recommendation="Set metadata_options { http_tokens = \"required\" } to prevent SSRF attacks.",
+                ))
+
+        # --- Launch template without IMDSv2 ---
+        if rtype == "aws_launch_template":
+            metadata = config.get("metadata_options", {})
+            if isinstance(metadata, list):
+                metadata = metadata[0] if metadata else {}
+            if metadata.get("http_tokens") != "required":
+                findings.append(Finding(
+                    agent="Security Agent", category="instance-metadata",
+                    severity=Severity.MEDIUM,
+                    title="Launch template without IMDSv2",
                     description=f"{full_name} does not enforce IMDSv2 (http_tokens=required).",
                     resource=full_name,
                     recommendation="Set metadata_options { http_tokens = \"required\" } to prevent SSRF attacks.",
@@ -459,6 +495,291 @@ def run_terraform_security_rules(tf_resources: list) -> list[Finding]:
                     resource=full_name,
                     recommendation="Restrict source_ranges to specific CIDR blocks.",
                 ))
+
+        # =========================================================
+        # AZURE SECURITY RULES
+        # =========================================================
+
+        # --- Azure NSG: open to 0.0.0.0/0 ---
+        if rtype == "azurerm_network_security_rule":
+            src = config.get("source_address_prefix", "")
+            if isinstance(src, list):
+                src = src[0] if src else ""
+            access = config.get("access", "")
+            if isinstance(access, list):
+                access = access[0] if access else ""
+            direction = config.get("direction", "")
+            if isinstance(direction, list):
+                direction = direction[0] if direction else ""
+            if src in ("*", "0.0.0.0/0", "Internet") and access == "Allow" and direction == "Inbound":
+                dst_port = config.get("destination_port_range", "*")
+                if isinstance(dst_port, list):
+                    dst_port = dst_port[0] if dst_port else "*"
+                findings.append(Finding(
+                    agent="Security Agent", category="network",
+                    severity=Severity.CRITICAL,
+                    title="Azure NSG rule open to internet",
+                    description=f"{full_name} allows inbound from {src} on port {dst_port}.",
+                    resource=full_name,
+                    recommendation="Restrict source_address_prefix to specific CIDR blocks.",
+                ))
+
+        # --- Azure Storage: HTTPS not enforced ---
+        if rtype == "azurerm_storage_account":
+            https = config.get("enable_https_traffic_only", True)
+            if isinstance(https, list):
+                https = https[0] if https else True
+            if https in (False, [False]):
+                findings.append(Finding(
+                    agent="Security Agent", category="encryption-in-transit",
+                    severity=Severity.HIGH,
+                    title="Azure storage allows non-HTTPS traffic",
+                    description=f"{full_name} does not enforce HTTPS-only access.",
+                    resource=full_name,
+                    recommendation="Set enable_https_traffic_only = true.",
+                ))
+
+        # --- Azure Storage: minimum TLS version ---
+        if rtype == "azurerm_storage_account":
+            tls = config.get("min_tls_version", "TLS1_2")
+            if isinstance(tls, list):
+                tls = tls[0] if tls else "TLS1_2"
+            if tls in ("TLS1_0", "TLS1_1"):
+                findings.append(Finding(
+                    agent="Security Agent", category="encryption-in-transit",
+                    severity=Severity.HIGH,
+                    title="Azure storage using weak TLS",
+                    description=f"{full_name} uses {tls}. Vulnerable to downgrade attacks.",
+                    resource=full_name,
+                    recommendation="Set min_tls_version = \"TLS1_2\".",
+                ))
+
+        # --- Azure Key Vault: no purge protection ---
+        if rtype == "azurerm_key_vault":
+            purge = config.get("purge_protection_enabled")
+            if not purge or purge in (False, [False]):
+                findings.append(Finding(
+                    agent="Security Agent", category="encryption",
+                    severity=Severity.MEDIUM,
+                    title="Key Vault without purge protection",
+                    description=f"{full_name} can be permanently deleted. Secrets/keys may be irrecoverably lost.",
+                    resource=full_name,
+                    recommendation="Set purge_protection_enabled = true.",
+                ))
+            soft_delete = config.get("soft_delete_retention_days")
+            if not soft_delete:
+                findings.append(Finding(
+                    agent="Security Agent", category="encryption",
+                    severity=Severity.MEDIUM,
+                    title="Key Vault without soft delete retention",
+                    description=f"{full_name} has no soft_delete_retention_days configured.",
+                    resource=full_name,
+                    recommendation="Set soft_delete_retention_days (e.g., 90) for recoverability.",
+                ))
+
+        # --- Azure SQL: firewall allowing all Azure services ---
+        if rtype == "azurerm_sql_firewall_rule":
+            start_ip = config.get("start_ip_address", "")
+            end_ip = config.get("end_ip_address", "")
+            if isinstance(start_ip, list):
+                start_ip = start_ip[0] if start_ip else ""
+            if isinstance(end_ip, list):
+                end_ip = end_ip[0] if end_ip else ""
+            if start_ip == "0.0.0.0" and end_ip in ("0.0.0.0", "255.255.255.255"):
+                sev = Severity.CRITICAL if end_ip == "255.255.255.255" else Severity.MEDIUM
+                findings.append(Finding(
+                    agent="Security Agent", category="network",
+                    severity=sev,
+                    title="Azure SQL firewall too permissive",
+                    description=f"{full_name} allows {start_ip} to {end_ip}.",
+                    resource=full_name,
+                    recommendation="Restrict to specific IP ranges. Use private endpoints for production.",
+                ))
+
+        # --- Azure App Service: HTTPS not enforced ---
+        if rtype in ("azurerm_app_service", "azurerm_linux_web_app", "azurerm_windows_web_app"):
+            https = config.get("https_only")
+            if not https or https in (False, [False]):
+                findings.append(Finding(
+                    agent="Security Agent", category="encryption-in-transit",
+                    severity=Severity.HIGH,
+                    title="App Service without HTTPS enforcement",
+                    description=f"{full_name} does not enforce HTTPS. Traffic may be unencrypted.",
+                    resource=full_name,
+                    recommendation="Set https_only = true.",
+                ))
+
+        # --- Azure Managed Disk: no customer-managed key ---
+        if rtype == "azurerm_managed_disk":
+            des_id = config.get("disk_encryption_set_id")
+            if not des_id:
+                findings.append(Finding(
+                    agent="Security Agent", category="encryption",
+                    severity=Severity.LOW,
+                    title="Azure managed disk without customer-managed key",
+                    description=f"{full_name} uses default platform-managed encryption. Consider customer-managed keys (CMK) for additional control.",
+                    resource=full_name,
+                    recommendation="Set disk_encryption_set_id for customer-managed key encryption.",
+                ))
+
+        # --- AKS: RBAC not enabled ---
+        if rtype == "azurerm_kubernetes_cluster":
+            rbac = config.get("role_based_access_control_enabled")
+            if rbac in (False, [False]):
+                findings.append(Finding(
+                    agent="Security Agent", category="rbac",
+                    severity=Severity.HIGH,
+                    title="AKS cluster without RBAC",
+                    description=f"{full_name} has RBAC disabled. All users have full cluster access.",
+                    resource=full_name,
+                    recommendation="Set role_based_access_control_enabled = true.",
+                ))
+            # Azure AD integration
+            aad = config.get("azure_active_directory_role_based_access_control")
+            if not aad:
+                findings.append(Finding(
+                    agent="Security Agent", category="rbac",
+                    severity=Severity.MEDIUM,
+                    title="AKS without Azure AD integration",
+                    description=f"{full_name} does not use Azure AD for RBAC. Local accounts may be used.",
+                    resource=full_name,
+                    recommendation="Configure azure_active_directory_role_based_access_control for centralized identity.",
+                ))
+
+        # --- AKS: network policy not set ---
+        if rtype == "azurerm_kubernetes_cluster":
+            net_profile = config.get("network_profile", {})
+            if isinstance(net_profile, list):
+                net_profile = net_profile[0] if net_profile else {}
+            if isinstance(net_profile, dict) and not net_profile.get("network_policy"):
+                findings.append(Finding(
+                    agent="Security Agent", category="network",
+                    severity=Severity.MEDIUM,
+                    title="AKS without network policy",
+                    description=f"{full_name} has no network_policy configured. Pods can communicate freely.",
+                    resource=full_name,
+                    recommendation="Set network_policy to 'azure' or 'calico' in network_profile.",
+                ))
+
+        # =========================================================
+        # GCP SECURITY RULES
+        # =========================================================
+
+        # --- GCP Cloud SQL: public IP ---
+        if rtype == "google_sql_database_instance":
+            settings = config.get("settings", {})
+            if isinstance(settings, list):
+                settings = settings[0] if settings else {}
+            ip_config = settings.get("ip_configuration", {}) if isinstance(settings, dict) else {}
+            if isinstance(ip_config, list):
+                ip_config = ip_config[0] if ip_config else {}
+            if isinstance(ip_config, dict):
+                ipv4 = ip_config.get("ipv4_enabled")
+                if ipv4 in (True, [True]):
+                    findings.append(Finding(
+                        agent="Security Agent", category="public-exposure",
+                        severity=Severity.HIGH,
+                        title="Cloud SQL instance with public IP",
+                        description=f"{full_name} has ipv4_enabled = true. Database is publicly reachable.",
+                        resource=full_name,
+                        recommendation="Set ipv4_enabled = false and use private IP or Cloud SQL Proxy.",
+                    ))
+                # SSL enforcement (require_ssl deprecated; check ssl_mode too)
+                require_ssl = ip_config.get("require_ssl")
+                ssl_mode = ip_config.get("ssl_mode", "")
+                if isinstance(ssl_mode, list):
+                    ssl_mode = ssl_mode[0] if ssl_mode else ""
+                ssl_ok = require_ssl and require_ssl not in (False, [False])
+                ssl_ok = ssl_ok or ssl_mode in ("ENCRYPTED_ONLY", "TRUSTED_CLIENT_CERTIFICATE_REQUIRED")
+                if not ssl_ok:
+                    findings.append(Finding(
+                        agent="Security Agent", category="encryption-in-transit",
+                        severity=Severity.HIGH,
+                        title="Cloud SQL without SSL enforcement",
+                        description=f"{full_name} does not require SSL/TLS connections.",
+                        resource=full_name,
+                        recommendation="Set ssl_mode = 'ENCRYPTED_ONLY' (or require_ssl = true for legacy configs).",
+                    ))
+
+        # --- GCP GCS bucket: public access / uniform access ---
+        if rtype == "google_storage_bucket":
+            ubla = config.get("uniform_bucket_level_access")
+            if not ubla or ubla in (False, [False]):
+                findings.append(Finding(
+                    agent="Security Agent", category="public-exposure",
+                    severity=Severity.MEDIUM,
+                    title="GCS bucket without uniform access",
+                    description=f"{full_name} does not enforce uniform_bucket_level_access. ACLs may grant unintended public access.",
+                    resource=full_name,
+                    recommendation="Set uniform_bucket_level_access = true.",
+                ))
+
+        # --- GCP GKE: private cluster not enabled ---
+        if rtype == "google_container_cluster":
+            private = config.get("private_cluster_config", {})
+            if isinstance(private, list):
+                private = private[0] if private else {}
+            if not private or (isinstance(private, dict) and not private.get("enable_private_nodes")):
+                findings.append(Finding(
+                    agent="Security Agent", category="network",
+                    severity=Severity.HIGH,
+                    title="GKE cluster not private",
+                    description=f"{full_name} does not enable private nodes. Nodes get public IPs.",
+                    resource=full_name,
+                    recommendation="Set private_cluster_config with enable_private_nodes = true.",
+                ))
+            # Network policy
+            net_policy = config.get("network_policy")
+            if not net_policy:
+                findings.append(Finding(
+                    agent="Security Agent", category="network",
+                    severity=Severity.MEDIUM,
+                    title="GKE without network policy",
+                    description=f"{full_name} has no network_policy. Pods can communicate freely.",
+                    resource=full_name,
+                    recommendation="Enable network_policy with provider = CALICO.",
+                ))
+            # Master authorized networks
+            master_auth_networks = config.get("master_authorized_networks_config")
+            if not master_auth_networks:
+                findings.append(Finding(
+                    agent="Security Agent", category="network",
+                    severity=Severity.MEDIUM,
+                    title="GKE without master authorized networks",
+                    description=f"{full_name} allows unrestricted access to the Kubernetes API.",
+                    resource=full_name,
+                    recommendation="Configure master_authorized_networks_config to restrict API access.",
+                ))
+
+        # --- GCP Compute: no shielded instance ---
+        if rtype == "google_compute_instance":
+            shielded = config.get("shielded_instance_config")
+            if not shielded:
+                findings.append(Finding(
+                    agent="Security Agent", category="instance-metadata",
+                    severity=Severity.LOW,
+                    title="GCP instance without shielded VM",
+                    description=f"{full_name} does not enable shielded VM features (secure boot, vTPM).",
+                    resource=full_name,
+                    recommendation="Add shielded_instance_config with enable_secure_boot = true.",
+                ))
+
+        # --- GCP IAM: overly permissive bindings ---
+        if rtype in ("google_project_iam_binding", "google_project_iam_member"):
+            members = config.get("members", config.get("member", []))
+            if isinstance(members, str):
+                members = [members]
+            if isinstance(members, list):
+                for m in members:
+                    if isinstance(m, str) and m in ("allUsers", "allAuthenticatedUsers"):
+                        findings.append(Finding(
+                            agent="Security Agent", category="iam",
+                            severity=Severity.CRITICAL,
+                            title="GCP IAM binding grants public access",
+                            description=f"{full_name} grants access to {m}. Resources may be publicly accessible.",
+                            resource=full_name,
+                            recommendation="Remove allUsers/allAuthenticatedUsers. Use specific service accounts.",
+                        ))
 
     # Cross-resource checks: VPC without flow logs
     vpc_ids = {r["name"] for r in tf_resources if r["type"] == "aws_vpc"}

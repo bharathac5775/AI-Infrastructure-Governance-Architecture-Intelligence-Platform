@@ -5,7 +5,8 @@ from app.core.dedup import is_duplicate as _is_duplicate
 from app.core.skills import get_agent_prompt
 from app.models import AgentReport, Finding, Severity
 from app.agents.security import _detect_infra_type
-from app.parsers.kubernetes import get_pod_spec, get_containers, get_resource_name
+from app.parsers.kubernetes import get_containers, get_resource_name
+from app.parsers.terraform import resources_with_companion
 
 
 def parse_resource_value(value: str, resource_type: str) -> float:
@@ -143,9 +144,13 @@ def run_terraform_cost_rules(tf_resources: list) -> list[Finding]:
     """Run deterministic cost checks on parsed Terraform resources."""
     findings = []
 
+    # S3 buckets with companion lifecycle resource (AWS provider v4+)
+    lifecycle_s3 = resources_with_companion(tf_resources, "aws_s3_bucket_lifecycle_configuration")
+
     # Track expensive instance type prefixes
     expensive_ec2_prefixes = ("x1", "x2", "p3", "p4", "p5", "g4", "g5", "g6", "f1", "i3", "i4", "r6", "r7", "m6", "m7")
     expensive_rds_prefixes = ("db.r5", "db.r6", "db.r7", "db.x1", "db.x2", "db.m6", "db.m7")
+    expensive_gcp = ("n2-highmem", "n2-highcpu", "c2-", "c2d-", "m1-", "m2-", "m3-", "a2-", "a3-", "g2-")
 
     for res in tf_resources:
         rtype = res.get("type", "")
@@ -253,10 +258,215 @@ def run_terraform_cost_rules(tf_resources: list) -> list[Finding]:
                     recommendation="Evaluate if this VM series is required. Consider B-series for burstable workloads.",
                 ))
 
+        # =========================================================
+        # AZURE COST RULES
+        # =========================================================
+
+        # --- Azure App Service: premium SKU ---
+        if rtype == "azurerm_service_plan":
+            sku = config.get("sku_name", "")
+            if isinstance(sku, list):
+                sku = sku[0] if sku else ""
+            if any(sku.upper().startswith(p) for p in ("P1", "P2", "P3", "P1V2", "P2V2", "P3V2", "P1V3", "P2V3", "P3V3", "I1", "I2", "I3")):
+                findings.append(Finding(
+                    agent="Cost Agent", category="expensive-resource",
+                    severity=Severity.MEDIUM,
+                    title="Expensive App Service plan",
+                    description=f"{full_name} uses {sku} SKU. Premium/Isolated plans are costly.",
+                    resource=full_name,
+                    recommendation="Evaluate if premium features are needed. Consider S1/B1 for non-critical workloads.",
+                ))
+
+        # --- Azure SQL: expensive tier ---
+        if rtype in ("azurerm_mssql_database", "azurerm_sql_database"):
+            sku = config.get("sku_name", "")
+            if isinstance(sku, list):
+                sku = sku[0] if sku else ""
+            if any(kw in str(sku).upper() for kw in ("BC_", "HS_", "P11", "P15")):
+                findings.append(Finding(
+                    agent="Cost Agent", category="expensive-resource",
+                    severity=Severity.MEDIUM,
+                    title="Expensive Azure SQL tier",
+                    description=f"{full_name} uses {sku}. Business Critical / Hyperscale tiers are costly.",
+                    resource=full_name,
+                    recommendation="Evaluate if this tier is needed. Consider GP_S (serverless) or Standard tier.",
+                ))
+            max_size_gb = config.get("max_size_gb", 0)
+            if isinstance(max_size_gb, list):
+                max_size_gb = max_size_gb[0] if max_size_gb else 0
+            if isinstance(max_size_gb, (int, float)) and max_size_gb > 500:
+                findings.append(Finding(
+                    agent="Cost Agent", category="storage",
+                    severity=Severity.LOW,
+                    title="Large Azure SQL storage",
+                    description=f"{full_name} allocates {max_size_gb}GB. Verify if this storage is needed.",
+                    resource=full_name,
+                    recommendation="Right-size storage allocation based on actual usage.",
+                ))
+
+        # --- Azure Managed Disk: Premium for non-critical ---
+        if rtype == "azurerm_managed_disk":
+            storage_type = config.get("storage_account_type", "")
+            if isinstance(storage_type, list):
+                storage_type = storage_type[0] if storage_type else ""
+            if "Premium" in str(storage_type) or "UltraSSD" in str(storage_type):
+                disk_size = config.get("disk_size_gb", 0)
+                if isinstance(disk_size, list):
+                    disk_size = disk_size[0] if disk_size else 0
+                findings.append(Finding(
+                    agent="Cost Agent", category="expensive-resource",
+                    severity=Severity.LOW,
+                    title="Premium Azure managed disk",
+                    description=f"{full_name} uses {storage_type} ({disk_size}GB). Premium disks are expensive.",
+                    resource=full_name,
+                    recommendation="Use StandardSSD_LRS for non-latency-sensitive workloads.",
+                ))
+
+        # --- Azure Storage: no lifecycle management ---
+        if rtype == "azurerm_storage_management_policy":
+            pass  # Presence of this resource means lifecycle is configured
+        if rtype == "azurerm_storage_account":
+            # Check if there's a corresponding management policy — handled by LLM
+            pass
+
+        # --- Azure Cosmos DB: expensive consistency + throughput ---
+        if rtype == "azurerm_cosmosdb_account":
+            consistency = config.get("consistency_policy", {})
+            if isinstance(consistency, list):
+                consistency = consistency[0] if consistency else {}
+            level = consistency.get("consistency_level", "Session") if isinstance(consistency, dict) else "Session"
+            if isinstance(level, list):
+                level = level[0] if level else "Session"
+            if level in ("Strong", "BoundedStaleness"):
+                findings.append(Finding(
+                    agent="Cost Agent", category="expensive-resource",
+                    severity=Severity.LOW,
+                    title="Cosmos DB with expensive consistency",
+                    description=f"{full_name} uses {level} consistency which costs ~2x more RU/s per operation.",
+                    resource=full_name,
+                    recommendation="Consider Session consistency if strong consistency is not required.",
+                ))
+
+        # --- AKS: expensive node pool ---
+        if rtype == "azurerm_kubernetes_cluster":
+            default_pool = config.get("default_node_pool", {})
+            if isinstance(default_pool, list):
+                default_pool = default_pool[0] if default_pool else {}
+            if isinstance(default_pool, dict):
+                vm_size = default_pool.get("vm_size", "")
+                if isinstance(vm_size, list):
+                    vm_size = vm_size[0] if vm_size else ""
+                if any(kw in str(vm_size).lower() for kw in ("standard_e", "standard_m", "standard_l", "standard_n", "standard_d16", "standard_d32", "standard_d64")):
+                    findings.append(Finding(
+                        agent="Cost Agent", category="expensive-resource",
+                        severity=Severity.MEDIUM,
+                        title="AKS using expensive node VM size",
+                        description=f"{full_name} default node pool uses {vm_size}.",
+                        resource=full_name,
+                        recommendation="Consider Standard_DS2_v2 or Standard_B2ms for cost savings.",
+                    ))
+
+        # =========================================================
+        # GCP COST RULES
+        # =========================================================
+
+        # --- GCP Compute: expensive machine types ---
+        if rtype == "google_compute_instance":
+            machine_type = config.get("machine_type", "")
+            if isinstance(machine_type, list):
+                machine_type = machine_type[0] if machine_type else ""
+            if any(str(machine_type).startswith(p) for p in expensive_gcp):
+                findings.append(Finding(
+                    agent="Cost Agent", category="expensive-resource",
+                    severity=Severity.MEDIUM,
+                    title="Expensive GCP machine type",
+                    description=f"{full_name} uses {machine_type}. This is a premium machine family.",
+                    resource=full_name,
+                    recommendation="Evaluate if this machine type is needed. Consider e2-medium for general workloads.",
+                ))
+
+        # --- GCP Persistent Disk: large/SSD ---
+        if rtype == "google_compute_disk":
+            disk_type = config.get("type", "pd-standard")
+            if isinstance(disk_type, list):
+                disk_type = disk_type[0] if disk_type else "pd-standard"
+            disk_size = config.get("size", 0)
+            if isinstance(disk_size, list):
+                disk_size = disk_size[0] if disk_size else 0
+            if disk_type in ("pd-ssd", "pd-extreme"):
+                findings.append(Finding(
+                    agent="Cost Agent", category="expensive-resource",
+                    severity=Severity.LOW,
+                    title=f"GCP premium disk ({disk_type})",
+                    description=f"{full_name} uses {disk_type} ({disk_size}GB). SSD/Extreme disks are costly.",
+                    resource=full_name,
+                    recommendation="Use pd-balanced or pd-standard if high IOPS is not required.",
+                ))
+            if isinstance(disk_size, (int, float)) and disk_size > 500:
+                findings.append(Finding(
+                    agent="Cost Agent", category="storage",
+                    severity=Severity.LOW,
+                    title="Large GCP persistent disk",
+                    description=f"{full_name} is {disk_size}GB. Verify if this storage is needed.",
+                    resource=full_name,
+                    recommendation="Right-size disk allocation based on actual usage.",
+                ))
+
+        # --- GCP Cloud SQL: expensive tier ---
+        if rtype == "google_sql_database_instance":
+            settings = config.get("settings", {})
+            if isinstance(settings, list):
+                settings = settings[0] if settings else {}
+            tier = settings.get("tier", "") if isinstance(settings, dict) else ""
+            if isinstance(tier, list):
+                tier = tier[0] if tier else ""
+            expensive_sql = ("db-n1-highmem", "db-n1-standard-16", "db-n1-standard-32", "db-n1-standard-64", "db-custom-")
+            if any(str(tier).startswith(p) for p in expensive_sql):
+                findings.append(Finding(
+                    agent="Cost Agent", category="expensive-resource",
+                    severity=Severity.MEDIUM,
+                    title="Expensive Cloud SQL tier",
+                    description=f"{full_name} uses {tier}. High-memory/high-CPU tiers are costly.",
+                    resource=full_name,
+                    recommendation="Evaluate actual database load. Consider db-f1-micro or db-g1-small for dev/test.",
+                ))
+
+        # --- GKE: expensive node pool machine types ---
+        if rtype == "google_container_node_pool":
+            node_config = config.get("node_config", {})
+            if isinstance(node_config, list):
+                node_config = node_config[0] if node_config else {}
+            if isinstance(node_config, dict):
+                machine_type = node_config.get("machine_type", "")
+                if isinstance(machine_type, list):
+                    machine_type = machine_type[0] if machine_type else ""
+                if any(str(machine_type).startswith(p) for p in expensive_gcp):
+                    findings.append(Finding(
+                        agent="Cost Agent", category="expensive-resource",
+                        severity=Severity.MEDIUM,
+                        title="GKE node pool with expensive machine type",
+                        description=f"{full_name} uses {machine_type} for nodes.",
+                        resource=full_name,
+                        recommendation="Consider e2-standard-4 or n2-standard-2 for cost-effective GKE nodes.",
+                    ))
+
+        # --- GCS bucket without lifecycle ---
+        if rtype == "google_storage_bucket":
+            lifecycle = config.get("lifecycle_rule")
+            if not lifecycle:
+                findings.append(Finding(
+                    agent="Cost Agent", category="storage",
+                    severity=Severity.MEDIUM,
+                    title="GCS bucket without lifecycle rules",
+                    description=f"{full_name} has no lifecycle_rule. Data stored indefinitely.",
+                    resource=full_name,
+                    recommendation="Add lifecycle_rule to transition to Nearline/Coldline or delete old objects.",
+                ))
+
         # --- S3 bucket without lifecycle rules ---
         if rtype == "aws_s3_bucket":
             lifecycle = config.get("lifecycle_rule")
-            if not lifecycle:
+            if not lifecycle and rname not in lifecycle_s3:
                 findings.append(Finding(
                     agent="Cost Agent", category="storage",
                     severity=Severity.MEDIUM,

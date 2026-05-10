@@ -1,0 +1,79 @@
+replicaCount: 3
+
+image:
+  repository: nginx
+  tag: "1.27.0"
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  create: true
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 15
+
+readinessProbe:
+  httpGet:
+    path: /ready
+    port: 8080
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+
+podAntiAffinity: true
+
+terminationGracePeriodSeconds: 30
+
+updateStrategy:
+  maxSurge: 1
+  maxUnavailable: 0
+
+# Credentials are injected at deploy time, never hardcoded here
+dbSecret:
+  name: app-db-secret
+  key: password
+
+networkPolicy:
+  enabled: true
+  # Restrict ingress to specific namespaces (empty = allow from all namespaces in cluster)
+  ingressFromNamespaces: []
+
+monitoring:
+  enabled: true
+  metricsPath: /metrics
+  scrapeInterval: 30s
+  port: 8080
