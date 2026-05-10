@@ -10,7 +10,7 @@ class Settings:
     UPLOAD_DIR: str = "uploads"
     CHROMA_DIR: str = "chroma_data"
     MAX_FILE_SIZE_MB: int = 10
-    ALLOWED_EXTENSIONS: set = {".yaml", ".yml", ".tf", ".json", ".hcl"}
+    ALLOWED_EXTENSIONS: set = {".yaml", ".yml", ".tf", ".json", ".hcl", ".tgz"}
 
 
 settings = Settings()

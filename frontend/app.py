@@ -20,23 +20,24 @@ st.divider()
 with st.sidebar:
     st.header("About")
     st.markdown("""
-    This platform uses **3 AI agents** powered by local **Gemma4** (via Ollama) to analyze your infrastructure:
+    This platform uses **4 AI agents** powered by local **Gemma4** (via Ollama) to analyze your infrastructure:
 
     - 🔒 **Security Agent** — vulnerabilities, RBAC, exposure
     - 🔄 **Reliability Agent** — probes, replicas, autoscaling
     - 💰 **Cost Agent** — overprovisioning, waste, optimization
+    - 🏗️ **Architecture Reviewer** — tradeoffs, patterns, gaps
 
     A **Supervisor Agent** synthesizes all findings into an actionable report.
     """)
     st.divider()
-    st.markdown("**Supported files:** `.yaml`, `.yml`, `.tf`, `.json`, `.hcl`")
+    st.markdown("**Supported files:** `.yaml`, `.yml`, `.tf`, `.json`, `.hcl`, `.tgz` (Helm charts)")
 
 # File upload section
 st.header("📁 Upload Infrastructure Files")
 
 uploaded_files = st.file_uploader(
-    "Upload Kubernetes YAML, Helm charts, or Terraform files",
-    type=["yaml", "yml", "tf", "json", "hcl"],
+    "Upload Kubernetes YAML, Helm charts (.tgz), or Terraform files",
+    type=["yaml", "yml", "tf", "json", "hcl", "tgz"],
     accept_multiple_files=True,
 )
 
@@ -51,27 +52,28 @@ with st.expander("Or paste YAML/Terraform content directly"):
 
 # Analyze button
 if st.button("🔍 Analyze Infrastructure", type="primary", use_container_width=True):
-    file_contents = {}
+    files_multipart = []
 
-    # Collect uploaded files
+    # Collect uploaded files (send as raw bytes — handles both text and .tgz)
     if uploaded_files:
         for f in uploaded_files:
-            content = f.read().decode("utf-8")
-            file_contents[f.name] = content
+            raw = f.read()
+            mime = "application/gzip" if f.name.endswith(".tgz") else "text/plain"
+            files_multipart.append(("files", (f.name, raw, mime)))
 
     # Collect pasted content
     if pasted_content.strip():
-        file_contents[pasted_filename] = pasted_content
+        files_multipart.append(("files", (pasted_filename, pasted_content.encode("utf-8"), "text/plain")))
 
-    if not file_contents:
+    if not files_multipart:
         st.error("Please upload files or paste infrastructure content.")
     else:
         with st.spinner("🤖 Running multi-agent analysis with local Gemma4... This takes ~3 min. Please wait."):
             start_time = time.time()
             try:
                 response = httpx.post(
-                    f"{API_URL}/analyze/text",
-                    json={"file_contents": file_contents},
+                    f"{API_URL}/analyze",
+                    files=files_multipart,
                     timeout=600.0,
                 )
                 elapsed = time.time() - start_time
@@ -162,6 +164,49 @@ if "report" in st.session_state:
     for i, rec in enumerate(recommendations, 1):
         st.markdown(f"**{i}.** {rec}")
 
+    # Architecture Review
+    arch_review = report.get("architecture_review")
+    if arch_review:
+        st.divider()
+        st.subheader("🏗️ Architecture Review")
+        st.markdown(f"**Architecture Score:** {arch_review.get('architecture_score', 0)}/100")
+        st.markdown(arch_review.get("summary", ""))
+
+        tradeoffs = arch_review.get("tradeoffs", [])
+        if tradeoffs:
+            with st.expander(f"⚖️ Tradeoff Conflicts ({len(tradeoffs)})"):
+                for t in tradeoffs:
+                    agents = ", ".join(t.get("agents_involved", []))
+                    st.markdown(f"**{t['title']}** ({agents})")
+                    st.markdown(f"  {t['description']}")
+                    st.markdown(f"  ✅ **Recommendation:** {t.get('recommendation', 'N/A')}")
+                    st.markdown("---")
+
+        patterns = arch_review.get("patterns_detected", [])
+        if patterns:
+            with st.expander(f"🧩 Architectural Patterns ({len(patterns)})"):
+                for p in patterns:
+                    badge = "✅" if p["assessment"] == "good" else "⚠️" if p["assessment"] == "partial" else "❌"
+                    st.markdown(f"{badge} **{p['pattern']}** — {p['assessment']}")
+                    st.markdown(f"  {p.get('details', '')}")
+                    st.markdown("---")
+
+        gaps = arch_review.get("cross_cutting_gaps", [])
+        if gaps:
+            with st.expander(f"🕳️ Cross-Cutting Gaps ({len(gaps)})"):
+                for g in gaps:
+                    color = severity_colors.get(g.get("severity", "medium"), "🟡")
+                    st.markdown(f"**{color} [{g.get('severity', 'medium').upper()}] {g['title']}**")
+                    st.markdown(f"  {g['description']}")
+                    st.markdown(f"  ✅ **Recommendation:** {g.get('recommendation', 'N/A')}")
+                    st.markdown("---")
+
+        actions = arch_review.get("prioritized_actions", [])
+        if actions:
+            with st.expander("📋 Prioritized Actions"):
+                for i, action in enumerate(actions, 1):
+                    st.markdown(f"**{i}.** {action}")
+
     # Download report
     st.divider()
     report_json = json.dumps(report, indent=2)
@@ -171,3 +216,92 @@ if "report" in st.session_state:
         file_name=f"governance-report-{report.get('report_id', 'unknown')}.json",
         mime="application/json",
     )
+
+    # Similar past reports
+    report_id = report.get("report_id", "")
+    if report_id:
+        try:
+            similar_resp = httpx.get(f"{API_URL}/reports/{report_id}/similar", timeout=10.0)
+            if similar_resp.status_code == 200:
+                similar = similar_resp.json()
+                if similar:
+                    st.divider()
+                    st.subheader("🔍 Similar Past Scans")
+                    for s in similar:
+                        sim_score = s.get("similarity", 0)
+                        overall = s.get("overall_score", 0)
+                        icon = "🟢" if overall >= 70 else "🟡" if overall >= 40 else "🔴"
+                        files = s.get("files_analyzed", "")
+                        ts = s.get("timestamp", "")[:19].replace("T", " ")
+                        st.markdown(
+                            f"{icon} **{overall}/100** — `{files}` — {ts} — similarity: {sim_score}"
+                        )
+        except Exception:
+            pass
+
+# Report History
+st.divider()
+st.header("📜 Report History")
+
+try:
+    history_resp = httpx.get(f"{API_URL}/reports", timeout=10.0)
+    if history_resp.status_code == 200:
+        history = history_resp.json()
+        if history:
+            for entry in history:
+                score = entry.get("overall_score", 0)
+                icon = "🟢" if score >= 70 else "🟡" if score >= 40 else "🔴"
+                files = entry.get("files_analyzed", "")
+                ts = entry.get("timestamp", "")[:19].replace("T", " ")
+                rid = entry.get("report_id", "")
+                col1, col2, col3, col4 = st.columns([0.74, 0.1, 0.08, 0.08])
+                with col1:
+                    st.markdown(
+                        f"{icon} **{score}/100** — `{files}` — {ts} — `{rid}`"
+                    )
+                with col2:
+                    if st.button("📄 View", key=f"view_{rid}", help="View full report"):
+                        try:
+                            view_resp = httpx.get(f"{API_URL}/reports/{rid}", timeout=10.0)
+                            if view_resp.status_code == 200:
+                                st.session_state["report"] = view_resp.json()
+                                st.rerun()
+                            else:
+                                st.error("Failed to load report.")
+                        except Exception:
+                            st.error("Could not connect to API.")
+                with col3:
+                    if st.button("📥", key=f"json_{rid}", help="Download JSON"):
+                        try:
+                            json_resp = httpx.get(f"{API_URL}/reports/{rid}", timeout=10.0)
+                            if json_resp.status_code == 200:
+                                st.session_state[f"download_{rid}"] = json_resp.json()
+                        except Exception:
+                            st.error("Could not connect to API.")
+                    if f"download_{rid}" in st.session_state:
+                        st.download_button(
+                            "⬇️",
+                            data=json.dumps(st.session_state[f"download_{rid}"], indent=2),
+                            file_name=f"governance-report-{rid}.json",
+                            mime="application/json",
+                            key=f"dl_{rid}",
+                        )
+                with col4:
+                    if st.button("🗑️", key=f"del_{rid}", help="Delete this report"):
+                        try:
+                            del_resp = httpx.delete(f"{API_URL}/reports/{rid}", timeout=10.0)
+                            if del_resp.status_code == 200:
+                                st.toast(f"Deleted report {rid[:8]}…")
+                                st.rerun()
+                            else:
+                                st.error("Failed to delete report.")
+                        except Exception:
+                            st.error("Could not connect to API.")
+        else:
+            st.info("No reports yet. Run an analysis to get started.")
+    else:
+        st.warning("Could not load report history.")
+except httpx.ConnectError:
+    st.info("Connect to the API to view report history.")
+except Exception:
+    st.info("Report history unavailable.")

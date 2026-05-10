@@ -1,21 +1,31 @@
-from app.models import AnalysisReport, AgentReport, Severity
+from app.models import AnalysisReport, AgentReport, ArchitectureReview, Severity
+from typing import Optional
 
 
-def calculate_overall_score(agent_reports: list[AgentReport]) -> float:
-    """Calculate weighted overall score from agent reports."""
+def calculate_overall_score(
+    agent_reports: list[AgentReport],
+    architecture_review: Optional[ArchitectureReview] = None,
+) -> float:
+    """Calculate weighted overall score from agent reports + architecture review."""
     if not agent_reports:
         return 0.0
     weights = {
-        "Security Agent": 0.4,
-        "Reliability Agent": 0.35,
-        "Cost Agent": 0.25,
+        "Security Agent": 0.34,
+        "Reliability Agent": 0.30,
+        "Cost Agent": 0.21,
     }
     total_weight = 0.0
     weighted_score = 0.0
     for report in agent_reports:
-        w = weights.get(report.agent_name, 0.33)
+        w = weights.get(report.agent_name, 0.28)
         weighted_score += report.score * w
         total_weight += w
+
+    if architecture_review is not None:
+        arch_weight = 0.15
+        weighted_score += architecture_review.architecture_score * arch_weight
+        total_weight += arch_weight
+
     return round(weighted_score / total_weight, 1) if total_weight > 0 else 0.0
 
 

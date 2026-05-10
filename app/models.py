@@ -30,11 +30,41 @@ class AgentReport(BaseModel):
     score: float = 0.0  # 0-100
 
 
+class Tradeoff(BaseModel):
+    title: str
+    description: str
+    agents_involved: list[str] = []
+    recommendation: str = ""
+
+
+class PatternDetected(BaseModel):
+    pattern: str
+    assessment: str  # "good", "anti-pattern", "partial"
+    details: str = ""
+
+
+class CrossCuttingGap(BaseModel):
+    title: str
+    severity: Severity
+    description: str
+    recommendation: str = ""
+
+
+class ArchitectureReview(BaseModel):
+    tradeoffs: list[Tradeoff] = []
+    patterns_detected: list[PatternDetected] = []
+    cross_cutting_gaps: list[CrossCuttingGap] = []
+    prioritized_actions: list[str] = []
+    architecture_score: float = 0.0
+    summary: str = ""
+
+
 class AnalysisReport(BaseModel):
     report_id: str = ""
     timestamp: str = ""
     files_analyzed: list[str] = []
     agent_reports: list[AgentReport] = []
+    architecture_review: Optional[ArchitectureReview] = None
     overall_score: float = 0.0
     executive_summary: str = ""
     risk_summary: str = ""
@@ -55,5 +85,5 @@ class AnalysisRequest(BaseModel):
 
 class HealthResponse(BaseModel):
     status: str = "healthy"
-    version: str = "0.1.0"
-    agents: list[str] = ["security", "reliability", "cost"]
+    version: str = "0.2.0"
+    agents: list[str] = ["security", "reliability", "cost", "architecture-reviewer"]

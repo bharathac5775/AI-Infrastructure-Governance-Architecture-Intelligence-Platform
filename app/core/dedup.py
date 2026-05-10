@@ -30,6 +30,11 @@ SYNONYMS = {
     "pdb": "disruption", "disruption": "pdb",
     "affinity": "antiaffinity", "antiaffinity": "affinity",
     "liveness": "health", "readiness": "health", "health": "liveness",
+    "standalone": "single", "single": "standalone",
+    "asg": "scaling", "scaling": "asg",
+    "deletion": "delete", "delete": "deletion", "protection": "deletion",
+    "multiaz": "multi", "multi": "multiaz",
+    "overprovisioned": "oversized", "oversized": "overprovisioned", "rightsizing": "oversized",
 }
 
 

@@ -1,0 +1,39 @@
+replicaCount: 2
+
+image:
+  repository: my-org/web-api
+  pullPolicy: IfNotPresent
+  tag: "2.1.0"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  host: api.example.com
+  tls: false
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+env:
+  LOG_LEVEL: info
+  APP_ENV: production
+  DB_HOST: postgres-service
+  DB_PORT: "5432"
+  DB_PASSWORD: "supersecret123"
+
+autoscaling:
+  enabled: false
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

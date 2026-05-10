@@ -106,6 +106,49 @@ Reports were validated by external AI review (ChatGPT). Key outcomes:
 
 ---
 
-## Phase 2 — (Planned)
+## Phase 2 — Skill Files, Architecture Reviewer & Report Memory
 
-_To be documented when Phase 2 begins._
+**Status:** Complete
+
+### What Was Built
+
+Three major capabilities were added: externalized agent prompts via skill files, a new Architecture Reviewer agent for cross-cutting analysis, and ChromaDB-backed persistent report storage with history and comparison.
+
+### Architecture Decisions
+
+**1. Skill File System**  
+All agent prompts were extracted from hardcoded Python strings into `.md` skill files with YAML frontmatter. This allows prompt tuning without code changes. The `app/core/skills.py` loader reads skill files at runtime — agents call `get_agent_prompt("security", "kubernetes")` instead of referencing constants.
+
+**2. Architecture Reviewer Agent**  
+A new 4th analysis agent that receives all Security/Reliability/Cost findings and performs cross-cutting analysis: tradeoff conflicts (where fixing one area hurts another), architectural pattern detection, cross-cutting gaps that no single agent would catch, and prioritized action plans.
+
+**3. ChromaDB Report Persistence**  
+Replaced the in-memory `_reports` dict with ChromaDB persistent storage. Reports survive server restarts. Added `/reports` list endpoint and `/reports/compare/{a}/{b}` comparison endpoint that calculates score deltas across all dimensions.
+
+### Components Delivered
+
+| Component | Details |
+|-----------|---------|
+| **Skill Loader** | `app/core/skills.py` — YAML frontmatter parser + prompt loader |
+| **8 Skill Files** | `skills/` directory — one per agent/infra-type (security-k8s, security-tf, reliability-k8s, reliability-tf, cost-k8s, cost-tf, supervisor, architecture-reviewer) |
+| **Architecture Reviewer** | `app/agents/architecture_reviewer.py` — tradeoffs, patterns, gaps, prioritized actions |
+| **New Models** | `ArchitectureReview`, `Tradeoff`, `PatternDetected`, `CrossCuttingGap` |
+| **Report Store** | `app/core/store.py` — ChromaDB-backed persistence with save/get/list/compare |
+| **History API** | `GET /reports` — list recent reports with metadata |
+| **Comparison API** | `GET /reports/compare/{a}/{b}` — score deltas between two reports |
+| **Frontend Updates** | Architecture Review section (tradeoffs, patterns, gaps, actions) + Report History |
+
+### Pipeline Change
+
+Pipeline expanded from 4 to 5 LLM calls:
+```
+parse → security → reliability → cost → architecture_review → supervisor
+```
+
+### API Changes
+
+| Endpoint | Method | New in Phase 2 |
+|----------|--------|----------------|
+| `/api/v1/reports` | GET | Yes — list recent reports |
+| `/api/v1/reports/compare/{a}/{b}` | GET | Yes — compare two reports |
+| `/api/v1/health` | GET | Updated — version 0.2.0, includes architecture-reviewer |

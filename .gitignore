@@ -19,6 +19,9 @@ venv/
 Thumbs.db
 
 # Data
+data/
+
+# Data
 uploads/
 *.tmp
 chroma_data/

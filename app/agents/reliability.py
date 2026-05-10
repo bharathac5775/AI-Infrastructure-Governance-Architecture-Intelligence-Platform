@@ -2,27 +2,10 @@ import json
 from langchain_core.prompts import ChatPromptTemplate
 from app.core.llm import get_llm
 from app.core.dedup import is_duplicate as _is_duplicate
+from app.core.skills import get_agent_prompt
 from app.models import AgentReport, Finding, Severity
 from app.agents.security import _detect_infra_type
 from app.parsers.kubernetes import get_pod_spec, get_containers, get_resource_name
-
-RELIABILITY_K8S_PROMPT = """You are an Infrastructure Reliability Agent specializing in Kubernetes.
-Analyze ONLY Kubernetes YAML manifests for reliability risks.
-Focus on: missing liveness/readiness/startup probes, insufficient replicas, no PodDisruptionBudget, missing anti-affinity, no HPA, missing resource requests, no rolling update strategy, missing terminationGracePeriodSeconds.
-Do NOT reference Terraform, cloud provider, EC2, RDS, or IaC concepts.
-
-Respond ONLY with valid JSON:
-{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment", "score": 0-100}}
-"""
-
-RELIABILITY_TF_PROMPT = """You are an Infrastructure Reliability Agent specializing in Terraform and cloud infrastructure (AWS, Azure, GCP).
-Analyze ONLY Terraform/cloud configuration for reliability risks.
-Focus on: single-AZ deployments, no auto-scaling groups, missing backups, no health checks, missing Multi-AZ for databases, no deletion protection, missing disaster recovery, no CloudWatch alarms, missing dead letter queues, no point-in-time recovery.
-Do NOT apply Kubernetes concepts (pods, containers, resource requests/limits, probes, replicas, PDB, HPA, securityContext). EC2 instances do NOT have "resource requests" or "liveness probes" — evaluate ASG health checks, scaling policies, CloudWatch alarms, and instance recovery instead.
-
-Respond ONLY with valid JSON:
-{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment", "score": 0-100}}
-"""
 
 
 def run_reliability_rules(resources: dict) -> list[Finding]:
@@ -176,6 +159,25 @@ def run_reliability_rules(resources: dict) -> list[Finding]:
                     resource=name,
                     recommendation="Set strategy to RollingUpdate with maxSurge/maxUnavailable.",
                 ))
+
+            # Stateful workload using emptyDir for data volumes
+            _stateful_keywords = ("redis", "postgres", "mysql", "mongo", "elastic", "kafka",
+                                  "cassandra", "rabbit", "zookeeper", "memcached", "db", "database")
+            is_stateful = any(kw in res_name.lower() for kw in _stateful_keywords)
+            if is_stateful:
+                volumes = pod_spec.get("volumes", [])
+                for vol in volumes:
+                    vname = vol.get("name", "")
+                    if "emptyDir" in vol and vname not in ("tmp", "temp", "cache"):
+                        findings.append(Finding(
+                            agent="Reliability Agent",
+                            category="data-persistence",
+                            severity=Severity.HIGH,
+                            title="Stateful workload using ephemeral storage",
+                            description=f"{name} mounts volume '{vname}' as emptyDir. Data is lost on pod restart.",
+                            resource=name,
+                            recommendation="Use a PersistentVolumeClaim for stateful workloads requiring durable storage.",
+                        ))
 
     return findings
 
@@ -381,9 +383,9 @@ async def analyze_reliability(
     # Select prompt based on file type
     infra_type = _detect_infra_type(file_contents)
     if infra_type == "terraform":
-        system_prompt = RELIABILITY_TF_PROMPT
+        system_prompt = get_agent_prompt("reliability", "terraform")
     else:
-        system_prompt = RELIABILITY_K8S_PROMPT
+        system_prompt = get_agent_prompt("reliability", "kubernetes")
 
     llm = get_llm()
     prompt = ChatPromptTemplate.from_messages([

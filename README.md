@@ -20,6 +20,7 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 | **Backend** | FastAPI + Uvicorn |
 | **Frontend** | Streamlit |
 | **Parsers** | PyYAML (Kubernetes), python-hcl2 (Terraform) |
+| **Report Storage** | ChromaDB (persistent) |
 | **Data Models** | Pydantic |
 | **Containerization** | Docker + Docker Compose |
 | **Language** | Python 3.11+ |
@@ -59,6 +60,10 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 │   │    Cost     │──────────┘        │
 │   └──────┬──────┘                    │
 │          ▼                           │
+│   ┌─────────────────┐                │
+│   │ Arch. Reviewer  │  Cross-cutting │
+│   └──────┬──────────┘                │
+│          ▼                           │
 │   ┌─────────────┐                    │
 │   │ Supervisor  │  LLM Synthesis     │
 │   └─────────────┘                    │
@@ -69,8 +74,16 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 │   Governance Report (JSON)           │
 │   • Overall Score (0-100)            │
 │   • Agent Reports + Findings         │
+│   • Architecture Review              │
 │   • Executive Summary                │
 │   • Top Recommendations              │
+└──────────────────────────────────────┘
+           │
+           ▼
+┌──────────────────────────────────────┐
+│   ChromaDB (Persistent Storage)      │
+│   • Report history                   │
+│   • Score comparison over time       │
 └──────────────────────────────────────┘
 ```
 
@@ -143,7 +156,9 @@ docker-compose up --build
 |--------|------|-------------|
 | `POST` | `/api/v1/analyze` | Upload files (multipart) for analysis |
 | `POST` | `/api/v1/analyze/text` | Analyze from JSON `{"file_contents": {"file.tf": "..."}}` |
+| `GET` | `/api/v1/reports` | List recent reports with metadata |
 | `GET` | `/api/v1/reports/{id}` | Retrieve a generated report |
+| `GET` | `/api/v1/reports/compare/{a}/{b}` | Compare two reports (score deltas) |
 | `GET` | `/api/v1/health` | Health check |
 
 ## Project Structure
@@ -159,6 +174,7 @@ docker-compose up --build
 │   │   ├── security.py        # Security analysis agent
 │   │   ├── reliability.py     # Reliability analysis agent
 │   │   ├── cost.py            # Cost optimization agent
+│   │   ├── architecture_reviewer.py  # Cross-cutting architecture review
 │   │   └── supervisor.py      # LangGraph pipeline orchestrator
 │   ├── parsers/
 │   │   ├── kubernetes.py      # Kubernetes YAML parser
@@ -166,7 +182,10 @@ docker-compose up --build
 │   └── core/
 │       ├── llm.py             # LLM configuration
 │       ├── dedup.py           # Finding deduplication
+│       ├── skills.py          # Skill file loader
+│       ├── store.py           # ChromaDB report persistence
 │       └── report.py          # Score calculation & formatting
+├── skills/                    # Agent prompt skill files (.md)
 ├── frontend/
 │   └── app.py                 # Streamlit UI
 ├── samples/                   # Sample infrastructure files

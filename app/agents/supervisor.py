@@ -6,10 +6,12 @@ from langgraph.graph import StateGraph, END
 from langchain_core.prompts import ChatPromptTemplate
 from app.core.llm import get_llm
 from app.core.report import calculate_overall_score
-from app.models import AnalysisReport, AgentReport
+from app.core.skills import get_agent_prompt
+from app.models import AnalysisReport, AgentReport, ArchitectureReview
 from app.agents.security import analyze_security
 from app.agents.reliability import analyze_reliability
 from app.agents.cost import analyze_cost
+from app.agents.architecture_reviewer import analyze_architecture
 from app.parsers.kubernetes import parse_kubernetes_yaml, extract_k8s_resources
 from app.parsers.terraform import parse_terraform, extract_tf_resources
 
@@ -23,18 +25,11 @@ class AnalysisState(TypedDict):
     security_report: AgentReport | None
     reliability_report: AgentReport | None
     cost_report: AgentReport | None
+    architecture_review: ArchitectureReview | None
     final_report: AnalysisReport | None
 
 
-SUPERVISOR_PROMPT = """You are an Architecture Review Supervisor.
-Synthesize these agent reports into a brief executive summary.
-
-Security: {security_summary} (Score: {security_score}/100, {security_findings_count} findings)
-Reliability: {reliability_summary} (Score: {reliability_score}/100, {reliability_findings_count} findings)
-Cost: {cost_summary} (Score: {cost_score}/100, {cost_findings_count} findings)
-
-Respond ONLY with valid JSON:
-{{"executive_summary": "2-3 paragraph overview", "risk_summary": "key risks", "recommendations": ["rec1", "rec2", "rec3", "rec4", "rec5"]}}"""
+SUPERVISOR_PROMPT = get_agent_prompt("supervisor", "all")
 
 
 def parse_files_node(state: AnalysisState) -> dict:
@@ -99,6 +94,22 @@ async def cost_node(state: AnalysisState) -> dict:
     return {"cost_report": report}
 
 
+async def architecture_reviewer_node(state: AnalysisState) -> dict:
+    """Run cross-cutting architecture review."""
+    logger.info("Starting Architecture Reviewer...")
+    from app.agents.security import _detect_infra_type
+    infra_type = _detect_infra_type(state["file_contents"])
+    review = await analyze_architecture(
+        state["security_report"],
+        state["reliability_report"],
+        state["cost_report"],
+        file_contents=state["file_contents"],
+        infra_type=infra_type,
+    )
+    logger.info(f"Architecture Reviewer done: {review.architecture_score}/100, {len(review.tradeoffs)} tradeoffs, {len(review.cross_cutting_gaps)} gaps")
+    return {"architecture_review": review}
+
+
 async def supervisor_node(state: AnalysisState) -> dict:
     """Synthesize all agent reports into final report."""
     sec = state["security_report"]
@@ -112,6 +123,11 @@ async def supervisor_node(state: AnalysisState) -> dict:
         ("system", SUPERVISOR_PROMPT),
     ])
 
+    arch = state.get("architecture_review")
+    arch_gaps_text = "; ".join(
+        f"[{g.severity.value.upper()}] {g.title}" for g in arch.cross_cutting_gaps
+    ) if arch and arch.cross_cutting_gaps else "None"
+
     chain = prompt | llm
     try:
         response = await chain.ainvoke({
@@ -124,6 +140,10 @@ async def supervisor_node(state: AnalysisState) -> dict:
             "cost_summary": cost.summary if cost else "N/A",
             "cost_score": cost.score if cost else 0,
             "cost_findings_count": len(cost.findings) if cost else 0,
+            "architecture_summary": arch.summary if arch else "N/A",
+            "architecture_score": arch.architecture_score if arch else "N/A",
+            "architecture_gaps_count": len(arch.cross_cutting_gaps) if arch else 0,
+            "architecture_gaps": arch_gaps_text,
         })
         response_text = response.content.strip()
         if response_text.startswith("```"):
@@ -139,11 +159,12 @@ async def supervisor_node(state: AnalysisState) -> dict:
         risk_summary = "Unable to generate AI risk summary."
         recommendations = ["Review security findings", "Address reliability gaps", "Optimize costs"]
 
-    overall_score = calculate_overall_score(agent_reports)
+    overall_score = calculate_overall_score(agent_reports, state.get("architecture_review"))
 
     final_report = AnalysisReport(
         files_analyzed=list(state["file_contents"].keys()),
         agent_reports=agent_reports,
+        architecture_review=state.get("architecture_review"),
         overall_score=overall_score,
         executive_summary=executive_summary,
         risk_summary=risk_summary,
@@ -162,15 +183,17 @@ def build_analysis_graph() -> StateGraph:
     graph.add_node("security_analysis", security_node)
     graph.add_node("reliability_analysis", reliability_node)
     graph.add_node("cost_analysis", cost_node)
+    graph.add_node("architecture_review", architecture_reviewer_node)
     graph.add_node("supervisor", supervisor_node)
 
-    # Sequential edges: parse → security → reliability → cost → supervisor
+    # Sequential edges: parse → security → reliability → cost → architecture_review → supervisor
     # Local LLMs can only handle one request at a time efficiently
     graph.set_entry_point("parse_files")
     graph.add_edge("parse_files", "security_analysis")
     graph.add_edge("security_analysis", "reliability_analysis")
     graph.add_edge("reliability_analysis", "cost_analysis")
-    graph.add_edge("cost_analysis", "supervisor")
+    graph.add_edge("cost_analysis", "architecture_review")
+    graph.add_edge("architecture_review", "supervisor")
     graph.add_edge("supervisor", END)
 
     return graph.compile()
@@ -191,6 +214,7 @@ async def run_analysis(file_contents: dict[str, str]) -> AnalysisReport:
         "security_report": None,
         "reliability_report": None,
         "cost_report": None,
+        "architecture_review": None,
         "final_report": None,
     }
 

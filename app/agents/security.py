@@ -2,30 +2,13 @@ import json
 from langchain_core.prompts import ChatPromptTemplate
 from app.core.llm import get_llm
 from app.core.dedup import extract_keywords as _extract_keywords, is_duplicate as _is_duplicate
+from app.core.skills import get_agent_prompt
 from app.models import AgentReport, Finding, Severity
 from app.parsers.kubernetes import (
     get_pod_spec,
     get_containers,
     get_resource_name,
 )
-
-SECURITY_K8S_PROMPT = """You are an Infrastructure Security Agent specializing in Kubernetes.
-Analyze ONLY Kubernetes YAML manifests for security issues.
-Focus on: privileged containers, missing securityContext, runAsNonRoot, readOnlyRootFilesystem, capabilities, missing resource limits, dangerous RBAC (cluster-admin), public exposure (LoadBalancer), hardcoded secrets in env vars, untagged images, host namespace sharing (hostPID/hostNetwork), hostPath volume mounts.
-Do NOT reference Terraform, cloud provider, or IaC concepts.
-
-Respond ONLY with valid JSON:
-{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment", "score": 0-100}}
-"""
-
-SECURITY_TF_PROMPT = """You are an Infrastructure Security Agent specializing in Terraform and cloud infrastructure (AWS, Azure, GCP).
-Analyze ONLY Terraform/cloud configuration for security issues.
-Focus on: open security groups (0.0.0.0/0), public S3/storage buckets, unencrypted databases/volumes, overly permissive IAM policies, missing encryption at rest/in transit, hardcoded credentials, missing IMDSv2, disabled CloudTrail/logging, KMS key rotation, VPC flow logs, HTTPS enforcement.
-Do NOT apply Kubernetes concepts (pods, containers, resource requests/limits, probes, securityContext). EC2 instances do NOT have "resource requests" — evaluate instance type sizing, ASG policies, and scaling instead.
-
-Respond ONLY with valid JSON:
-{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment", "score": 0-100}}
-"""
 
 
 def run_security_rules(resources: dict) -> list[Finding]:
@@ -542,9 +525,9 @@ async def analyze_security(
     # 2. Select prompt based on file type
     infra_type = _detect_infra_type(file_contents)
     if infra_type == "terraform":
-        system_prompt = SECURITY_TF_PROMPT
+        system_prompt = get_agent_prompt("security", "terraform")
     else:
-        system_prompt = SECURITY_K8S_PROMPT
+        system_prompt = get_agent_prompt("security", "kubernetes")
 
     # 3. Use LLM for deeper analysis
     llm = get_llm()

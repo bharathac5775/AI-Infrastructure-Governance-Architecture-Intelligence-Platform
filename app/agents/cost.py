@@ -2,29 +2,10 @@ import json
 from langchain_core.prompts import ChatPromptTemplate
 from app.core.llm import get_llm
 from app.core.dedup import is_duplicate as _is_duplicate
+from app.core.skills import get_agent_prompt
 from app.models import AgentReport, Finding, Severity
 from app.agents.security import _detect_infra_type
 from app.parsers.kubernetes import get_pod_spec, get_containers, get_resource_name
-
-
-COST_K8S_PROMPT = """You are an Infrastructure Cost Optimization Agent specializing in Kubernetes.
-Analyze ONLY Kubernetes YAML manifests for cost waste.
-Focus on: overprovisioned CPU/memory requests/limits, unused PVCs, excessive replicas without HPA, expensive service types (LoadBalancer vs ClusterIP+Ingress), large persistent volumes.
-Do NOT reference Terraform, cloud provider, EC2, RDS, or IaC concepts.
-
-Respond ONLY with valid JSON:
-{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment", "score": 0-100}}
-"""
-
-COST_TF_PROMPT = """You are an Infrastructure Cost Optimization Agent specializing in Terraform and cloud infrastructure (AWS, Azure, GCP).
-Analyze ONLY Terraform/cloud configuration for cost waste and optimization opportunities.
-Focus on: oversized EC2/RDS instances, expensive instance families, unused Elastic IPs, NAT gateway costs, large EBS volumes, provisioned IOPS vs gp3, missing S3 lifecycle policies, DynamoDB over-provisioning, missing Reserved Instances/Savings Plans opportunities, idle resources.
-Do NOT apply Kubernetes concepts (pods, containers, resource requests/limits, replicas, HPA, PVC). EC2 instances are sized by instance type, NOT by CPU/memory requests. Evaluate right-sizing, Spot/Reserved pricing, and scaling policies instead.
-Avoid penalizing cost-effective instance types (t3, t4g) without evidence of misuse.
-
-Respond ONLY with valid JSON:
-{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment", "score": 0-100}}
-"""
 
 
 def parse_resource_value(value: str, resource_type: str) -> float:
@@ -371,9 +352,9 @@ async def analyze_cost(
     # Select prompt based on file type
     infra_type = _detect_infra_type(file_contents)
     if infra_type == "terraform":
-        system_prompt = COST_TF_PROMPT
+        system_prompt = get_agent_prompt("cost", "terraform")
     else:
-        system_prompt = COST_K8S_PROMPT
+        system_prompt = get_agent_prompt("cost", "kubernetes")
 
     llm = get_llm()
     prompt = ChatPromptTemplate.from_messages([

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: my-chart
+description: Sample web API service for governance testing
+type: application
+version: 1.0.0
+appVersion: "2.1.0"
