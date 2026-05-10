@@ -59,7 +59,7 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 │   │ Reliability │─────────│        │
 │   └──────┬──────┘         │        │
 │          ▼                 │        │
-│   ┌─────────────┐         │         │
+│   ┌─────────────┐         │        │
 │   │    Cost     │──────────┘        │
 │   └──────┬──────┘                    │
 │          ▼                           │
@@ -96,7 +96,7 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 | Type | Extensions | Notes |
 |------|-----------|-------|
 | Kubernetes | `.yaml`, `.yml`, `.json` | Multi-document YAML supported |
-| Terraform | `.tf`, `.hcl`, `.json` | AWS, Azure, GCP resources |
+| Terraform | `.tf`, `.hcl`, `.json` | AWS, Azure, and GCP resources |
 | Helm Charts | `.tgz` | Rendered server-side via `helm template` |
 
 ## Prerequisites
@@ -197,62 +197,17 @@ The Docker image automatically installs the Helm CLI.
 │       ├── store.py           # ChromaDB report persistence
 │       └── report.py          # Score calculation & formatting
 ├── skills/                    # Agent prompt skill files (.md)
-│   ├── security-kubernetes.md
-│   ├── security-terraform.md
-│   ├── reliability-kubernetes.md
-│   ├── reliability-terraform.md
-│   ├── cost-kubernetes.md
-│   ├── cost-terraform.md
-│   ├── architecture-reviewer.md
-│   └── supervisor.md
 ├── frontend/
 │   └── app.py                 # Streamlit UI
-├── samples/
-│   ├── good-infra.tf          # Well-configured AWS Terraform
-│   ├── average-infra.tf       # Mid-level AWS Terraform
-│   ├── vulnerable-infra.tf    # Insecure AWS Terraform
-│   ├── production-good.tf     # Production-grade AWS Terraform
-│   ├── good-deployment.yaml   # Hardened Kubernetes deployment
-│   ├── hardened-production.yaml
-│   ├── vulnerable-deployment.yaml
-│   ├── critical-security-failure.yaml
-│   ├── my-chart/              # Sample Helm chart (intentional issues)
-│   ├── my-chart-1.0.0.tgz
-│   ├── good-chart/            # Best-practices Helm chart
-│   └── good-chart-1.2.0.tgz
+├── samples/                   # Sample infrastructure files for testing
 ├── docker-compose.yml
 ├── Dockerfile
-├── requirements.txt
-└── README.md
+└── requirements.txt
 ```
 
 ## Sample Files
 
-Test files are provided in `samples/` covering intentionally good, average, vulnerable, and critical scenarios for Kubernetes, Terraform, and Helm.
-
-| File | Type | Purpose |
-|------|------|---------|
-| `good-infra.tf` | Terraform | Well-configured AWS (KMS, restricted SG, encrypted Multi-AZ RDS) |
-| `average-infra.tf` | Terraform | Mid-level AWS (some controls missing) |
-| `vulnerable-infra.tf` | Terraform | 16+ intentional AWS security issues |
-| `production-good.tf` | Terraform | Production-grade AWS — high score reference |
-| `good-deployment.yaml` | Kubernetes | Hardened K8s deployment |
-| `hardened-production.yaml` | Kubernetes | PSS restricted, NetworkPolicies, PDBs, HPAs, RBAC |
-| `vulnerable-deployment.yaml` | Kubernetes | Insecure K8s deployment |
-| `critical-security-failure.yaml` | Kubernetes | Privileged + hostPID + cluster-admin |
-| `my-chart-1.0.0.tgz` | Helm | Intentionally flawed chart (for testing detection) |
-| `good-chart-1.2.0.tgz` | Helm | Best-practices chart (NetworkPolicy, HPA, PDB, ServiceMonitor) |
-
-### Packaging Helm Charts
-
-```bash
-# From samples/ directory
-helm package my-chart/
-helm package good-chart/
-
-# Preview rendered output before uploading
-helm template release good-chart-1.2.0.tgz
-```
+The `samples/` directory contains test infrastructure files covering good, average, vulnerable, and critical scenarios across Kubernetes, Terraform, and Helm.
 
 ## Development
 
