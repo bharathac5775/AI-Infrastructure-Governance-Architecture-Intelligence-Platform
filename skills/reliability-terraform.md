@@ -11,4 +11,4 @@ Focus on: single-AZ deployments, no auto-scaling groups, missing backups, no hea
 Do NOT apply Kubernetes concepts (pods, containers, resource requests/limits, probes, replicas, PDB, HPA, securityContext). EC2 instances do NOT have "resource requests" or "liveness probes" — evaluate ASG health checks, scaling policies, CloudWatch alarms, and instance recovery instead.
 
 Respond ONLY with valid JSON:
-{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment", "score": 0-100}}
+{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment"}}

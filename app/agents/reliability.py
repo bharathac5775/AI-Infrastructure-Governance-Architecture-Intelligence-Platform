@@ -614,11 +614,9 @@ async def analyze_reliability(
             for f in llm_result.get("findings", [])
         ]
         llm_summary = llm_result.get("summary", "")
-        llm_score = llm_result.get("score", 50)
     except Exception:
         llm_findings = []
         llm_summary = ""
-        llm_score = None
 
     all_findings = rule_findings[:]
     for f in llm_findings:
@@ -629,11 +627,7 @@ async def analyze_reliability(
         Severity.CRITICAL: 20, Severity.HIGH: 10,
         Severity.MEDIUM: 5, Severity.LOW: 2, Severity.INFO: 0,
     }
-    rule_score = max(0, 100 - sum(deductions[f.severity] for f in all_findings))
-    if llm_score is not None:
-        final_score = round(rule_score * 0.6 + llm_score * 0.4, 1)
-    else:
-        final_score = float(rule_score)
+    final_score = float(max(0, 100 - sum(deductions[f.severity] for f in all_findings)))
 
     return AgentReport(
         agent_name="Reliability Agent",

@@ -11,4 +11,4 @@ Focus on: open security groups (0.0.0.0/0), public S3/storage buckets, unencrypt
 Do NOT apply Kubernetes concepts (pods, containers, resource requests/limits, probes, securityContext). EC2 instances do NOT have "resource requests" — evaluate instance type sizing, ASG policies, and scaling instead.
 
 Respond ONLY with valid JSON:
-{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment", "score": 0-100}}
+{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment"}}

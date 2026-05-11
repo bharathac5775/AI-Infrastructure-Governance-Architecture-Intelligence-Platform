@@ -806,7 +806,7 @@ def run_terraform_security_rules(tf_resources: list) -> list[Finding]:
 
 
 def _detect_infra_type(file_contents: dict[str, str]) -> str:
-    """Detect whether files are kubernetes, terraform, or mixed."""
+    """Detect whether files are kubernetes, terraform, mixed, or none (non-infra)."""
     has_k8s = False
     has_tf = False
     for fname, content in file_contents.items():
@@ -821,17 +821,19 @@ def _detect_infra_type(file_contents: dict[str, str]) -> str:
             has_k8s = True
         if content_has_tf:
             has_tf = True
-        # Fall back to extension only if content detection found nothing
+        # Extension fallback only when content clearly matches the extension type
         if not content_has_k8s and not content_has_tf:
-            if fname.endswith((".yaml", ".yml")):
-                has_k8s = True
-            elif fname.endswith((".tf", ".hcl")):
+            if fname.endswith((".tf", ".hcl")):
                 has_tf = True
+            # .yaml/.yml without apiVersion+kind markers are NOT assumed to be K8s
+            # (could be GitHub Actions, conda env, Helm values-only files, etc.)
     if has_k8s and has_tf:
         return "mixed"
     elif has_tf:
         return "terraform"
-    return "kubernetes"
+    elif has_k8s:
+        return "kubernetes"
+    return "none"
 
 
 async def analyze_security(
@@ -883,11 +885,9 @@ async def analyze_security(
                 recommendation=f.get("recommendation", ""),
             ))
         llm_summary = llm_result.get("summary", "")
-        llm_score = llm_result.get("score", 50)
     except Exception:
         llm_findings = []
         llm_summary = ""
-        llm_score = None
 
     # 3. Merge findings (rules + LLM), deduplicate by keyword overlap
     all_findings = rule_findings[:]
@@ -895,7 +895,7 @@ async def analyze_security(
         if not _is_duplicate(f, rule_findings):
             all_findings.append(f)
 
-    # 4. Calculate score
+    # 4. Calculate score deterministically from findings
     deductions = {
         Severity.CRITICAL: 20,
         Severity.HIGH: 10,
@@ -906,13 +906,7 @@ async def analyze_security(
     rule_score = 100
     for f in all_findings:
         rule_score -= deductions[f.severity]
-    rule_score = max(0, rule_score)
-
-    # When LLM is available, blend scores; otherwise use rule score directly
-    if llm_score is not None:
-        final_score = round(rule_score * 0.6 + llm_score * 0.4, 1)
-    else:
-        final_score = float(rule_score)
+    final_score = float(max(0, rule_score))
 
     return AgentReport(
         agent_name="Security Agent",

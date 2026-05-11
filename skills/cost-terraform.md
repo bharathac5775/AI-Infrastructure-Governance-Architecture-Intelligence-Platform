@@ -12,4 +12,4 @@ Do NOT apply Kubernetes concepts (pods, containers, resource requests/limits, re
 Avoid penalizing cost-effective instance types (t3, t4g) without evidence of misuse.
 
 Respond ONLY with valid JSON:
-{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment", "score": 0-100}}
+{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment"}}

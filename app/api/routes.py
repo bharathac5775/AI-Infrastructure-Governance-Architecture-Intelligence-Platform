@@ -52,12 +52,52 @@ async def analyze_infrastructure(files: list[UploadFile] = File(...)):
                 raise HTTPException(status_code=400, detail=str(e))
         else:
             try:
-                file_contents[upload_file.filename] = content.decode("utf-8")
+                text = content.decode("utf-8")
             except UnicodeDecodeError:
                 raise HTTPException(
                     status_code=400,
                     detail=f"File {upload_file.filename} is not valid UTF-8 text.",
                 )
+
+            # For YAML files, validate they contain K8s manifests (apiVersion + kind)
+            if ext.lower() in (".yaml", ".yml"):
+                has_apiversion = "apiVersion:" in text
+                has_kind = "kind:" in text
+                if not (has_apiversion and has_kind):
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"'{upload_file.filename}' does not appear to be a Kubernetes manifest. "
+                               f"Expected fields 'apiVersion' and 'kind'. Upload Kubernetes manifests or Helm charts (.tgz).",
+                    )
+
+            # For JSON files, validate it looks like infrastructure code
+            if ext.lower() == ".json":
+                _NON_INFRA_JSON = {
+                    "package-lock.json", "package.json", "tsconfig.json",
+                    "tsconfig.node.json", "jsconfig.json", "composer.json",
+                    "composer.lock", "pipfile.lock", "poetry.lock",
+                    ".eslintrc.json", ".prettierrc.json", "babel.config.json",
+                    "nest-cli.json", "angular.json", "nx.json",
+                    "turbo.json", "lerna.json", "rush.json",
+                }
+                basename = os.path.basename(upload_file.filename or "").lower()
+                if basename in _NON_INFRA_JSON:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"'{upload_file.filename}' is not an infrastructure file. "
+                               f"Upload Terraform (.tf/.json), Kubernetes (.yaml/.yml/.json), or Helm (.tgz) files.",
+                    )
+                # Check content for infrastructure markers
+                snippet = text[:3000].lower()
+                has_tf = any(k in snippet for k in ['"resource"', '"provider"', '"terraform"', '"variable"', '"module"', '"data"'])
+                has_k8s = any(k in snippet for k in ['"apiversion"', '"kind"', '"metadata"'])
+                if not (has_tf or has_k8s):
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"'{upload_file.filename}' does not appear to be infrastructure code (Terraform JSON or Kubernetes JSON manifest).",
+                    )
+
+            file_contents[upload_file.filename] = text
 
     if not file_contents:
         raise HTTPException(status_code=400, detail="No files uploaded.")

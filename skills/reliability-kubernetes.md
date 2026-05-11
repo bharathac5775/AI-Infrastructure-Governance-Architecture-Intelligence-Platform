@@ -11,4 +11,4 @@ Focus on: missing liveness/readiness/startup probes, insufficient replicas, no P
 Do NOT reference Terraform, cloud provider, EC2, RDS, or IaC concepts.
 
 Respond ONLY with valid JSON:
-{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment", "score": 0-100}}
+{{"findings": [{{"severity": "critical|high|medium|low|info", "title": "...", "description": "...", "resource": "...", "recommendation": "..."}}], "summary": "brief assessment"}}

@@ -19,35 +19,35 @@ class Finding(BaseModel):
     severity: Severity
     title: str
     description: str
-    resource: str = ""
-    recommendation: str = ""
+    resource: str
+    recommendation: str
 
 
 class AgentReport(BaseModel):
     agent_name: str
     findings: list[Finding] = []
-    summary: str = ""
-    score: float = 0.0  # 0-100
+    summary: str
+    score: float  # 0-100
 
 
 class Tradeoff(BaseModel):
     title: str
     description: str
     agents_involved: list[str] = []
-    recommendation: str = ""
+    recommendation: str
 
 
 class PatternDetected(BaseModel):
     pattern: str
     assessment: str  # "good", "anti-pattern", "partial"
-    details: str = ""
+    details: str
 
 
 class CrossCuttingGap(BaseModel):
     title: str
     severity: Severity
     description: str
-    recommendation: str = ""
+    recommendation: str
 
 
 class ArchitectureReview(BaseModel):
@@ -55,8 +55,8 @@ class ArchitectureReview(BaseModel):
     patterns_detected: list[PatternDetected] = []
     cross_cutting_gaps: list[CrossCuttingGap] = []
     prioritized_actions: list[str] = []
-    architecture_score: float = 0.0
-    summary: str = ""
+    architecture_score: float
+    summary: str
 
 
 class AnalysisReport(BaseModel):
@@ -65,9 +65,9 @@ class AnalysisReport(BaseModel):
     files_analyzed: list[str] = []
     agent_reports: list[AgentReport] = []
     architecture_review: Optional[ArchitectureReview] = None
-    overall_score: float = 0.0
-    executive_summary: str = ""
-    risk_summary: str = ""
+    overall_score: float
+    executive_summary: str
+    risk_summary: str
     recommendations: list[str] = []
 
     def __init__(self, **data):

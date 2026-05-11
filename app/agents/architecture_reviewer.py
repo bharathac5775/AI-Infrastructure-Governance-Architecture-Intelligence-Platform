@@ -144,8 +144,11 @@ async def analyze_architecture(
     cost_report: AgentReport | None,
     file_contents: dict[str, str] | None = None,
     infra_type: str = "mixed",
-) -> ArchitectureReview:
+) -> ArchitectureReview | None:
     """Run cross-cutting architecture analysis on all agent reports."""
+    if infra_type == "none":
+        return None
+
     system_prompt = get_agent_prompt("architecture-reviewer", "all")
     if not system_prompt:
         # Fallback — shouldn't happen if skill file exists
@@ -214,11 +217,21 @@ async def analyze_architecture(
         # Drop platform-level concerns that are out of scope for K8s/Helm charts
         gaps = _filter_k8s_platform_gaps(gaps, infra_type)
 
+        # Filter prioritized_actions for the same platform-level keywords
+        raw_actions = result.get("prioritized_actions", [])
+        if infra_type != "terraform":
+            filtered_actions = [
+                a for a in raw_actions
+                if not any(kw in a.lower() for kw in _K8S_PLATFORM_GAP_KEYWORDS)
+            ]
+        else:
+            filtered_actions = raw_actions
+
         return ArchitectureReview(
             tradeoffs=tradeoffs,
             patterns_detected=patterns,
             cross_cutting_gaps=gaps,
-            prioritized_actions=result.get("prioritized_actions", []),
+            prioritized_actions=filtered_actions,
             architecture_score=_calculate_architecture_score(gaps),
             summary=result.get("summary", ""),
         )
