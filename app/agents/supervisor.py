@@ -106,7 +106,10 @@ async def architecture_reviewer_node(state: AnalysisState) -> dict:
         file_contents=state["file_contents"],
         infra_type=infra_type,
     )
-    logger.info(f"Architecture Reviewer done: {review.architecture_score}/100, {len(review.tradeoffs)} tradeoffs, {len(review.cross_cutting_gaps)} gaps")
+    if review:
+        logger.info(f"Architecture Reviewer done: {review.architecture_score}/100, {len(review.tradeoffs)} tradeoffs, {len(review.cross_cutting_gaps)} gaps")
+    else:
+        logger.info("Architecture Reviewer skipped: non-infrastructure content detected")
     return {"architecture_review": review}
 
 
