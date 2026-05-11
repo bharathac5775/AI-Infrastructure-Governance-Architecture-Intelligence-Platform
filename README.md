@@ -48,19 +48,19 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 │   LangGraph Sequential Pipeline      │
 │                                      │
 │   ┌─────────────┐                    │
-│   │ File Parser  │  K8s / HCL / YAML │
+│   │ File Parser │  K8s / HCL / YAML  │
 │   └──────┬──────┘                    │
 │          ▼                           │
-│   ┌─────────────┐  Rules + LLM      │
-│   │  Security   │──────────┐        │
-│   └──────┬──────┘          │        │
-│          ▼                 │        │
-│   ┌─────────────┐         │ Dedup  │
-│   │ Reliability │─────────│        │
-│   └──────┬──────┘         │        │
-│          ▼                 │        │
-│   ┌─────────────┐         │        │
-│   │    Cost     │──────────┘        │
+│   ┌─────────────┐  Rules + LLM       │
+│   │  Security   │──────────┐         │
+│   └──────┬──────┘          │         │
+│          ▼                 │         │
+│   ┌─────────────┐          │ Dedup   │
+│   │ Reliability │─────────-│         │
+│   └──────┬──────┘          │         │
+│          ▼                 │         │
+│   ┌─────────────┐          │         │
+│   │    Cost     │──────────┘         │
 │   └──────┬──────┘                    │
 │          ▼                           │
 │   ┌─────────────────┐                │
