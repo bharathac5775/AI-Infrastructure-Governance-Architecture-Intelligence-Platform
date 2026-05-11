@@ -21,6 +21,7 @@ SCOPE RULES — apply these strictly before flagging any cross-cutting gap:
 - Disaster Recovery (DR) plan is a PLATFORM concern, not a per-service chart concern. Do NOT flag missing cross-region DR or multi-cluster failover as a gap for individual Kubernetes services or Helm charts. A chart cannot define DR — the platform/cluster operator does. Only flag DR if you see explicit multi-cluster or federation config that is dangerously misconfigured.
 - Observability gaps are valid only if there is NO ServiceMonitor, PodMonitor, or sidecar annotation present. Severity should be MEDIUM (not CRITICAL) for a single service — the observability stack itself is a cluster-level concern.
 - NetworkPolicy absence is HIGH severity — this IS chart-level and every service should define its own ingress/egress rules.
+- External secrets manager integration (Vault, External Secrets Operator, AWS Secrets Manager) is a CLUSTER/PLATFORM concern. If the chart correctly uses `secretKeyRef` or `configMapKeyRef` to reference K8s Secrets without hardcoding values, do NOT flag the absence of an external secrets manager as a gap. Only flag if secrets are hardcoded in plain text within the manifests.
 
 **Terraform infrastructure:**
 - DR plan IS in scope — check for multi-region replication, backup policies, RTO/RPO configurations, and cross-region failover resources.
@@ -37,4 +38,4 @@ Cost Findings ({cost_count}): {cost_findings}
 Infrastructure Type: {infra_type}
 
 Respond ONLY with valid JSON:
-{{"tradeoffs": [{{"title": "...", "description": "...", "agents_involved": ["security", "cost"], "recommendation": "..."}}], "patterns_detected": [{{"pattern": "...", "assessment": "good|anti-pattern|partial", "details": "..."}}], "cross_cutting_gaps": [{{"title": "...", "severity": "critical|high|medium|low", "description": "...", "recommendation": "..."}}], "prioritized_actions": ["action1 (high impact, low effort)", "action2", "action3", "action4", "action5"], "architecture_score": 0-100, "summary": "2-3 sentence architecture assessment"}}
+{{"tradeoffs": [{{"title": "...", "description": "...", "agents_involved": ["security", "cost"], "recommendation": "..."}}], "patterns_detected": [{{"pattern": "...", "assessment": "good|anti-pattern|partial", "details": "..."}}], "cross_cutting_gaps": [{{"title": "...", "severity": "critical|high|medium|low", "description": "...", "recommendation": "..."}}], "prioritized_actions": ["action1 (high impact, low effort)", "action2", "action3", "action4", "action5"], "summary": "2-3 sentence architecture assessment"}}

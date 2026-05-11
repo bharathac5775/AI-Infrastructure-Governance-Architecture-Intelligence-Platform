@@ -21,6 +21,62 @@ import re as _re
 # Max characters of raw infra content to send to the reviewer
 _MAX_INFRA_CHARS = 8000
 
+# Score deductions per gap severity (same philosophy as other agents)
+_GAP_DEDUCTIONS = {
+    "critical": 25,
+    "high": 15,
+    "medium": 8,
+    "low": 3,
+}
+
+# Gaps matching these keywords are platform/cluster-level concerns for K8s/Helm charts.
+# Individual chart authors cannot control them — filter them out before scoring.
+_K8S_PLATFORM_GAP_KEYWORDS = [
+    # External secrets management — platform decides Vault/ESO/KMS, chart uses secretKeyRef
+    "external secret",
+    "secrets management",
+    "secret lifecycle",
+    "secret rotation",
+    "secrets manager",
+    "sealed secrets",
+    # Full observability stack — platform concern when ServiceMonitor is already present
+    "observability stack",
+    "centralized log",
+    "distributed trac",
+    "comprehensive observ",
+    "logging, tracing",
+    "loki",
+    "jaeger",
+    "fluentd",
+    "fluent bit",
+    # DR / multi-cluster / multi-region — platform concern, not chart concern
+    "disaster recovery",
+    "multi-region",
+    "cross-region",
+    "multi-cluster",
+]
+
+
+def _filter_k8s_platform_gaps(gaps: list, infra_type: str) -> list:
+    """Drop gaps that are platform/cluster-level concerns for K8s/Helm infrastructure."""
+    if infra_type == "terraform":
+        return gaps
+    filtered = []
+    for gap in gaps:
+        text = (gap.title + " " + gap.description).lower()
+        if any(kw in text for kw in _K8S_PLATFORM_GAP_KEYWORDS):
+            continue
+        filtered.append(gap)
+    return filtered
+
+
+def _calculate_architecture_score(gaps: list) -> float:
+    """Calculate architecture score from gaps — deterministic, not LLM-guessed."""
+    score = 100.0
+    for gap in gaps:
+        score -= _GAP_DEDUCTIONS.get(gap.severity.value, 5)
+    return max(0.0, score)
+
 
 def _extract_k8s_resources(content: str) -> list[str]:
     """Extract Kubernetes resource kinds and names from YAML content."""
@@ -155,12 +211,15 @@ async def analyze_architecture(
             for g in result.get("cross_cutting_gaps", [])
         ]
 
+        # Drop platform-level concerns that are out of scope for K8s/Helm charts
+        gaps = _filter_k8s_platform_gaps(gaps, infra_type)
+
         return ArchitectureReview(
             tradeoffs=tradeoffs,
             patterns_detected=patterns,
             cross_cutting_gaps=gaps,
             prioritized_actions=result.get("prioritized_actions", []),
-            architecture_score=float(result.get("architecture_score", 50)),
+            architecture_score=_calculate_architecture_score(gaps),
             summary=result.get("summary", ""),
         )
 
