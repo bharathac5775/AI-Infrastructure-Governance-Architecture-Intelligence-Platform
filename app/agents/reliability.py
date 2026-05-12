@@ -321,8 +321,10 @@ def run_terraform_reliability_rules(tf_resources: list) -> list[Finding]:
 
         # --- SQS without dead letter queue ---
         if rtype == "aws_sqs_queue":
+            queue_name = str(config.get("name", full_name)).lower()
+            is_dlq = any(kw in queue_name for kw in ("dlq", "dead-letter", "deadletter", "dead_letter"))
             redrive = config.get("redrive_policy")
-            if not redrive:
+            if not redrive and not is_dlq:
                 findings.append(Finding(
                     agent="Reliability Agent", category="error-handling",
                     severity=Severity.MEDIUM,

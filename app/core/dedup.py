@@ -71,13 +71,19 @@ def extract_keywords(text: str) -> set[str]:
 
 
 def is_duplicate(llm_finding: Finding, rule_findings: list[Finding]) -> bool:
-    """Check if an LLM finding duplicates any rule finding using keyword overlap."""
+    """Check if an LLM finding duplicates any rule finding using keyword overlap.
+
+    A fixed overlap of 3 meaningful keywords is required — percentage-based
+    thresholds cause misses when the LLM writes verbose descriptions, because
+    the denominator grows but the meaningful signal (3-4 domain keywords) stays
+    the same regardless of description length.
+    """
     llm_keywords = extract_keywords(llm_finding.title + " " + llm_finding.description)
     if not llm_keywords:
         return False
     for rf in rule_findings:
         rule_keywords = extract_keywords(rf.title + " " + rf.description + " " + rf.category)
         overlap = llm_keywords & rule_keywords
-        if len(overlap) >= max(3, len(llm_keywords) * 0.20):
+        if len(overlap) >= 3:
             return True
     return False

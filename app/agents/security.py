@@ -317,8 +317,38 @@ def run_terraform_security_rules(tf_resources: list) -> list[Finding]:
 
         # --- IAM overly permissive policies ---
         if rtype in ("aws_iam_policy", "aws_iam_role_policy"):
-            policy = str(config.get("policy", ""))
-            if "'*'" in policy or '"*"' in policy:
+            policy_str = str(config.get("policy", ""))
+            # Actions that AWS requires Resource:"*" — they don't support resource-level restrictions
+            _REQUIRED_WILDCARD_ACTIONS = {
+                "xray:puttracesegments", "xray:puttelemetryrecords",
+                "ec2:createnetworkinterface", "ec2:describenetworkinterfaces",
+                "ec2:deletenetworkinterface",
+            }
+            overly_permissive = False
+            try:
+                policy_obj = json.loads(policy_str)
+                for stmt in policy_obj.get("Statement", []):
+                    if stmt.get("Effect") != "Allow":
+                        continue
+                    actions = stmt.get("Action", [])
+                    resources = stmt.get("Resource", [])
+                    if isinstance(actions, str):
+                        actions = [actions]
+                    if isinstance(resources, str):
+                        resources = [resources]
+                    if "*" in actions:  # True admin — Action: "*"
+                        overly_permissive = True
+                        break
+                    if "*" in resources:
+                        non_exempt = [a for a in actions if a.lower() not in _REQUIRED_WILDCARD_ACTIONS]
+                        if non_exempt:
+                            overly_permissive = True
+                            break
+            except Exception:
+                # Unparseable policy (e.g. Terraform interpolations) — flag only true Action wildcard
+                if '"Action": "*"' in policy_str or '"Action":"*"' in policy_str:
+                    overly_permissive = True
+            if overly_permissive:
                 findings.append(Finding(
                     agent="Security Agent", category="iam",
                     severity=Severity.HIGH,
@@ -810,12 +840,16 @@ def _detect_infra_type(file_contents: dict[str, str]) -> str:
     has_k8s = False
     has_tf = False
     for fname, content in file_contents.items():
-        # Content-based detection first (handles pasted content with wrong extension)
-        content_has_k8s = "apiVersion:" in content and "kind:" in content
+        # Content-based detection — handles both YAML (apiVersion:) and JSON ("apiVersion":) formats
+        content_has_k8s = (
+            ("apiVersion:" in content or '"apiVersion":' in content) and
+            ("kind:" in content or '"kind":' in content)
+        )
         content_has_tf = (
-            ("resource " in content or "provider " in content)
+            ("resource " in content or '"resource":' in content or
+             "provider " in content or '"provider":' in content)
             and ("{" in content)
-            and any(kw in content for kw in ("aws_", "azurerm_", "google_", "module ", "terraform {"))
+            and any(kw in content for kw in ("aws_", "azurerm_", "google_", "module ", "terraform {", '"terraform":'))
         )
         if content_has_k8s:
             has_k8s = True

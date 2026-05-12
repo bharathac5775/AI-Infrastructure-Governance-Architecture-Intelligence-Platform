@@ -14,7 +14,10 @@ Cost: {cost_summary} (Score: {cost_score}/100, {cost_findings_count} findings)
 Architecture Review: {architecture_summary} (Score: {architecture_score}/100, {architecture_gaps_count} cross-cutting gaps)
 Architecture Gaps: {architecture_gaps}
 
-IMPORTANT: Even if Security/Reliability/Cost scores are perfect (100/100), you MUST include any HIGH or CRITICAL architecture gaps in the risk_summary. Do NOT claim "no risks" or "no material risks" when architecture gaps exist.
+RULES:
+- If all scores are high AND architecture_gaps_count is 0: the executive_summary and risk_summary MUST reflect a clean posture. Do NOT invent risks or vague concerns that are not backed by a formal finding.
+- If architecture gaps exist (architecture_gaps_count > 0): include HIGH or CRITICAL gaps in risk_summary even when other scores are 100.
+- Base your summaries ONLY on the structured findings and gaps provided above. Do NOT add concerns from the architecture_summary text if they are not present in the Architecture Gaps list.
 
 Respond ONLY with valid JSON:
 {{"executive_summary": "2-3 paragraph overview", "risk_summary": "key risks including any architecture gaps", "recommendations": ["rec1", "rec2", "rec3", "rec4", "rec5"]}}

@@ -15,18 +15,30 @@ def parse_terraform(content: str) -> dict[str, Any]:
 
 
 def extract_tf_resources(parsed: dict) -> list[dict[str, Any]]:
-    """Extract resources from parsed Terraform."""
+    """Extract resources from parsed Terraform.
+
+    Handles two formats:
+    - HCL2 parsed: {"resource": [{"aws_s3_bucket": {"name": {...config...}}}, ...]}
+    - Terraform JSON: {"resource": {"aws_s3_bucket": {"name": {...config...}}}}
+    """
     resources = []
-    for resource_block in parsed.get("resource", []):
+    raw = parsed.get("resource", [])
+
+    # Normalize: JSON format uses a plain dict, HCL2 uses a list of single-key dicts
+    blocks = [raw] if isinstance(raw, dict) else raw
+
+    for resource_block in blocks:
+        if not isinstance(resource_block, dict):
+            continue
         for resource_type, instances in resource_block.items():
+            if not isinstance(instances, dict):
+                continue
             for name, config in instances.items():
-                resources.append(
-                    {
-                        "type": resource_type,
-                        "name": name,
-                        "config": config,
-                    }
-                )
+                # HCL2 sometimes wraps each instance config in a list
+                if isinstance(config, list):
+                    config = config[0] if config else {}
+                if isinstance(config, dict):
+                    resources.append({"type": resource_type, "name": name, "config": config})
     return resources
 
 

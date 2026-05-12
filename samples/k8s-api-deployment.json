@@ -1,0 +1,88 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "payments-api",
+    "namespace": "production",
+    "labels": {
+      "app": "payments-api",
+      "version": "2.3.1",
+      "team": "platform"
+    }
+  },
+  "spec": {
+    "replicas": 2,
+    "selector": {
+      "matchLabels": {
+        "app": "payments-api"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "payments-api",
+          "version": "2.3.1"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "payments-api",
+            "image": "myregistry/payments-api:2.3.1",
+            "ports": [
+              {
+                "containerPort": 8080,
+                "protocol": "TCP"
+              }
+            ],
+            "env": [
+              {
+                "name": "DB_HOST",
+                "value": "postgres-service.production.svc.cluster.local"
+              },
+              {
+                "name": "DB_PASSWORD",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "db-credentials",
+                    "key": "password"
+                  }
+                }
+              },
+              {
+                "name": "LOG_LEVEL",
+                "value": "info"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "100m",
+                "memory": "128Mi"
+              },
+              "limits": {
+                "cpu": "2000m",
+                "memory": "2Gi"
+              }
+            },
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/healthz",
+                "port": 8080
+              },
+              "initialDelaySeconds": 30,
+              "periodSeconds": 10
+            }
+          }
+        ],
+        "serviceAccountName": "default"
+      }
+    },
+    "strategy": {
+      "type": "RollingUpdate",
+      "rollingUpdate": {
+        "maxSurge": 1,
+        "maxUnavailable": 0
+      }
+    }
+  }
+}

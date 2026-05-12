@@ -5,6 +5,7 @@ import logging
 from langchain_core.prompts import ChatPromptTemplate
 from app.core.llm import get_llm
 from app.core.skills import get_agent_prompt
+from app.core.dedup import extract_keywords
 from app.models import (
     AgentReport,
     ArchitectureReview,
@@ -70,12 +71,150 @@ def _filter_k8s_platform_gaps(gaps: list, infra_type: str) -> list:
     return filtered
 
 
-def _calculate_architecture_score(gaps: list) -> float:
-    """Calculate architecture score from gaps — deterministic, not LLM-guessed."""
+# Keywords that indicate speculative "absence of strategy" gaps for Terraform.
+# These describe things that aren't misconfigured — they simply don't exist, which is a
+# legitimate design choice (e.g., single-region is fine for many workloads).
+_TERRAFORM_SPECULATIVE_GAP_KEYWORDS = [
+    "disaster recovery",
+    "multi-region",
+    "cross-region",
+    "regional failover",
+    "multi-az failover",
+    "chaos engineering",
+    "service mesh",
+    "zero-trust",
+    "single region",
+    "single-region",
+    "regional outage",
+]
+
+
+def _filter_terraform_speculative_gaps(gaps: list, infra_type: str) -> list:
+    """Drop Terraform gaps that flag absence of strategies rather than misconfigurations."""
+    if infra_type != "terraform":
+        return gaps
+    filtered = []
+    for gap in gaps:
+        text = (gap.title + " " + gap.description).lower()
+        if any(kw in text for kw in _TERRAFORM_SPECULATIVE_GAP_KEYWORDS):
+            logger.debug(f"Filtered speculative Terraform gap: {gap.title}")
+            continue
+        filtered.append(gap)
+    return filtered
+
+
+def _filter_terraform_secrets_gap(
+    gaps: list, infra_type: str, file_contents: dict[str, str] | None
+) -> list:
+    """Drop secrets management gap if Terraform uses variable refs or manage_master_user_password."""
+    if infra_type != "terraform" or not file_contents:
+        return gaps
+    all_content = "\n".join(file_contents.values()).lower()
+    uses_var_refs = "var.db_password" in all_content or "var.db_username" in all_content
+    uses_managed_password = "manage_master_user_password" in all_content
+    uses_secrets_manager = "aws_secretsmanager_secret" in all_content
+    if not (uses_var_refs or uses_managed_password or uses_secrets_manager):
+        return gaps
+    filtered = []
+    for gap in gaps:
+        text = (gap.title + " " + gap.description).lower()
+        if "secret" in text and ("management" in text or "credential" in text):
+            logger.debug(f"Filtered secrets management gap (var refs/managed password present): {gap.title}")
+            continue
+        filtered.append(gap)
+    return filtered
+
+
+def _calculate_architecture_score(
+    gaps: list,
+    agent_scores: list[float] | None = None,
+) -> float:
+    """Calculate architecture score from gaps, capped by agent average.
+
+    The architecture score cannot exceed the average of the individual agent
+    scores — if agents found real problems, the architecture conclusion
+    must reflect that reality.
+    """
     score = 100.0
     for gap in gaps:
         score -= _GAP_DEDUCTIONS.get(gap.severity.value, 5)
-    return max(0.0, score)
+    score = max(0.0, score)
+
+    # Cap: architecture can't claim perfection when agents found issues
+    if agent_scores:
+        agent_avg = sum(agent_scores) / len(agent_scores)
+        score = min(score, agent_avg)
+
+    return round(score, 1)
+
+
+_SEVERITY_RANK = {"info": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
+
+
+def _dedup_cross_cutting_gaps(
+    gaps: list,
+    security_report: AgentReport | None,
+    reliability_report: AgentReport | None,
+    cost_report: AgentReport | None,
+) -> list:
+    """Remove cross-cutting gaps that merely echo what an individual agent already found.
+
+    Rules:
+    - No agent match → genuinely cross-cutting, always keep.
+    - Matches findings from 2+ agents → valid multi-domain synthesis, keep if
+      severity is within +1 of the highest matching agent finding.
+    - Matches findings from only 1 agent → single-agent echo:
+        - same level as agent finding → remove (pure echo, adds no value)
+        - exactly +1 level → keep (valid escalation with cross-cutting context)
+        - +2 or more levels → remove (violates severity calibration rule)
+    """
+    findings_by_agent = {
+        "security": security_report.findings if security_report else [],
+        "reliability": reliability_report.findings if reliability_report else [],
+        "cost": cost_report.findings if cost_report else [],
+    }
+
+    all_findings = [f for fs in findings_by_agent.values() for f in fs]
+    if not all_findings:
+        return gaps
+
+    filtered = []
+    for gap in gaps:
+        gap_keywords = extract_keywords(gap.title + " " + gap.description)
+        gap_rank = _SEVERITY_RANK.get(gap.severity.value, 2)
+
+        matching_agents: set[str] = set()
+        best_match_rank: int | None = None
+
+        for agent_name, findings in findings_by_agent.items():
+            for finding in findings:
+                finding_keywords = extract_keywords(finding.title + " " + finding.description)
+                if len(gap_keywords & finding_keywords) >= 3:
+                    matching_agents.add(agent_name)
+                    finding_rank = _SEVERITY_RANK.get(finding.severity.value, 2)
+                    if best_match_rank is None or finding_rank > best_match_rank:
+                        best_match_rank = finding_rank
+
+        if best_match_rank is None:
+            # No agent found anything related — genuinely new cross-cutting concern
+            filtered.append(gap)
+        elif len(matching_agents) >= 2:
+            # Spans multiple agent domains — valid cross-cutting synthesis
+            # Keep as long as severity doesn't jump more than +1 above the highest match
+            if gap_rank <= best_match_rank + 1:
+                filtered.append(gap)
+        else:
+            # Single agent found this — only keep if it escalates by exactly one level
+            # AND the gap text references multiple domains (not just a restatement)
+            if gap_rank == best_match_rank + 1:
+                gap_text = (gap.title + " " + gap.description).lower()
+                domains_mentioned = sum(1 for d in ["security", "reliability", "cost", "availability"]
+                                        if d in gap_text)
+                if domains_mentioned >= 2:
+                    filtered.append(gap)
+                # else: single-domain restatement at +1 — still an echo, drop it
+
+    return filtered
 
 
 def _extract_k8s_resources(content: str) -> list[str]:
@@ -217,6 +356,15 @@ async def analyze_architecture(
         # Drop platform-level concerns that are out of scope for K8s/Helm charts
         gaps = _filter_k8s_platform_gaps(gaps, infra_type)
 
+        # Drop speculative "absent strategy" gaps for Terraform (e.g., no multi-region DR)
+        gaps = _filter_terraform_speculative_gaps(gaps, infra_type)
+
+        # Drop false-positive secrets management gaps when var refs or managed password used
+        gaps = _filter_terraform_secrets_gap(gaps, infra_type, file_contents)
+
+        # Drop cross-cutting gaps that merely echo what individual agents already found
+        gaps = _dedup_cross_cutting_gaps(gaps, security_report, reliability_report, cost_report)
+
         # Filter prioritized_actions for the same platform-level keywords
         raw_actions = result.get("prioritized_actions", [])
         if infra_type != "terraform":
@@ -225,14 +373,23 @@ async def analyze_architecture(
                 if not any(kw in a.lower() for kw in _K8S_PLATFORM_GAP_KEYWORDS)
             ]
         else:
-            filtered_actions = raw_actions
+            filtered_actions = [
+                a for a in raw_actions
+                if not any(kw in a.lower() for kw in _TERRAFORM_SPECULATIVE_GAP_KEYWORDS)
+            ]
+
+        # Collect agent scores for the cap
+        agent_scores = [
+            r.score for r in [security_report, reliability_report, cost_report]
+            if r is not None
+        ]
 
         return ArchitectureReview(
             tradeoffs=tradeoffs,
             patterns_detected=patterns,
             cross_cutting_gaps=gaps,
             prioritized_actions=filtered_actions,
-            architecture_score=_calculate_architecture_score(gaps),
+            architecture_score=_calculate_architecture_score(gaps, agent_scores),
             summary=result.get("summary", ""),
         )
 
