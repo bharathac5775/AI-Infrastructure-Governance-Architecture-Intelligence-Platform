@@ -157,16 +157,20 @@ def _dedup_cross_cutting_gaps(
     reliability_report: AgentReport | None,
     cost_report: AgentReport | None,
 ) -> list:
-    """Remove cross-cutting gaps that merely echo what an individual agent already found.
+    """Remove cross-cutting gaps that merely echo what individual agents already found.
 
-    Rules:
-    - No agent match → genuinely cross-cutting, always keep.
-    - Matches findings from 2+ agents → valid multi-domain synthesis, keep if
-      severity is within +1 of the highest matching agent finding.
-    - Matches findings from only 1 agent → single-agent echo:
-        - same level as agent finding → remove (pure echo, adds no value)
-        - exactly +1 level → keep (valid escalation with cross-cutting context)
-        - +2 or more levels → remove (violates severity calibration rule)
+    A gap is a "bundle echo" if it simply stitches together multiple agent
+    findings without adding new insight.  We detect this by measuring keyword
+    coverage: if ≥80% of the gap's keywords already appear in the union of
+    matching agent findings, the gap is just restating what agents said.
+
+    Rules (applied in order):
+    1. No agent keyword match → genuinely new, keep.
+    2. Bundle echo (≥80% coverage) → drop regardless of agent count.
+    3. Multi-agent match (2+ agents) AND <80% coverage → valid synthesis,
+       keep if severity within +1 of highest agent finding.
+    4. Single-agent match AND <80% coverage → keep only if +1 escalation
+       AND gap text references 2+ domains.
     """
     findings_by_agent = {
         "security": security_report.findings if security_report else [],
@@ -185,12 +189,15 @@ def _dedup_cross_cutting_gaps(
 
         matching_agents: set[str] = set()
         best_match_rank: int | None = None
+        matched_keywords: set[str] = set()
 
         for agent_name, findings in findings_by_agent.items():
             for finding in findings:
                 finding_keywords = extract_keywords(finding.title + " " + finding.description)
-                if len(gap_keywords & finding_keywords) >= 3:
+                overlap = gap_keywords & finding_keywords
+                if len(overlap) >= 3:
                     matching_agents.add(agent_name)
+                    matched_keywords |= finding_keywords
                     finding_rank = _SEVERITY_RANK.get(finding.severity.value, 2)
                     if best_match_rank is None or finding_rank > best_match_rank:
                         best_match_rank = finding_rank
@@ -198,21 +205,30 @@ def _dedup_cross_cutting_gaps(
         if best_match_rank is None:
             # No agent found anything related — genuinely new cross-cutting concern
             filtered.append(gap)
-        elif len(matching_agents) >= 2:
-            # Spans multiple agent domains — valid cross-cutting synthesis
-            # Keep as long as severity doesn't jump more than +1 above the highest match
+            continue
+
+        # Bundle echo detection: if most gap keywords are already covered
+        # by the union of matching findings, the gap adds no new insight
+        coverage = len(gap_keywords & matched_keywords) / max(len(gap_keywords), 1)
+        if coverage >= 0.8:
+            logger.debug(
+                f"Dropped bundle-echo gap: {gap.title} "
+                f"(coverage={coverage:.0%}, agents={matching_agents})"
+            )
+            continue
+
+        if len(matching_agents) >= 2:
+            # Multi-agent with new insight — keep if severity within +1
             if gap_rank <= best_match_rank + 1:
                 filtered.append(gap)
         else:
-            # Single agent found this — only keep if it escalates by exactly one level
-            # AND the gap text references multiple domains (not just a restatement)
+            # Single agent — only keep if +1 escalation AND mentions 2+ domains
             if gap_rank == best_match_rank + 1:
                 gap_text = (gap.title + " " + gap.description).lower()
                 domains_mentioned = sum(1 for d in ["security", "reliability", "cost", "availability"]
                                         if d in gap_text)
                 if domains_mentioned >= 2:
                     filtered.append(gap)
-                # else: single-domain restatement at +1 — still an echo, drop it
 
     return filtered
 
