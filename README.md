@@ -95,9 +95,11 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 
 | Type | Extensions | Notes |
 |------|-----------|-------|
-| Kubernetes | `.yaml`, `.yml`, `.json` | Multi-document YAML supported |
-| Terraform | `.tf`, `.hcl`, `.json` | AWS, Azure, and GCP resources |
+| Kubernetes | `.yaml`, `.yml`, `.json` | Multi-document YAML supported; `List` kind supported in JSON |
+| Terraform | `.tf`, `.hcl`, `.json` | AWS, Azure, and GCP resources; HCL and JSON formats both supported |
 | Helm Charts | `.tgz` | Rendered server-side via `helm template` |
+
+> Non-infrastructure files (e.g., `package-lock.json`, `tsconfig.json`, application config YAML without `apiVersion`/`kind`) are rejected at upload to prevent hallucinated reports on unrelated content.
 
 ## Prerequisites
 
