@@ -325,3 +325,196 @@ When all agent scores are high and gap count is zero, the supervisor was still g
 | `terraform-serverless.json` | Average-quality Terraform JSON (S3 versioning suspended, no DLQ, no PITR, no lifecycle, no alarms, no encryption) | 75–85 |
 | `k8s-production-grade.json` | Production-grade K8s `List` (ServiceAccount + hardened Deployment + Service + NetworkPolicy + HPA + PDB) | 95–100 |
 | `terraform-production-grade.json` | Production-grade Terraform JSON (KMS+rotation, Secrets Manager, VPC+flow logs, RDS Multi-AZ encrypted, S3 versioned+SSE-KMS, Lambda VPC+DLQ+X-Ray, CloudWatch alarms, CloudTrail multi-region) | 98–100 |
+
+---
+
+## Phase 3.1 — Pytest Regression Test Harness
+
+**Status:** Complete
+**Theme:** Lock in every Phase 1/2 behavior with automated tests so future refactors fail loudly when they break a regression. The platform shipped with **zero** automated tests; every Phase 2 fix was hand-validated by re-uploading samples. That doesn't scale and doesn't prevent regressions.
+
+### What Was Built
+
+A pytest suite of **206 tests** that runs in **~1 second** without Ollama. The harness mocks the LLM via a fixture so tests are CI-safe and fully deterministic.
+
+### Architecture Decisions
+
+**1. Mock the LLM by replacing the chain primitive, not by patching call sites**
+Rather than patching each `chain.ainvoke(...)` call (5 sites), the `mock_llm` fixture (`tests/conftest.py`) monkeypatches `get_llm` in **every importer's namespace** (the gotcha: each agent module does `from app.core.llm import get_llm`, which binds the name at import time). The replacement is a `_FakeRunnable(Runnable)` that inspects the rendered prompt and returns canned JSON keyed by agent type via substring matching.
+
+**2. Two-track sample regression: rules-only AND full-pipeline**
+- `test_samples_rules_only.py` — runs rule functions directly, fully synchronous, fully deterministic, tolerance 0.1
+- `test_samples_full_pipeline.py` — runs `run_analysis()` end-to-end with mocked LLM, marker `slow`+`integration`
+This catches both rule-level regressions AND wiring/orchestration regressions.
+
+**3. Pinned scores in YAML manifest, not hardcoded in tests**
+`tests/expected_scores.yaml` is the single contract that defines expected per-sample behavior. When a rule changes intentionally, one number in the manifest moves; failures point at exactly which sample drifted.
+
+**4. Phase 2 regression sentinels are non-negotiable**
+Every Phase 2 fix has at least one positive + one negative test. Names like `test_iam_xray_wildcard_not_flagged`, `test_sqs_named_lambda_dlq_not_flagged`, `test_parse_terraform_json_format` tell the story of what went wrong before and now can't go wrong again.
+
+### Components Delivered
+
+| Component | Details |
+|-----------|---------|
+| **Dev dependency** | `requirements-dev.txt` — pytest 8.3.4, pytest-asyncio 0.25.0 |
+| **Pytest config** | `pytest.ini` with `asyncio_mode = auto`, markers: `slow`, `integration` |
+| **Fixtures** | `tests/fixtures/findings.py` (builders), `tests/fixtures/scoring.py` (deduction table mirror), `tests/fixtures/llm_responses.py` (canned JSON) |
+| **Conftest** | `mock_llm` fixture, `sample_loader`, `expected_scores` (session-scoped) |
+| **Manifest** | `tests/expected_scores.yaml` — 14 samples pinned with overall + per-agent scores + finding sentinels |
+| **Test files** | 8 regression files: `test_dedup.py` (23), `test_scoring.py` (19), `test_security_rules.py` (34), `test_reliability_rules.py` (21), `test_cost_rules.py` (14), `test_arch_filters.py` (23), `test_parsers.py` (22), `test_mock_llm.py` (3) |
+| **Sample regression** | `test_samples_rules_only.py` (32) + `test_samples_full_pipeline.py` (15) |
+| **Documentation** | `tests/README.md` with run commands, conventions, LLM-mock gotcha, "break a fix on purpose" experiment |
+
+### Coverage
+
+| Layer | What's verified |
+|-------|----------------|
+| Pure logic | `extract_keywords`, `is_duplicate`, multi-domain dedup with severity rules + bundle-echo coverage |
+| Math | `calculate_overall_score` weighted average; `_calculate_architecture_score` deductions + agent-avg cap |
+| Security rules | Privileged container, runAsRoot (pod-level fallback), RBAC wildcards, IAM xray exemption (Phase 2), S3 companion-resource awareness (Phase 2), unparseable IAM policy fallback |
+| Reliability rules | Probes, PDB, HPA suppresses single-replica SPOF, DynamoDB PITR, Lambda DLQ, **SQS DLQ name skip (Phase 2)** |
+| Cost rules | Overprovisioning ratios, CloudWatch retention, S3 lifecycle (companion-aware), DynamoDB billing mode |
+| Architecture filters | `_filter_k8s_platform_gaps`, `_filter_terraform_speculative_gaps`, `_filter_terraform_secrets_gap` |
+| Parsers | K8s YAML/JSON multi-doc, Terraform HCL+JSON dict format (Phase 2), `kind: List` documented behavior, AWS provider v4+ companion lookup |
+
+### Phase 2 Regression Sentinels (Non-Negotiable)
+
+| Test name | What it locks in |
+|---|---|
+| `test_iam_xray_wildcard_not_flagged` | AWS-required wildcard actions (xray:PutTraceSegments, ec2:CreateNetworkInterface) MUST NOT flag the IAM rule |
+| `test_iam_s3_wildcard_resource_flagged` | Counterpart: arbitrary action with `Resource:"*"` MUST still flag |
+| `test_sqs_named_lambda_dlq_not_flagged` | Queue named `*_dlq`, `dead-letter`, etc. MUST NOT flag missing-DLQ |
+| `test_lambda_without_dlq_flagged_medium` | Lambda DLQ rule MUST flag when missing |
+| `test_dynamodb_with_pitr_enabled_no_flag` | PITR-enabled DynamoDB MUST NOT flag |
+| `test_parse_terraform_json_format` | JSON-format Terraform MUST extract resources (Phase 2 parser fix) |
+| `test_s3_with_companion_encryption_no_flag` | AWS provider v4+ companion encryption resource MUST suppress finding |
+| `test_no_gaps_capped_by_agent_average` | Architecture score MUST be capped at agent-score average |
+
+### Challenges Addressed
+
+- **LangChain Runnable coercion** — `_FakeRunnable` had to inherit from `langchain_core.runnables.Runnable`, otherwise `prompt | llm` fails with `TypeError: Expected a Runnable, callable or dict`
+- **Prompt routing collision** — supervisor and architecture-reviewer prompts both contain "Architecture Review", so route-by-substring had to check supervisor signals (`executive_summary`, `review supervisor`) first
+- **HCL2 parser hangs on malformed input** — initial test used `'resource "missing_quote { broken'` which hung the parser; replaced with `'@@@@ NOT VALID HCL @@@@'` which fails fast
+- **`tf_resource(name=...)` keyword collision** — fixture builder used `name` as the Terraform local name AND the AWS-side `name` attribute; renamed builder param to `resource_name`
+- **Float-comparison bug in dedup threshold** (Phase 2 carryover) — fixed-integer `>= 3` overlap, never percentage-based
+- **PyYAML deprecation warning** — added `asyncio_default_fixture_loop_scope = function` to silence pytest-asyncio future-default warning
+
+### Build Order
+
+```
+1. requirements-dev.txt
+2. pytest.ini + tests/__init__.py + tests/conftest.py + tests/fixtures/__init__.py
+3. tests/fixtures/findings.py (builders)
+4. test_dedup.py    → 23 tests
+5. test_scoring.py  → 19 tests
+6. test_security_rules.py + test_reliability_rules.py + test_cost_rules.py → 69 tests
+7. test_arch_filters.py → 23 tests
+8. test_parsers.py → 22 tests
+9. tests/conftest.py mock_llm fixture + tests/fixtures/llm_responses.py
+10. tests/expected_scores.yaml
+11. test_samples_rules_only.py → 32 tests
+12. test_samples_full_pipeline.py → 15 tests
+13. tests/README.md + root README.md update
+```
+
+### Verification
+
+| Command | Result |
+|---|---|
+| `pytest` | 206 passed, 38 skipped, ~1.0s |
+| `pytest -m "not slow"` | 188 passed, 25 skipped (~0.5s) — fast subset for inner-loop dev |
+| `pytest -m integration` | 18 passed, 13 skipped — full-pipeline tests |
+| `pytest -k iam` | All IAM-related regression sentinels |
+
+---
+
+## Phase 3.2 — Drift Detection
+
+**Status:** Complete
+**Theme:** When the same infrastructure is re-uploaded, automatically compare against the most recent prior scan and show what changed — score deltas per dimension, findings introduced (regressions), findings resolved (improvements), findings persisting.
+
+### What Was Built
+
+End-to-end drift detection from API to UI:
+1. **SHA256 fingerprinting** of every uploaded bundle (filename-set hash + per-file content hashes)
+2. **`GET /api/v1/reports/{id}/drift` endpoint** that finds the prior scan with the same bundle fingerprint and returns a structured drift summary
+3. **Streamlit drift panel** that auto-appears when a re-upload is detected
+4. **Deterministic-only comparison** — drift sees through LLM noise to the rule-based substrate
+
+### Architecture Decisions
+
+**1. Bundle fingerprint over filename SET, not content**
+The first cut hashed filename+content pairs, which meant editing the file changed the bundle hash and broke baseline matching — exactly the wrong UX. The fix: hash the **sorted list of filenames only**. Per-file content hashes are still computed and stored as metadata (useful to show *which file* in the bundle changed), but the bundle hash itself is content-blind. Renaming, adding, or removing a file changes the bundle. Editing content does not — and that's precisely what makes drift detection work across edits.
+
+**2. Drift compares ONLY rule-based findings**
+LLM-augmented findings (`category="ai-analysis"`) have inherent run-to-run noise. The local Gemma model produces slightly different titles, resources, and wording on every invocation, even at low temperature. Including them in drift surfaced phantom "introduced" and "resolved" findings on identical re-uploads (3 new + 7 resolved when nothing actually changed). The fix: filter out `ai-analysis` findings before bucketing into introduced/resolved/persisting. LLM findings still appear in the report itself; they just don't pollute the diff.
+
+**3. Score deltas use rule-only recomputation, not report.score directly**
+The score deductions table in each agent sums over rule findings + dedup-survived LLM findings. That means even per-agent score is non-deterministic across runs of identical inputs. The fix: `compute_drift` recomputes per-agent scores from rule findings only, applying the same deduction values (CRITICAL=20, HIGH=10, MEDIUM=5, LOW=2, INFO=0). Drift's per-agent delta then equals zero on identical inputs — guaranteed.
+
+**4. Architecture excluded from overall drift**
+Even with deterministic `_calculate_architecture_score(gaps, agent_scores)`, the *gap list* is LLM-emitted and varies across runs. Including the architecture term in the overall delta leaked that noise — users saw `overall: -0.9` even when all three agent deltas were `+0.0`. The fix: `_rule_only_overall_score` is a weighted average of the three rule-only agent scores (weights renormalized to 0.85). The architecture delta is still surfaced separately in `score_deltas["architecture"]` for users who want to see it; it just doesn't pollute the overall.
+
+**5. Finding signature is `(agent, category, title, resource)`**
+Severity and description are deliberately excluded. Severity changes across LLM runs even for the same finding — re-classification shouldn't make a finding "vanish + reappear." Description is LLM-generated wording and drifts every run. The four-tuple is stable across re-runs of the rule pipeline.
+
+**6. Backwards compatible — no schema migration**
+New fields on `AnalysisReport` (`file_fingerprints`, `bundle_fingerprint`) have safe defaults (empty dict, empty string). Old reports without fingerprints deserialize cleanly. The drift `where=` query simply doesn't match them, and `find_baseline` returns `None` — frontend silently hides the panel.
+
+### Components Delivered
+
+| Component | Details |
+|-----------|---------|
+| **Fingerprint module** | `app/core/fingerprint.py::compute_fingerprints()` — SHA256 over sorted filenames; per-file content SHA256 stored as metadata |
+| **Drift module** | `app/core/drift.py` — `find_baseline`, `compute_drift`, `_finding_signature`, `_rule_only_score`, `_rule_only_overall_score` |
+| **Model extension** | `AnalysisReport.file_fingerprints: dict[str, str]` and `bundle_fingerprint: str` with defaults |
+| **Store extension** | `app/core/store.py::find_by_bundle_fingerprint()` — queries ChromaDB by `bundle_fingerprint` metadata; `save_report` adds fingerprint to metadata when present |
+| **API endpoint** | `GET /api/v1/reports/{report_id}/drift` — returns `{baseline, drift}` or `{null, null}` |
+| **Routes wiring** | `analyze_infrastructure` and `analyze_text` compute fingerprints before save |
+| **Frontend panel** | Drift expander after score overview — 4 metric cards (Overall/Security/Reliability/Cost with delta arrows), 3 sub-expanders (introduced/resolved/persisting), explanatory caption about LLM exclusion |
+
+### Models Added
+
+```python
+class AnalysisReport(BaseModel):
+    # ... existing fields ...
+    file_fingerprints: dict[str, str] = {}    # filename -> sha256 hex
+    bundle_fingerprint: str = ""              # sha256 over sorted filenames
+```
+
+### API Added
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/v1/reports/{report_id}/drift` | Compare report against most recent prior scan of the same bundle. Returns `{baseline: null, drift: null}` if no prior version exists. |
+
+### Tests Added
+
+| File | Count | What's locked in |
+|------|-------|------------------|
+| `test_fingerprint.py` | 10 | Filename-set hash, content edits don't change bundle, file order independent, rename/add/remove DO change bundle |
+| `test_drift.py` | 31 | Finding signature ignores severity/description, AI-analysis findings excluded from all buckets and severity counts, zero deltas for identical rule findings, score deltas use rule-only recomputation, **arch noise does not pollute overall delta** (the regression test for the residual bug found in smoke testing) |
+
+### Challenges Addressed
+
+- **First implementation hashed content** — drift panel hidden after editing file. Caught by manual smoke test before declaring done. Fix: bundle hash over filenames only.
+- **LLM noise leaked into finding diff** — re-uploading identical file produced phantom "3 new, 7 resolved." Fix: exclude `ai-analysis` findings from all drift comparisons.
+- **LLM noise leaked into score deltas** — per-agent score deltas were non-zero on identical inputs. Fix: rule-only score recomputation in drift module.
+- **Architecture noise leaked into overall delta** — observed `overall: -0.9` on identical re-upload despite all per-agent deltas being `+0.0`. Fix: drop architecture term from `_rule_only_overall_score`, keep it as a separate field.
+- **Pydantic field ordering** — adding fields to `AnalysisReport` after the custom `__init__` required keeping defaults so Pydantic field-validation order stays stable; verified against all 213 prior tests.
+
+### Verification
+
+| Step | Action | Expected | Verified |
+|---|---|---|---|
+| 1 | First upload of `k8s-api-deployment.json` | Drift panel hidden (no prior scan) | ✓ |
+| 2 | Re-upload identical file | Drift panel shows all-zero deltas, "0 new, 0 resolved, 8 persisting" | ✓ |
+| 3 | Add `securityContext: {runAsNonRoot: true}` and re-upload | Security: +10.0, Overall: +4.0, "0 new, 1 resolved, 7 persisting", resolved finding shows "Container may run as root" | ✓ exact match |
+
+| Suite metric | Value |
+|---|---|
+| Tests passing | 248 (was 206 before Phase 3) |
+| New tests | +42 (10 fingerprint + 31 drift + 1 arch-noise regression) |
+| Runtime | ~1.2s |
+| Manual smoke test | All three steps verified end-to-end against the live system |
