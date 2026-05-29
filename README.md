@@ -215,6 +215,15 @@ The `samples/` directory contains test infrastructure files covering good, avera
 
 See [DEVELOPMENT_PHASES.md](DEVELOPMENT_PHASES.md) for detailed development history, technical decisions, and phase-by-phase progress.
 
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+Pytest-based regression suite covering rule logic, dedup, scoring, parsers, architecture filters, and per-sample sample regressions. Runs ~1 second; no Ollama required. See [tests/README.md](tests/README.md) for details on running, the LLM-mock fixture, and how to add tests for new rules.
+
 ## License
 
 MIT

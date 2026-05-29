@@ -1,0 +1,133 @@
+# Pinned per-sample expected scores and finding sentinels.
+# When a rule changes intentionally, run:
+#   pytest tests/test_samples_rules_only.py -v
+# update the values that should shift, and re-run until green.
+#
+# Every Phase 2 regression fix has a sentinel here under
+# must_have_findings or must_not_have_findings — those must NEVER drift
+# without explicit code review.
+
+samples:
+
+  # ---- Average / mid-tier samples ----
+
+  average-infra.tf:
+    infra_type: terraform
+    rules_only:
+      overall_score: 81.9
+      tolerance: 0.1
+      agent_scores: {Security Agent: 80.0, Reliability Agent: 75.0, Cost Agent: 95.0}
+
+  azure-average.tf:
+    infra_type: terraform
+    rules_only:
+      overall_score: 83.8
+      tolerance: 0.1
+      agent_scores: {Security Agent: 70.0, Reliability Agent: 88.0, Cost Agent: 100.0}
+
+  gcp-average.tf:
+    infra_type: terraform
+    rules_only:
+      overall_score: 73.4
+      tolerance: 0.1
+      agent_scores: {Security Agent: 53.0, Reliability Agent: 85.0, Cost Agent: 90.0}
+
+  k8s-api-deployment.json:
+    infra_type: kubernetes
+    rules_only:
+      overall_score: 84.8
+      tolerance: 0.1
+      agent_scores: {Security Agent: 85.0, Reliability Agent: 81.0, Cost Agent: 90.0}
+
+  terraform-serverless.json:
+    infra_type: terraform
+    rules_only:
+      overall_score: 85.4
+      tolerance: 0.1
+      agent_scores: {Security Agent: 83.0, Reliability Agent: 85.0, Cost Agent: 90.0}
+    must_have_findings:
+      # Phase 2 sentinel: Lambda DLQ rule must fire on this sample
+      - {agent: Reliability Agent, title_substring: "Lambda without dead letter queue"}
+      # Phase 2 sentinel: DynamoDB PITR rule must fire on this sample
+      - {agent: Reliability Agent, title_substring: "point-in-time recovery"}
+
+  # ---- Vulnerable / critical samples (low scores expected) ----
+
+  critical-security-failure.yaml:
+    infra_type: kubernetes
+    rules_only:
+      overall_score: 42.5
+      tolerance: 0.1
+      agent_scores: {Security Agent: 0.0, Reliability Agent: 61.0, Cost Agent: 85.0}
+    must_have_findings:
+      - {agent: Security Agent, title_substring: "Privileged container"}
+
+  vulnerable-deployment.yaml:
+    infra_type: kubernetes
+    rules_only:
+      overall_score: 24.2
+      tolerance: 0.1
+      agent_scores: {Security Agent: 0.0, Reliability Agent: 23.0, Cost Agent: 65.0}
+    must_have_findings:
+      - {agent: Security Agent,    title_substring: "may run as root"}
+      - {agent: Security Agent,    title_substring: "Privileged container"}
+      - {agent: Security Agent,    title_substring: "cluster-admin binding"}
+
+  vulnerable-infra.tf:
+    infra_type: terraform
+    rules_only:
+      overall_score: 28.7
+      tolerance: 0.1
+      agent_scores: {Security Agent: 0.0, Reliability Agent: 40.0, Cost Agent: 59.0}
+
+  # ---- Production-grade samples (~100 expected) ----
+
+  good-deployment.yaml:
+    infra_type: kubernetes
+    rules_only:
+      overall_score: 100.0
+      tolerance: 0.1
+      agent_scores: {Security Agent: 100.0, Reliability Agent: 100.0, Cost Agent: 100.0}
+
+  good-infra.tf:
+    infra_type: terraform
+    rules_only:
+      overall_score: 98.2
+      tolerance: 0.1
+      agent_scores: {Security Agent: 100.0, Reliability Agent: 95.0, Cost Agent: 100.0}
+
+  hardened-production.yaml:
+    infra_type: kubernetes
+    rules_only:
+      overall_score: 96.5
+      tolerance: 0.1
+      agent_scores: {Security Agent: 100.0, Reliability Agent: 90.0, Cost Agent: 100.0}
+
+  k8s-production-grade.json:
+    # Note: kind:List currently means this sample has zero parsed resources,
+    # which trivially yields 0 findings. When List-expansion ships in a future
+    # phase, this score may shift slightly.
+    infra_type: kubernetes
+    rules_only:
+      overall_score: 100.0
+      tolerance: 0.1
+      agent_scores: {Security Agent: 100.0, Reliability Agent: 100.0, Cost Agent: 100.0}
+
+  production-good.tf:
+    infra_type: terraform
+    rules_only:
+      overall_score: 100.0
+      tolerance: 0.1
+      agent_scores: {Security Agent: 100.0, Reliability Agent: 100.0, Cost Agent: 100.0}
+
+  terraform-production-grade.json:
+    infra_type: terraform
+    rules_only:
+      overall_score: 100.0
+      tolerance: 0.1
+      agent_scores: {Security Agent: 100.0, Reliability Agent: 100.0, Cost Agent: 100.0}
+    must_not_have_findings:
+      # Phase 2 sentinel: IAM xray:PutTraceSegments + Resource:"*" must NOT flag
+      - {agent: Security Agent, title_substring: "Overly permissive IAM"}
+      # Phase 2 sentinel: SQS queue named "lambda_dlq" must NOT flag for missing DLQ
+      - {agent: Reliability Agent, title_substring: "without dead letter queue"}
