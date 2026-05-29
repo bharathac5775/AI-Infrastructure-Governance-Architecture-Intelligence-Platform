@@ -62,6 +62,13 @@ def save_report(report: AnalysisReport) -> str:
     if report.architecture_review:
         metadata["architecture_score"] = report.architecture_review.architecture_score
 
+    # Phase 3.2: persist drift fingerprints. Conditional so legacy reports
+    # without fingerprints don't pollute the metadata index with empty strings.
+    if report.bundle_fingerprint:
+        metadata["bundle_fingerprint"] = report.bundle_fingerprint
+    if report.file_fingerprints:
+        metadata["file_fingerprints_json"] = json.dumps(report.file_fingerprints)
+
     collection.upsert(
         ids=[report.report_id],
         documents=[report_json],
@@ -244,3 +251,39 @@ def find_similar_reports(query_text: str, n_results: int = 3, exclude_id: str = 
             break
 
     return similar
+
+
+def find_by_bundle_fingerprint(bundle_fingerprint: str, exclude_id: str = "") -> list[dict]:
+    """Return reports with the given bundle fingerprint, sorted by timestamp desc.
+
+    Phase 3.2 drift detection. Excludes the report with exclude_id (typically
+    the current report itself, so we get only the prior versions).
+    Empty bundle_fingerprint returns [] without hitting ChromaDB.
+    """
+    if not bundle_fingerprint:
+        return []
+    collection = _get_collection()
+    try:
+        result = collection.get(
+            where={"bundle_fingerprint": bundle_fingerprint},
+            include=["metadatas"],
+        )
+    except Exception:
+        logger.exception("find_by_bundle_fingerprint query failed")
+        return []
+    if not result or not result.get("ids"):
+        return []
+
+    matches = []
+    for i, rid in enumerate(result["ids"]):
+        if rid == exclude_id:
+            continue
+        meta = result["metadatas"][i] if result.get("metadatas") else {}
+        matches.append({
+            "report_id": rid,
+            "timestamp": meta.get("timestamp", ""),
+            "overall_score": meta.get("overall_score", 0),
+            "files_analyzed": meta.get("files_analyzed", ""),
+        })
+    matches.sort(key=lambda r: r.get("timestamp", ""), reverse=True)
+    return matches

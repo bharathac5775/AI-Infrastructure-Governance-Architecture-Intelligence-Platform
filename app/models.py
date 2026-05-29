@@ -69,6 +69,10 @@ class AnalysisReport(BaseModel):
     executive_summary: str
     risk_summary: str
     recommendations: list[str] = []
+    # Phase 3.2 — drift detection. Defaults are safe so old persisted reports
+    # without these fields still deserialize.
+    file_fingerprints: dict[str, str] = {}    # filename -> sha256 hex
+    bundle_fingerprint: str = ""              # sha256 over sorted (filename, hash) pairs
 
     def __init__(self, **data):
         super().__init__(**data)

@@ -4,6 +4,8 @@ from app.models import AnalysisReport, AnalysisRequest, HealthResponse
 from app.agents.supervisor import run_analysis
 from app.config import settings
 from app.core.store import save_report, get_report, list_reports, compare_reports, find_similar_reports, delete_report
+from app.core.fingerprint import compute_fingerprints
+from app.core.drift import find_baseline, compute_drift
 from app.parsers.helm import render_helm_chart
 
 router = APIRouter(prefix="/api/v1")
@@ -102,8 +104,13 @@ async def analyze_infrastructure(files: list[UploadFile] = File(...)):
     if not file_contents:
         raise HTTPException(status_code=400, detail="No files uploaded.")
 
+    # Compute fingerprints BEFORE analysis so we can attach them to the report
+    bundle_fp, file_fps = compute_fingerprints(file_contents)
+
     # Run multi-agent analysis
     report = await run_analysis(file_contents)
+    report.bundle_fingerprint = bundle_fp
+    report.file_fingerprints = file_fps
 
     # Store report
     save_report(report)
@@ -117,7 +124,10 @@ async def analyze_text(request: AnalysisRequest):
     if not request.file_contents:
         raise HTTPException(status_code=400, detail="No file contents provided.")
 
+    bundle_fp, file_fps = compute_fingerprints(request.file_contents)
     report = await run_analysis(request.file_contents)
+    report.bundle_fingerprint = bundle_fp
+    report.file_fingerprints = file_fps
     save_report(report)
     return report
 
@@ -169,3 +179,26 @@ async def similar_reports_endpoint(
     has_k8s = any(f.endswith((".yaml", ".yml")) for f in report.files_analyzed)
     infra_type = "terraform" if has_tf and not has_k8s else "kubernetes" if has_k8s and not has_tf else "mixed"
     return find_similar_reports(query, n_results=n, exclude_id=report_id, infra_type=infra_type)
+
+
+@router.get("/reports/{report_id}/drift")
+async def drift_endpoint(report_id: str):
+    """Compare a report against the most recent prior scan of the same bundle.
+
+    Phase 3.2 drift detection. Two scans share a "bundle" when they were run
+    on the same set of files with the same content (SHA256 fingerprint match).
+
+    Returns ``{"baseline": null, "drift": null}`` when no prior version exists
+    (either the report has no fingerprint, or no other report shares it).
+    """
+    report = get_report(report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found.")
+    baseline = find_baseline(report)
+    if not baseline:
+        return {"baseline": None, "drift": None}
+    drift = compute_drift(baseline, report)
+    return {
+        "baseline": {"report_id": baseline.report_id, "timestamp": baseline.timestamp},
+        "drift": drift,
+    }

@@ -117,6 +117,108 @@ if "report" in st.session_state:
 
     st.divider()
 
+    # Phase 3.2 — Drift detection panel. Hidden silently when no prior scan exists.
+    report_id = report.get("report_id", "")
+    if report_id:
+        try:
+            drift_resp = httpx.get(
+                f"{API_URL}/reports/{report_id}/drift", timeout=10.0
+            )
+            if drift_resp.status_code == 200:
+                drift_data = drift_resp.json()
+                if drift_data.get("baseline") and drift_data.get("drift"):
+                    d = drift_data["drift"]
+                    base_ts = d["baseline"]["timestamp"][:19].replace("T", " ")
+                    deltas = d["score_deltas"]
+
+                    def _fmt_delta(v):
+                        if v is None:
+                            return None
+                        return f"{v:+.1f}"
+
+                    intro = d["findings_introduced"]
+                    resolved = d["findings_resolved"]
+                    persist = d["findings_persisting"]
+
+                    panel_label = (
+                        f"📊 Compare with previous scan ({base_ts}) — "
+                        f"{len(intro)} new, {len(resolved)} resolved, "
+                        f"{len(persist)} persisting"
+                    )
+                    with st.expander(panel_label, expanded=True):
+                        st.caption(
+                            "Drift compares deterministic (rule-based) findings only. "
+                            "AI-augmented findings vary across runs and are excluded "
+                            "from this diff to avoid false positives."
+                        )
+                        c1, c2, c3, c4 = st.columns(4)
+                        with c1:
+                            st.metric(
+                                "Overall",
+                                report.get("overall_score", 0),
+                                _fmt_delta(deltas.get("overall")),
+                            )
+
+                        # Per-agent score panels driven by current report scores
+                        agent_score_lookup = {
+                            ar["agent_name"]: ar["score"]
+                            for ar in report.get("agent_reports", [])
+                        }
+                        sec_score = agent_score_lookup.get("Security Agent", 0)
+                        rel_score = agent_score_lookup.get("Reliability Agent", 0)
+                        cost_score = agent_score_lookup.get("Cost Agent", 0)
+                        with c2:
+                            st.metric(
+                                "🔒 Security",
+                                sec_score,
+                                _fmt_delta(deltas.get("security")),
+                            )
+                        with c3:
+                            st.metric(
+                                "🔄 Reliability",
+                                rel_score,
+                                _fmt_delta(deltas.get("reliability")),
+                            )
+                        with c4:
+                            st.metric(
+                                "💰 Cost",
+                                cost_score,
+                                _fmt_delta(deltas.get("cost")),
+                            )
+
+                        sev_colors = {
+                            "critical": "🔴",
+                            "high": "🟠",
+                            "medium": "🟡",
+                            "low": "🔵",
+                            "info": "⚪",
+                        }
+
+                        def _render_findings(items):
+                            if not items:
+                                st.markdown("_None._")
+                                return
+                            for f in items:
+                                sev = f.get("severity", "info")
+                                color = sev_colors.get(sev, "⚪")
+                                title = f.get("title", "(no title)")
+                                resource = f.get("resource", "")
+                                st.markdown(
+                                    f"{color} **[{sev.upper()}] {title}** — `{resource}`"
+                                )
+
+                        with st.expander(f"➕ Findings introduced ({len(intro)})"):
+                            _render_findings(intro)
+                        with st.expander(f"✅ Findings resolved ({len(resolved)})"):
+                            _render_findings(resolved)
+                        with st.expander(
+                            f"➖ Findings persisting ({len(persist)})"
+                        ):
+                            _render_findings(persist)
+        except Exception:
+            # Silent fail — drift is a value-add, never block the main report.
+            pass
+
     # Executive Summary
     st.subheader("📝 Executive Summary")
     st.markdown(report.get("executive_summary", "N/A"))
