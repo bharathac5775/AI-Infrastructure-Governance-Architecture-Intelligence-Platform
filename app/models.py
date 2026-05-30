@@ -21,6 +21,9 @@ class Finding(BaseModel):
     description: str
     resource: str
     recommendation: str
+    # Phase 3.3 — compliance enrichment. Empty default so old findings (and
+    # findings constructed before the enrichment step runs) deserialize cleanly.
+    compliance_controls: list[str] = []
 
 
 class AgentReport(BaseModel):
@@ -59,6 +62,20 @@ class ArchitectureReview(BaseModel):
     summary: str
 
 
+# Phase 3.3 — Compliance scorecard models
+class ComplianceFrameworkScore(BaseModel):
+    framework_id: str                          # e.g. "cis_kubernetes"
+    framework_name: str                        # e.g. "CIS Kubernetes Benchmark"
+    version: str
+    score_pct: float                           # 0-100
+    controls_passed: list[str] = []            # control IDs with no failed findings
+    controls_failed: list[str] = []            # control IDs with at least one finding
+
+
+class ComplianceScorecard(BaseModel):
+    frameworks: list[ComplianceFrameworkScore] = []
+
+
 class AnalysisReport(BaseModel):
     report_id: str = ""
     timestamp: str = ""
@@ -73,6 +90,8 @@ class AnalysisReport(BaseModel):
     # without these fields still deserialize.
     file_fingerprints: dict[str, str] = {}    # filename -> sha256 hex
     bundle_fingerprint: str = ""              # sha256 over sorted (filename, hash) pairs
+    # Phase 3.3 — compliance scorecard. None default so old reports deserialize.
+    compliance: Optional[ComplianceScorecard] = None
 
     def __init__(self, **data):
         super().__init__(**data)

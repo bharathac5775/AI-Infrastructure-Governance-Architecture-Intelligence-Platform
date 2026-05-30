@@ -19,6 +19,7 @@ def make_finding(
     description: str = "Test description.",
     resource: str = "test/resource",
     recommendation: str = "Fix it.",
+    compliance_controls: list[str] | None = None,
 ) -> Finding:
     return Finding(
         agent=agent,
@@ -28,6 +29,7 @@ def make_finding(
         description=description,
         resource=resource,
         recommendation=recommendation,
+        compliance_controls=compliance_controls or [],
     )
 
 

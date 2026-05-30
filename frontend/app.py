@@ -117,6 +117,44 @@ if "report" in st.session_state:
 
     st.divider()
 
+    # Phase 3.3 — Compliance Posture panel. Hidden when no compliance data.
+    compliance = report.get("compliance")
+    if compliance and compliance.get("frameworks"):
+        st.subheader("📋 Compliance Posture")
+        fw_list = compliance["frameworks"]
+        cols = st.columns(len(fw_list))
+        for col, fw in zip(cols, fw_list):
+            with col:
+                score = fw.get("score_pct", 0)
+                icon = "🟢" if score >= 80 else "🟡" if score >= 60 else "🔴"
+                passed = len(fw.get("controls_passed", []))
+                failed = len(fw.get("controls_failed", []))
+                st.metric(
+                    f"{icon} {fw.get('framework_name', fw.get('framework_id', '?'))}",
+                    f"{score}%",
+                    help=f"{passed} passed, {failed} failed",
+                )
+        with st.expander("Compliance details"):
+            for fw in fw_list:
+                st.markdown(
+                    f"**{fw.get('framework_name', '?')}** "
+                    f"(v{fw.get('version', '?')})"
+                )
+                passed_ids = fw.get("controls_passed", [])
+                failed_ids = fw.get("controls_failed", [])
+                if passed_ids:
+                    st.markdown(
+                        f"  ✅ Passed ({len(passed_ids)}): "
+                        + ", ".join(f"`{c}`" for c in passed_ids)
+                    )
+                if failed_ids:
+                    st.markdown(
+                        f"  ❌ Failed ({len(failed_ids)}): "
+                        + ", ".join(f"`{c}`" for c in failed_ids)
+                    )
+                st.markdown("---")
+        st.divider()
+
     # Phase 3.2 — Drift detection panel. Hidden silently when no prior scan exists.
     report_id = report.get("report_id", "")
     if report_id:
@@ -258,6 +296,13 @@ if "report" in st.session_state:
                 st.markdown(f"  📦 Resource: `{finding.get('resource', 'N/A')}`")
                 st.markdown(f"  {finding['description']}")
                 st.markdown(f"  ✅ **Recommendation:** {finding.get('recommendation', 'N/A')}")
+                # Phase 3.3 — show compliance controls when present
+                ctrls = finding.get("compliance_controls", [])
+                if ctrls:
+                    st.markdown(
+                        f"  📋 **Controls:** "
+                        + ", ".join(f"`{c}`" for c in ctrls)
+                    )
                 st.markdown("---")
 
     # Recommendations
@@ -312,12 +357,39 @@ if "report" in st.session_state:
     # Download report
     st.divider()
     report_json = json.dumps(report, indent=2)
-    st.download_button(
-        label="📥 Download Full Report (JSON)",
-        data=report_json,
-        file_name=f"governance-report-{report.get('report_id', 'unknown')}.json",
-        mime="application/json",
-    )
+    dl_col_a, dl_col_b = st.columns(2)
+    with dl_col_a:
+        st.download_button(
+            label="📥 Download Full Report (JSON)",
+            data=report_json,
+            file_name=f"governance-report-{report.get('report_id', 'unknown')}.json",
+            mime="application/json",
+        )
+    with dl_col_b:
+        # Phase 3.3 — PDF export. We pre-fetch on click so Streamlit can serve
+        # the bytes via st.download_button. Falls back gracefully if the API
+        # is unreachable.
+        rid = report.get("report_id", "")
+        if rid:
+            if st.button("📄 Download PDF Report", use_container_width=True):
+                try:
+                    pdf_resp = httpx.get(
+                        f"{API_URL}/reports/{rid}/export/pdf", timeout=30.0
+                    )
+                    if pdf_resp.status_code == 200:
+                        st.session_state[f"pdf_{rid}"] = pdf_resp.content
+                    else:
+                        st.error(f"PDF export failed: {pdf_resp.status_code}")
+                except Exception as e:
+                    st.error(f"PDF export error: {e}")
+            if f"pdf_{rid}" in st.session_state:
+                st.download_button(
+                    label="⬇️ Save PDF",
+                    data=st.session_state[f"pdf_{rid}"],
+                    file_name=f"governance-report-{rid}.pdf",
+                    mime="application/pdf",
+                    key=f"pdf_dl_{rid}",
+                )
 
     # Similar past reports
     report_id = report.get("report_id", "")

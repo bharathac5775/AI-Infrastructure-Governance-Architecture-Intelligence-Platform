@@ -69,6 +69,12 @@ def save_report(report: AnalysisReport) -> str:
     if report.file_fingerprints:
         metadata["file_fingerprints_json"] = json.dumps(report.file_fingerprints)
 
+    # Phase 3.3: per-framework compliance scores for queryability
+    # (e.g. "find all reports with CIS K8s < 70%").
+    if report.compliance and report.compliance.frameworks:
+        for fw in report.compliance.frameworks:
+            metadata[f"compliance_{fw.framework_id}_pct"] = fw.score_pct
+
     collection.upsert(
         ids=[report.report_id],
         documents=[report_json],

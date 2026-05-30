@@ -518,3 +518,150 @@ class AnalysisReport(BaseModel):
 | New tests | +42 (10 fingerprint + 31 drift + 1 arch-noise regression) |
 | Runtime | ~1.2s |
 | Manual smoke test | All three steps verified end-to-end against the live system |
+
+---
+
+## Phase 3.3 — Compliance Framework Mapping
+
+**Status:** Complete
+**Theme:** Auditors and security-team consumers think in **compliance controls** (CIS Benchmarks, NIST 800-53), not technical findings ("Privileged container", "S3 without encryption"). Phase 3.3 bridges that gap by tagging every rule with the controls it satisfies, computing per-framework compliance scores, and shipping a one-click PDF export.
+
+### What Was Built
+
+End-to-end compliance scoring pipeline:
+1. **Compliance mappings** — JSON file (`app/data/compliance_mappings.json`) defining 5 frameworks, 70 control descriptions, ~67 title overrides
+2. **Per-finding control attribution** — every finding gets `compliance_controls: list[str]` populated post-analysis
+3. **Per-framework scorecard** — passed/failed/score% for each framework, embedded in `AnalysisReport.compliance`
+4. **Cloud-aware filtering** — Azure uploads only see CIS Azure (not CIS AWS); GCP uploads only see CIS GCP; etc.
+5. **PDF report export** — auditor-ready document with score summary, compliance posture, per-framework control breakdown, findings appendix
+6. **Frontend Compliance Posture panel** — metric cards per framework + control detail expander + PDF download button
+7. **ChromaDB queryability** — per-framework score persisted as metadata for future "find reports below 70% CIS" queries
+
+### Architecture Decisions
+
+**1. Five Frameworks, Cloud-Scoped via `requires_any_of`**
+Each framework declares which clouds make it relevant. The cloud-aware filter excludes a framework entirely when none of its required clouds is detected — no more "CIS AWS at 100%" on Azure uploads.
+
+| Framework | Version | Required clouds |
+|---|---|---|
+| CIS Kubernetes Benchmark | 1.10 | `kubernetes` |
+| CIS AWS Foundations Benchmark | 3.0 | `aws` |
+| CIS Azure Foundations Benchmark | 3.0 | `azure` |
+| CIS GCP Foundations Benchmark | 3.0 | `gcp` |
+| NIST 800-53 Rev 5 | 5 | all four (cross-cloud) |
+
+**2. Domain-Tagged Rule Mappings**
+Each `(agent, category)` mapping carries a `domain` tag (`kubernetes`/`aws`/`azure`/`gcp`/`cross-cloud`) plus its `controls` list. A control is "assessable" on an upload only when at least one of its mapping domains matches a detected cloud, OR is `cross-cloud`. This prevents inflating the "passed" count with controls whose underlying rules never ran.
+
+**3. Title Overrides for Cloud-Specific Findings**
+Per-category defaults stay NIST-only and cloud-neutral (no CIS-AWS in the default `network` mapping). Cloud-specific CIS controls attach via `title_overrides` keyed by exact finding title — `Azure NSG rule open to internet` → `CIS-Azure-6.2/6.3`, `GCP firewall open to 0.0.0.0/0` → `CIS-GCP-3.6/3.7`. This was the key insight after fixing the original cloud-leakage bug.
+
+**4. Cloud Detection from Finding Resources + tf_resources Fallback**
+`_detect_clouds(report, tf_resources=None)` walks `Finding.resource` strings for `aws_*`/`azurerm_*`/`google_*` prefixes plus K8s `Kind/...` shape. For zero-finding clean uploads (production-grade samples), it falls back to the parsed `tf_resources` list passed from the route layer. Filename-based inference for `.tf`/`.hcl` extensions alone is **deliberately not used** — that's what caused the original bug.
+
+**5. Two-Bug Fix Round (Discovered via Manual Smoke Test)**
+The first cut had two layered bugs that surfaced when the user uploaded `azure-average.tf` and saw "CIS AWS 100%":
+- **Bug 1:** `applies_to: ["terraform"]` matched any TF upload regardless of cloud — Azure uploads got AWS framework
+- **Bug 2:** Controls with no fired rule were classified `passed` instead of `not assessed` — score inflated to 100%
+
+Both fixed: framework-level filter via `requires_any_of`, control-level filter via `_is_control_assessable`. Documented in the JSON header and locked in by `test_unassessable_controls_not_inflated_into_passed`.
+
+**6. PDF via reportlab.platypus**
+`generate_pdf_report(report) -> bytes` builds a clean multi-page PDF: title page, score table, compliance scorecard table, per-framework PASS/FAIL control breakdown, findings appendix grouped by agent and severity. Streamlit fetches via the new `GET /reports/{id}/export/pdf` endpoint and serves it through `st.download_button`.
+
+**7. Pure-JSON Extensibility**
+Adding a new framework or new control attributions requires zero Python changes. The Python is data-driven via `framework_prefix_map`, `requires_any_of`, and `domain` tags. CIS Azure and CIS GCP were added in Phase 3.3's extension via JSON edits only.
+
+### Components Delivered
+
+| Component | Details |
+|---|---|
+| **Mappings file** | `app/data/compliance_mappings.json` — 5 frameworks, 70 control descriptions, ~67 title overrides, ~32 category mappings |
+| **Compliance module** | `app/core/compliance.py` — `load_mappings`, `get_controls_for_finding`, `enrich_findings_with_compliance`, `compute_compliance_scorecard`, `_detect_clouds`, `_is_control_assessable`, `_classify_control` |
+| **PDF export** | `app/core/pdf_export.py` — `generate_pdf_report` using `reportlab.platypus` |
+| **Models added** | `Finding.compliance_controls`, `ComplianceFrameworkScore`, `ComplianceScorecard`, `AnalysisReport.compliance` |
+| **API endpoint** | `GET /api/v1/reports/{report_id}/export/pdf` — returns inline PDF with `Content-Disposition: attachment` |
+| **Routes wiring** | `enrich_findings_with_compliance` + `compute_compliance_scorecard` called between `run_analysis` and `save_report` in both `/analyze` endpoints; `_parse_tf_resources` helper threads `tf_resources` for clean-upload cloud detection |
+| **Store extension** | `compliance_<framework_id>_pct` added to ChromaDB metadata in `save_report` |
+| **Frontend** | "📋 Compliance Posture" panel after score overview; metric cards per framework; "Compliance details" expander with passed/failed control IDs; per-finding `📋 Controls:` line; "📄 Download PDF Report" button next to JSON download |
+| **Dependency** | `reportlab==4.2.5` (BSD-3-Clause) added to `requirements.txt` |
+
+### Models Added
+
+```python
+class Finding(BaseModel):
+    # ... existing fields ...
+    compliance_controls: list[str] = []   # safe default
+
+class ComplianceFrameworkScore(BaseModel):
+    framework_id: str            # e.g. "cis_azure"
+    framework_name: str          # e.g. "CIS Azure Foundations Benchmark"
+    version: str
+    score_pct: float             # 0-100
+    controls_passed: list[str] = []
+    controls_failed: list[str] = []
+
+class ComplianceScorecard(BaseModel):
+    frameworks: list[ComplianceFrameworkScore] = []
+
+class AnalysisReport(BaseModel):
+    # ... existing fields ...
+    compliance: Optional[ComplianceScorecard] = None
+```
+
+### API Added
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/v1/reports/{report_id}/export/pdf` | Render the full report as an auditor-ready PDF |
+
+### Tests Added
+
+`tests/test_compliance.py` — 50 tests covering:
+- Mappings sanity (every control has a description, every prefix resolves to a framework, every mapping has a domain, all 5 frameworks defined, all `requires_any_of` declared)
+- Cloud attribution per finding (Azure NSG → CIS-Azure not CIS-AWS; GCP IAM → CIS-GCP not CIS-AWS; etc.)
+- Cloud detection from `Finding.resource` strings
+- Cloud-aware framework filtering (Azure-only upload excludes CIS AWS / CIS K8s / CIS GCP; GCP-only excludes the others; mixed includes both relevant)
+- Score formula (`passed / max(1, passed+failed) * 100`)
+- Unassessable controls excluded from "passed" — the regression test for the original bug
+- PDF generation (magic bytes, report ID present, handles empty reports + reports with compliance + findings with controls)
+
+### Framework Matrix (Verified Against All 6 Samples)
+
+| Sample | Frameworks shown | Top-level scores |
+|---|---|---|
+| `vulnerable-deployment.yaml` | CIS Kubernetes (0%) + NIST (42.9%) | Sec 0, Rel 23, Cost 65 |
+| `vulnerable-infra.tf` | CIS AWS (9.1%) + NIST (23.5%) | Sec 0, Rel 40, Cost 59 |
+| `azure-average.tf` | **CIS Azure (66.7%)** + NIST (77.8%) | Sec 70, Rel 88, Cost 100 |
+| `azure-production-grade.tf` | **CIS Azure (100%)** + NIST (100%) | Sec 100, Rel 100, Cost 100 |
+| `gcp-average.tf` | **CIS GCP (57.1%)** + NIST (64.7%) | Sec 53, Rel 85, Cost 90 |
+| `gcp-production-grade.tf` | **CIS GCP (100%)** + NIST (100%) | Sec 100, Rel 100, Cost 100 |
+
+**No cross-cloud leakage anywhere.** Every cloud-only upload sees exactly its own clouds' frameworks plus NIST. Mixed uploads see all relevant frameworks.
+
+### Production-Grade Samples Added
+
+| File | Purpose | Predicted scores |
+|---|---|---|
+| `samples/gcp-production-grade.tf` | Hardened GCP: private GKE + network policy + master authorized networks, REGIONAL Cloud SQL with SSL + private IP + deletion protection, GCS uniform access + lifecycle + KMS, shielded VM, restricted firewall (IAP only) | 100/100/100 + CIS GCP 100% + NIST 100% |
+| `samples/azure-production-grade.tf` | Hardened Azure: hardened NSG (no 0.0.0.0/0), Storage with HTTPS+TLS1.2+private+lifecycle+CMK, Key Vault purge+soft-delete, zone-redundant SQL with LTR, App Service https_only+backup, AKS multi-zone+RBAC+AAD+network_policy+auto-upgrade, Cosmos multi-region | 100/100/100 + CIS Azure 100% + NIST 100% |
+
+### Challenges Addressed
+
+- **Original cloud-leakage bug** (Azure upload showed CIS AWS at 100%): root cause was `applies_to: ["terraform"]` being too coarse + "passed" default for unfired rules. Fixed via two-layer cloud-aware filter; locked in by `test_azure_only_upload_excludes_cis_aws_framework` and `test_unassessable_controls_not_inflated_into_passed`.
+- **Clean-upload cloud detection**: a 100%-perfect Azure file has zero findings, so `_detect_clouds` would return `{}` and emit no frameworks. Fixed by threading parsed `tf_resources` into the cloud-detection helper as a fallback signal — the route layer parses Terraform inline via `_parse_tf_resources` and passes it through.
+- **`reportlab.colors.Color.int_value` doesn't exist** in 4.2.x: replaced with a hardcoded hex-string lookup `_severity_color_hex(sev)`.
+- **PDF text content stream is compressed**: tests assert magic bytes (`%PDF-`) and presence of report ID in the title metadata (uncompressed), not raw-byte greps for content strings.
+- **CIS GCP / CIS Azure missing in v1**: user surfaced the asymmetry. Fixed via JSON-only extension (no Python changes) — added 2 frameworks, 2 prefixes, ~32 control attributions across `title_overrides`, ~26 new control descriptions.
+- **Reverse cross-cloud leakage** (Azure findings inheriting CIS-GCP, K8s findings inheriting CIS-Azure, etc.): preempted by 4 new regression tests added during the CIS GCP/Azure extension. Locked in.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| `pytest` | 298 passed, 38 skipped, 0 failed (~3.7s) |
+| `pytest tests/test_compliance.py` | 50 tests pass |
+| Cloud attribution invariants | All cross-cloud "must NOT inherit" assertions hold |
+| End-to-end framework matrix | All 6 samples produce the correct framework set |
+| Manual smoke test | Verified live for `azure-average.tf` (CIS Azure 66.7%, NIST 77.8%, no CIS AWS), `gcp-average.tf` (CIS GCP 57.1%, NIST 64.7%, no CIS AWS), `vulnerable-deployment.yaml` (CIS K8s, NIST), `vulnerable-infra.tf` (CIS AWS, NIST) |
+| PDF export | Renders cleanly across all sample types, opens in standard viewers, contains scores + controls + findings |

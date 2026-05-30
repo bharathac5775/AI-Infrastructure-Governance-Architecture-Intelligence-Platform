@@ -1,14 +1,42 @@
 import os
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
+from fastapi.responses import Response
 from app.models import AnalysisReport, AnalysisRequest, HealthResponse
 from app.agents.supervisor import run_analysis
+from app.agents.security import _detect_infra_type
 from app.config import settings
 from app.core.store import save_report, get_report, list_reports, compare_reports, find_similar_reports, delete_report
 from app.core.fingerprint import compute_fingerprints
 from app.core.drift import find_baseline, compute_drift
+from app.core.compliance import enrich_findings_with_compliance, compute_compliance_scorecard
+from app.core.pdf_export import generate_pdf_report
 from app.parsers.helm import render_helm_chart
+from app.parsers.terraform import parse_terraform, extract_tf_resources
 
 router = APIRouter(prefix="/api/v1")
+
+
+def _parse_tf_resources(file_contents: dict[str, str]) -> list[dict]:
+    """Parse all Terraform-flavored files in the bundle into a flat resource
+    list. Used by compliance scoring so that clean uploads with zero findings
+    can still detect their cloud (AWS / Azure / GCP) and emit the right
+    compliance frameworks. Returns [] on any parse error."""
+    import json as _json
+    out: list[dict] = []
+    for fname, content in file_contents.items():
+        lower = fname.lower()
+        try:
+            if lower.endswith((".tf", ".hcl")):
+                parsed = parse_terraform(content)
+                out.extend(extract_tf_resources(parsed))
+            elif lower.endswith(".json"):
+                data = _json.loads(content)
+                if isinstance(data, dict) and (data.get("resource") or data.get("terraform")):
+                    out.extend(extract_tf_resources(data))
+        except Exception:
+            # Compliance scoring degrades gracefully — never block on parse errors here
+            continue
+    return out
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -112,6 +140,17 @@ async def analyze_infrastructure(files: list[UploadFile] = File(...)):
     report.bundle_fingerprint = bundle_fp
     report.file_fingerprints = file_fps
 
+    # Phase 3.3 — compliance enrichment + scorecard.
+    # Re-parse Terraform here too so the cloud-detection fallback works on
+    # clean uploads with zero findings (e.g. production-grade samples).
+    tf_resources_for_compliance = _parse_tf_resources(file_contents)
+    enrich_findings_with_compliance(report)
+    report.compliance = compute_compliance_scorecard(
+        report,
+        _detect_infra_type(file_contents),
+        tf_resources=tf_resources_for_compliance,
+    )
+
     # Store report
     save_report(report)
 
@@ -128,6 +167,13 @@ async def analyze_text(request: AnalysisRequest):
     report = await run_analysis(request.file_contents)
     report.bundle_fingerprint = bundle_fp
     report.file_fingerprints = file_fps
+    tf_resources_for_compliance = _parse_tf_resources(request.file_contents)
+    enrich_findings_with_compliance(report)
+    report.compliance = compute_compliance_scorecard(
+        report,
+        _detect_infra_type(request.file_contents),
+        tf_resources=tf_resources_for_compliance,
+    )
     save_report(report)
     return report
 
@@ -202,3 +248,25 @@ async def drift_endpoint(report_id: str):
         "baseline": {"report_id": baseline.report_id, "timestamp": baseline.timestamp},
         "drift": drift,
     }
+
+
+@router.get("/reports/{report_id}/export/pdf")
+async def export_report_pdf(report_id: str):
+    """Phase 3.3 — render the report as an auditor-ready PDF.
+
+    Returns the PDF inline; browser download is triggered by Content-Disposition.
+    """
+    report = get_report(report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found.")
+    try:
+        pdf_bytes = generate_pdf_report(report)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"PDF generation failed: {e}")
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="governance-report-{report_id}.pdf"',
+        },
+    )
