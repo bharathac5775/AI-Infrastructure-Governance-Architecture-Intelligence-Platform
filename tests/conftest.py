@@ -94,6 +94,9 @@ class _FakeRunnable(Runnable):
                 return "\n".join(getattr(m, "content", str(m)) for m in msgs)
             except Exception:
                 return str(input_)
+        # List of BaseMessage objects (raw call to llm.ainvoke([SystemMessage, ...]))
+        if isinstance(input_, list):
+            return "\n".join(getattr(m, "content", str(m)) for m in input_)
         return str(input_)
 
 
@@ -107,6 +110,8 @@ def _route_by_prompt(prompt_text: str) -> str:
     pt = prompt_text.lower()
     if "executive_summary" in pt or "review supervisor" in pt:
         return "supervisor"
+    if "infrastructure remediation agent" in pt or "patched_content" in pt:
+        return "remediator"
     if "architecture reviewer agent" in pt or "cross-cutting gap rule" in pt:
         return "architecture"
     if "security agent" in pt or "security analyst" in pt:
@@ -161,6 +166,11 @@ def mock_llm(monkeypatch):
     monkeypatch.setattr("app.agents.cost.get_llm", _get_llm)
     monkeypatch.setattr("app.agents.architecture_reviewer.get_llm", _get_llm)
     monkeypatch.setattr("app.agents.supervisor.get_llm", _get_llm)
+    # Phase 3.4 — remediator
+    try:
+        monkeypatch.setattr("app.agents.remediator.get_llm", _get_llm)
+    except AttributeError:
+        pass
 
     return MockLLMHandle(response_map)
 

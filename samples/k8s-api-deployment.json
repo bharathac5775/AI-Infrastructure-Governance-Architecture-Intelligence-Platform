@@ -25,6 +25,7 @@
         }
       },
       "spec": {
+        "terminationGracePeriodSeconds": 30,
         "containers": [
           {
             "name": "payments-api",
@@ -60,11 +61,19 @@
                 "memory": "128Mi"
               },
               "limits": {
-                "cpu": "2000m",
-                "memory": "2Gi"
+                "cpu": "500m",
+                "memory": "1Gi"
               }
             },
             "livenessProbe": {
+              "httpGet": {
+                "path": "/healthz",
+                "port": 8080
+              },
+              "initialDelaySeconds": 30,
+              "periodSeconds": 10
+            },
+            "readinessProbe": {
               "httpGet": {
                 "path": "/healthz",
                 "port": 8080

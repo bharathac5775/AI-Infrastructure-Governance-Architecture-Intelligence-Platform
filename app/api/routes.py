@@ -1,9 +1,16 @@
 import os
 from fastapi import APIRouter, UploadFile, File, HTTPException, Query
 from fastapi.responses import Response
-from app.models import AnalysisReport, AnalysisRequest, HealthResponse
+from pydantic import BaseModel
+from app.models import AnalysisReport, AnalysisRequest, HealthResponse, Patch
 from app.agents.supervisor import run_analysis
 from app.agents.security import _detect_infra_type
+from app.agents.remediator import (
+    remediate,
+    NonPatchableFinding,
+    CompanionResourceRequired,
+    RemediationError,
+)
 from app.config import settings
 from app.core.store import save_report, get_report, list_reports, compare_reports, find_similar_reports, delete_report
 from app.core.fingerprint import compute_fingerprints
@@ -151,8 +158,14 @@ async def analyze_infrastructure(files: list[UploadFile] = File(...)):
         tf_resources=tf_resources_for_compliance,
     )
 
-    # Store report
+    # Store report (file_contents excluded from persistence — see store.save_report)
     save_report(report)
+
+    # Phase 3.4 — echo file_contents in the LIVE response only, so the
+    # frontend can cache the post-render YAML for .tgz uploads. Reports
+    # loaded from history will have file_contents={} and the frontend
+    # falls back to a re-upload prompt.
+    report.file_contents = dict(file_contents)
 
     return report
 
@@ -175,6 +188,9 @@ async def analyze_text(request: AnalysisRequest):
         tf_resources=tf_resources_for_compliance,
     )
     save_report(report)
+    # Phase 3.4 — echo file_contents in the live response (same rationale
+    # as the multipart endpoint above). Not persisted in ChromaDB.
+    report.file_contents = dict(request.file_contents)
     return report
 
 
@@ -270,3 +286,84 @@ async def export_report_pdf(report_id: str):
             "Content-Disposition": f'attachment; filename="governance-report-{report_id}.pdf"',
         },
     )
+
+
+# ---------------------------------------------------------------------------
+# Phase 3.4 — Auto-Remediation
+# ---------------------------------------------------------------------------
+
+
+class RemediationRequest(BaseModel):
+    """Caller re-supplies the original file bundle at remediation time.
+
+    Reports are stateless at the file-content level by design (we only persist
+    fingerprints). The frontend keeps the uploaded contents in session state
+    and forwards them here when the user clicks "Generate fix".
+    """
+    file_contents: dict[str, str]
+
+
+def _flat_findings(report: AnalysisReport) -> list:
+    """Return findings in a stable order matching how the frontend indexes them."""
+    out = []
+    for ar in report.agent_reports:
+        for f in ar.findings:
+            out.append(f)
+    return out
+
+
+@router.post("/reports/{report_id}/remediate/{finding_index}", response_model=Patch)
+async def remediate_finding(
+    report_id: str, finding_index: int, request: RemediationRequest
+):
+    """Phase 3.4 — generate a code patch that fixes a single finding.
+
+    The finding is identified by its position in the flattened findings list
+    (across all agent reports, in agent order). The caller must supply the
+    ORIGINAL file contents — we don't persist them server-side.
+    """
+    report = get_report(report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found.")
+
+    findings = _flat_findings(report)
+    if finding_index < 0 or finding_index >= len(findings):
+        raise HTTPException(
+            status_code=400,
+            detail=f"finding_index {finding_index} out of range (have {len(findings)}).",
+        )
+    finding = findings[finding_index]
+
+    if not request.file_contents:
+        raise HTTPException(
+            status_code=400,
+            detail="file_contents required — re-supply the original uploaded files.",
+        )
+
+    try:
+        patch = await remediate(finding, finding_index, request.file_contents)
+    except CompanionResourceRequired as e:
+        # 409 with a structured payload — the frontend renders the YAML
+        # template inline so the user can copy it into a new file.
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "kind": "companion_resource_required",
+                "message": str(e),
+                "template": e.template,
+                "filename": e.filename,
+            },
+        )
+    except NonPatchableFinding as e:
+        # 409 Conflict-ish — the request was well-formed, the finding is
+        # simply not something a code patch can fix. Distinct status from
+        # generic remediation failures so the frontend can render a softer
+        # informational message rather than a red error.
+        raise HTTPException(status_code=409, detail=str(e))
+    except RemediationError as e:
+        raise HTTPException(status_code=422, detail=f"Remediation failed: {e}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected remediation error: {e}")
+    return patch
+
+

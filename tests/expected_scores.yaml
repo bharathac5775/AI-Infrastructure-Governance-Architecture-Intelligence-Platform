@@ -35,9 +35,9 @@ samples:
   k8s-api-deployment.json:
     infra_type: kubernetes
     rules_only:
-      overall_score: 84.8
+      overall_score: 89.6
       tolerance: 0.1
-      agent_scores: {Security Agent: 85.0, Reliability Agent: 81.0, Cost Agent: 90.0}
+      agent_scores: {Security Agent: 85.0, Reliability Agent: 91.0, Cost Agent: 95.0}
 
   terraform-serverless.json:
     infra_type: terraform

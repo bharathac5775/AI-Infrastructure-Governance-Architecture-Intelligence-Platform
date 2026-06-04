@@ -141,21 +141,56 @@ _RESOURCE_PREFIX_TO_CLOUD: list[tuple[str, str]] = [
 
 
 def _detect_clouds_from_resource(resource: str) -> Optional[str]:
-    """Identify the cloud from a single Finding.resource string, or None."""
+    """Identify the cloud from a single Finding.resource string, or None.
+
+    K8s resources are shaped ``Kind/namespace/name`` (set by
+    ``app.parsers.kubernetes.get_resource_name``). Some LLM-emitted findings
+    use ``Kind/name`` (two-segment) which we also accept.
+
+    We require the first segment to be a real K8s Kind: CapitalCase,
+    alphabetic-only, and at least 3 characters. The previous heuristic
+    accepted ANY ``X/...`` string starting with a capital letter, which
+    caused LLM-emitted resource fields like ``N/A`` to be falsely
+    classified as Kubernetes — leaking CIS Kubernetes framework into
+    AWS-only scorecards.
+
+    A short, well-known list of stop-words is also excluded so that LLMs
+    that emit things like ``Infrastructure/global/all`` don't slip through.
+    """
     if not resource:
         return None
     r = resource.strip().lower()
     for prefix, cloud in _RESOURCE_PREFIX_TO_CLOUD:
         if r.startswith(prefix):
             return cloud
-    # K8s resources look like "Deployment/namespace/name", "Service/...", etc.
-    # Anything with a "/" and a leading capitalized kind is K8s.
-    if "/" in resource:
-        first = resource.split("/", 1)[0]
-        # K8s kinds are CapitalCase (Deployment, Pod, ClusterRoleBinding, ...)
-        if first and first[0].isupper():
-            return "kubernetes"
-    return None
+
+    parts = resource.split("/")
+    if len(parts) not in (2, 3):
+        return None
+    kind = parts[0]
+    rest = parts[1:]
+    # All segments must be non-empty and contain no whitespace
+    if not all(seg and " " not in seg for seg in [kind, *rest]):
+        return None
+    # Kind must be alphabetic, CapitalCase, and at least 3 characters.
+    # Rejects "N" (from "N/A"), "S3", "RDS", "EC2", and similar.
+    if not (kind.isalpha() and kind[0].isupper() and len(kind) >= 3):
+        return None
+    # Real K8s Kinds are mixed-case (Deployment, ConfigMap, ClusterRoleBinding,
+    # Pod, Job, etc.) — they always contain at least one lowercase letter after
+    # the first character. All-uppercase abbreviations like "RDS", "KMS",
+    # "IAM", "VPC" are AWS shorthand the LLM occasionally emits, not K8s.
+    if kind[1:].isupper():
+        return None
+    # Stop-word safety net for ambiguous CapitalCase words the LLM emits as
+    # generic resource labels rather than real Kubernetes resources.
+    _NON_K8S_STOPWORDS = {
+        "Infrastructure", "Cluster", "Network", "Account",
+        "Resource", "Application", "Database", "Storage",
+    }
+    if kind in _NON_K8S_STOPWORDS:
+        return None
+    return "kubernetes"
 
 
 def _detect_clouds(
@@ -207,8 +242,6 @@ def _detect_clouds(
             if lower.endswith((".yaml", ".yml")):
                 detected["kubernetes"] = True
                 break
-
-    return detected
 
     return detected
 

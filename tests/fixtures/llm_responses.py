@@ -36,6 +36,12 @@ EMPTY_RESPONSES: dict[str, dict] = {
         "risk_summary": "Mocked risk summary.",
         "recommendations": ["Mocked recommendation"],
     },
+    "remediator": {
+        # Default mock: returns the original file unchanged. Tests that exercise
+        # the LLM remediation path override this via mock_llm.set("remediator", ...).
+        "patched_content": "",
+        "explanation": "Mocked remediator response (no-op).",
+    },
 }
 
 

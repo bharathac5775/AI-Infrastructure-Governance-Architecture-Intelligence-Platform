@@ -35,7 +35,12 @@ def save_report(report: AnalysisReport) -> str:
     """Persist a report to ChromaDB. Returns report_id."""
     collection = _get_collection()
 
-    report_dict = report.model_dump()
+    # Phase 3.4 — file_contents is echoed back to the frontend in the LIVE
+    # /analyze response so it can cache the post-render YAML (.tgz, pasted
+    # content). It is NEVER persisted server-side: re-loading a report from
+    # history yields an empty file_contents, which the frontend treats as
+    # "ask the user to re-upload to remediate". Strip before serializing.
+    report_dict = report.model_dump(exclude={"file_contents"})
     report_json = json.dumps(report_dict)
 
     # Detect infrastructure type from file extensions

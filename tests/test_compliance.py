@@ -272,6 +272,71 @@ class TestDetectClouds:
         assert clouds["aws"] is True
         assert clouds["azure"] is True
 
+    def test_na_resource_does_not_falsely_classify_as_kubernetes(self):
+        """Phase 3.3 regression: LLM-emitted findings sometimes use
+        ``resource="N/A"`` for non-resource-bound advisories. The previous
+        heuristic accepted any ``X/...`` string starting with a capital
+        letter as Kubernetes — which leaked CIS Kubernetes framework into
+        AWS-only scorecards. This test pins the fix.
+        """
+        f_aws = make_finding(resource="aws_s3_bucket.data")
+        f_na = make_finding(resource="N/A", category="ai-analysis")
+        report = _full_report({"Security Agent": [f_aws, f_na]})
+        clouds = _detect_clouds(report)
+        assert clouds["aws"] is True
+        assert clouds["kubernetes"] is False, (
+            "N/A must not be classified as a Kubernetes resource"
+        )
+
+    def test_aws_shorthand_does_not_falsely_classify_as_kubernetes(self):
+        """All-uppercase abbreviations like RDS, KMS, IAM, EC2, S3 are AWS
+        shorthand the LLM sometimes emits — must not be treated as K8s Kinds.
+        """
+        for shorthand in ("S3/bucket/data", "RDS/main", "KMS/key/x",
+                          "EC2/i-abc/foo", "IAM/role/admin"):
+            f = make_finding(resource=shorthand, category="ai-analysis")
+            report = _full_report({"Security Agent": [f]})
+            assert _detect_clouds(report)["kubernetes"] is False, (
+                f"{shorthand!r} must not be classified as Kubernetes"
+            )
+
+    def test_capitalcase_stopwords_do_not_falsely_classify_as_kubernetes(self):
+        """Generic CapitalCase words like Infrastructure, Database, Storage
+        are not K8s Kinds — must not flip the kubernetes detection."""
+        for word in ("Infrastructure/global/all", "Database/main",
+                     "Storage/bucket/x", "Network/vpc/foo"):
+            f = make_finding(resource=word, category="ai-analysis")
+            report = _full_report({"Security Agent": [f]})
+            assert _detect_clouds(report)["kubernetes"] is False, (
+                f"{word!r} must not be classified as Kubernetes"
+            )
+
+    def test_aws_only_upload_with_llm_na_finding_excludes_cis_kubernetes(self):
+        """End-to-end pin: a real-world AWS-only upload that includes an
+        LLM advisory with ``resource='N/A'`` must NOT show the CIS
+        Kubernetes framework in the scorecard.
+        """
+        f_aws = make_finding(
+            agent="Security Agent", category="encryption",
+            title="S3 bucket without encryption", resource="aws_s3_bucket.data",
+            compliance_controls=["CIS-AWS-2.1.1", "NIST-SC-28"],
+        )
+        f_advisory = make_finding(
+            agent="Cost Agent", category="ai-analysis",
+            title="Missing Commitment Discounts", resource="N/A",
+        )
+        report = _full_report({
+            "Security Agent": [f_aws],
+            "Cost Agent": [f_advisory],
+        })
+        sc = compute_compliance_scorecard(report)
+        framework_ids = [fw.framework_id for fw in sc.frameworks]
+        assert "cis_aws" in framework_ids
+        assert "cis_kubernetes" not in framework_ids, (
+            f"CIS Kubernetes leaked into AWS-only upload via N/A finding. "
+            f"Got: {framework_ids}"
+        )
+
 
 # ---------------------------------------------------------------------------
 # compute_compliance_scorecard — cloud-aware behavior (the bug fix)

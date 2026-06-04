@@ -665,3 +665,108 @@ class AnalysisReport(BaseModel):
 | End-to-end framework matrix | All 6 samples produce the correct framework set |
 | Manual smoke test | Verified live for `azure-average.tf` (CIS Azure 66.7%, NIST 77.8%, no CIS AWS), `gcp-average.tf` (CIS GCP 57.1%, NIST 64.7%, no CIS AWS), `vulnerable-deployment.yaml` (CIS K8s, NIST), `vulnerable-infra.tf` (CIS AWS, NIST) |
 | PDF export | Renders cleanly across all sample types, opens in standard viewers, contains scores + controls + findings |
+
+---
+
+## Phase 3.4 — Auto-Remediation (Scaffolding) — SHIPPED 2026-05-31
+
+**Headline feature.** Transforms the platform from "tells you what's wrong" to "gives you the patch that fixes it." For every finding the platform produces, the user can click "Generate fix" and receive a unified diff + the full patched file, validated by re-parsing.
+
+### What Was Built
+
+For each finding, the new remediator agent:
+
+1. **Locates the source file** in the upload bundle by re-parsing every uploaded file and matching the finding's `resource` string (e.g. `aws_kms_key.main`, `Deployment/default/api`) against the parsed resources.
+2. **Applies a deterministic fixer** — for every category the rule engine raises, the agent hand-builds the exact edit (PyYAML round-trip for K8s manifests; surgical regex-anchored block edits for HCL).
+3. **Falls back to the local LLM** for `category="ai-analysis"` findings and any category without a deterministic fixer. The LLM returns the full patched file via the `remediator-k8s` / `remediator-tf` skill files; output is validated by re-parse and retried once on validation failure.
+4. **Validates every patch by re-parsing the output.** Patches that produce unparseable YAML or HCL are rejected — the platform never returns broken IaC.
+5. **Returns a `Patch`** containing the original content, patched content, unified diff (`difflib.unified_diff`, stdlib only — no `unidiff` dependency added), strategy, validation status, explanation, and warnings. The frontend renders the diff and offers a "Download patched file" button.
+
+### Critical Design Decisions (Locked in by Tests)
+
+| Decision | Choice | Rationale |
+|---|---|---|
+| **File contents persistence** | NOT stored server-side. Caller re-supplies them in the remediation request body. | Matches Phase 3.2's stateless ethos (we persist fingerprints, not file contents). Avoids storing potentially sensitive IaC indefinitely. |
+| **Diff library** | `difflib` (stdlib) | `unidiff` parses diffs; we *generate* them. `difflib.unified_diff` is sufficient — no extra dependency. |
+| **Deterministic fixers first** | Try rule-aware hand-built fixers before invoking the LLM | Reliable, fast, no Ollama needed for the 80% case. LLM only gets the long tail (ai-analysis findings, weird shapes). |
+| **Validation by re-parse** | Both deterministic and LLM patches go through `_validate_patch` (PyYAML / hcl2 / json). | "Never generate broken IaC" guarantee. Locked in by `test_validate_rejects_unparseable_yaml`, `test_validate_rejects_unparseable_terraform`. |
+| **LLM retry-on-invalid** | One retry with the previous error appended to the prompt | Local Ollama models occasionally emit malformed JSON or unparseable HCL; one retry lifts the success rate substantially. Locked in by `test_llm_fallback_retries_on_invalid_output`. |
+| **No automatic file writes** | The platform returns `Patch.patched_content`; the user copies it manually. | Authorization scope is minimal — we never modify the user's working tree. |
+| **Placeholders use `CHANGE_ME_*` prefix** | When a fix needs a value the user must choose (CIDRs, KMS key ids, SA emails) | Consistent, greppable, makes follow-up edits explicit. Surfaced via `Patch.warnings`. |
+| **Inline-block aware HCL editing** | Multi-line blocks for nested HCL (`metadata_options { ... }`); avoid trailing `#` comments inside inline blocks | `python-hcl2` doesn't accept semicolons as separators; trailing `#` consumes the closing brace of inline blocks. Both pitfalls discovered during test, locked in by `test_tf_imdsv2_required` and `test_tf_security_group_open_ingress_fixer`. |
+| **Brace-aware HCL block locator** | Custom string-and-comment-aware brace counter (`_find_tf_block_span`) | Strings with `{` or `}`, single-line and multi-line comments, and nested blocks all work. Locked in by `test_tf_block_span_with_braces_in_strings` and `test_tf_block_span_with_nested_blocks`. |
+
+### Components Delivered
+
+| File | Purpose |
+|---|---|
+| `app/agents/remediator.py` | Core remediator agent: file discovery, K8s & TF deterministic fixers, LLM fallback, validation, diff generation. ~1100 lines. |
+| `skills/remediator-k8s.md` | LLM skill for Kubernetes patches — strict JSON schema, smallest-diff rule, CHANGE_ME placeholder convention. |
+| `skills/remediator-tf.md` | LLM skill for Terraform patches — same conventions, allows companion-resource additions. |
+| `app/models.py` | New `Patch` Pydantic model carrying full patch payload + diagnostics. |
+| `app/api/routes.py` | New `POST /api/v1/reports/{id}/remediate/{finding_index}` endpoint. Re-supplies file_contents in body. |
+| `frontend/app.py` | "🛠️ Generate fix" button per finding; renders diff inline; offers "Download patched file"; handles deterministic vs LLM strategy badge. |
+| `tests/test_remediator.py` | 43 tests covering K8s + TF fixers, validation, LLM fallback (with retry), edge cases, file discovery errors. |
+| `tests/conftest.py` | Mock LLM router updated to recognize remediator prompts; remediator monkeypatch added. |
+| `tests/fixtures/llm_responses.py` | Default canned remediator response (no-op) so unrelated tests don't accidentally invoke remediation. |
+
+### K8s Categories with Deterministic Fixers
+
+`privileged`, `run-as-root`, `filesystem` (readOnlyRootFilesystem), `resource-limits` (CPU/memory requests + limits), `image-tag` (replace `:latest`), `host-namespace` (hostPID/hostNetwork/hostIPC), `public-exposure` (LoadBalancer→ClusterIP), `rbac` (cluster-admin downgrade, wildcard narrowing), `hardcoded-secret` (env value→secretKeyRef).
+
+### Terraform Categories with Deterministic Fixers
+
+| Category | Coverage |
+|---|---|
+| `network` | aws_security_group ingress, google_compute_firewall source_ranges, azurerm_network_security_rule source prefix, AKS network_policy, GKE network_policy + private cluster + master authorized networks, Lambda VPC config |
+| `encryption` | aws_s3_bucket SSE companion resource, aws_db_instance storage_encrypted, aws_ebs_volume encrypted, aws_kms_key rotation, azurerm_key_vault purge_protection + soft_delete, azurerm_managed_disk CMK |
+| `encryption-in-transit` | aws_lb_listener HTTPS:443, azurerm_storage_account HTTPS-only + min_tls_version |
+| `public-exposure` | aws_s3_bucket ACL=private + public_access_block companion, aws_db_instance publicly_accessible=false, google_sql_database_instance ipv4_enabled=false, google_storage_bucket uniform_bucket_level_access=true |
+| `instance-metadata` | aws_instance / aws_launch_template IMDSv2, google_compute_instance shielded VM |
+| `logging` | aws_cloudtrail enable_logging + multi-region + log validation, aws_vpc flow_log companion |
+| `hardcoded-secret` | password / administrator_login_password / master_password → var.db_password |
+| `iam` | aws_iam_policy / aws_iam_role_policy TODO annotation; google_project_iam_binding allUsers/allAuthenticatedUsers replacement |
+| `rbac` | azurerm_kubernetes_cluster role_based_access_control_enabled + Azure AD integration |
+| `privileged` | aws_ecs_task_definition `"privileged":true → false` |
+
+Anything outside this matrix flows to the LLM fallback.
+
+### Test Sentinels
+
+- `test_k8s_privileged_fixer` — round-trip patches privileged container, re-parses, verifies field set
+- `test_k8s_multi_doc_yaml_preserves_other_documents` — patching one workload doesn't drop adjacent ConfigMaps
+- `test_k8s_finding_against_init_container_falls_back_to_first` — container-name parsing from finding description
+- `test_tf_block_span_balanced_braces`, `_with_braces_in_strings`, `_with_nested_blocks` — locator robustness
+- `test_tf_set_argument_replaces_existing` — no duplicate keys when toggling a flag
+- `test_validate_rejects_unparseable_yaml`, `_unparseable_terraform` — broken IaC never escapes
+- `test_llm_fallback_retries_on_invalid_output` — retry path proven
+- `test_llm_fallback_fails_when_both_attempts_invalid` — proper error propagation
+- `test_unsupported_category_falls_back_to_llm_then_fails` — categories without deterministic fixers route to LLM as designed
+
+### API & Frontend
+
+**Endpoint:** `POST /api/v1/reports/{report_id}/remediate/{finding_index}`
+- Body: `{"file_contents": {filename: content, ...}}` (the original uploaded files)
+- Response: `Patch` model — full patched content, unified diff, strategy, validation status, warnings
+- Errors: `404` (report not found), `400` (bad index, missing file_contents), `422` (RemediationError — unsupported category for which the LLM also failed), `500` (unexpected error)
+
+**Frontend:** Per-finding "🛠️ Generate fix" button caches the response in `st.session_state` keyed by `(report_id, global_finding_index)`. Renders strategy badge (⚡ Deterministic vs 🤖 LLM), warnings, the unified diff (`st.code(language="diff")`), and a download button for the patched file.
+
+### Verification
+
+| Check | Result |
+|---|---|
+| `pytest` | **341 passed, 38 skipped, 0 failed** (~1.7s) |
+| `pytest tests/test_remediator.py` | 43 tests pass |
+| End-to-end via FastAPI TestClient | `aws_kms_key.main` deterministic fix returns valid patch with correct diff |
+| Re-parse of every deterministic patch | All patches produce parseable YAML / HCL |
+| LLM fallback with mocked toggle | Retry-on-invalid path works; both-invalid path raises RemediationError cleanly |
+| Backwards compatibility | Existing 298 tests still pass; no regressions |
+
+### Challenges Addressed
+
+- **`python-hcl2` doesn't accept `;` as a separator** — initial inline-block injection (`metadata_options { http_tokens = "required"; ... }`) failed to re-parse. Fixed by emitting multi-line HCL blocks. Locked in by `test_tf_imdsv2_required`.
+- **Trailing `#` comments inside inline single-line HCL blocks** consume the rest of the line including the closing brace. Fixed by dropping trailing-comment placeholders; warnings use `Patch.warnings` instead. Locked in by `test_tf_security_group_open_ingress_fixer`.
+- **LangChain `ChatPromptTemplate` interprets `{}` in templates as variables** — passing an HCL/JSON file body through `human` template variables blew up because file content contains literal braces. Fixed by building `SystemMessage` + `HumanMessage` directly and bypassing `ChatPromptTemplate.from_messages`.
+- **Mocked LLM didn't recognize raw message-list inputs** — the test fake's `_extract_prompt_text` only handled `PromptValue` shapes. Extended to handle `list[BaseMessage]` so the remediator's direct-call form is mockable.
+- **Stateless file content** — chose to NOT persist file contents in ChromaDB. The frontend caches the original upload in `st.session_state["cached_file_contents"]` and re-supplies it via the remediation request body.
