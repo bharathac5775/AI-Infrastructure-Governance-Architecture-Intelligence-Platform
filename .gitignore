@@ -31,6 +31,12 @@ dist/
 build/
 *.egg-info/
 
+# graphify build artifacts
+graphify-out/
+
+# Claude Code per-developer overrides (commit .claude/settings.json, ignore *.local.json)
+.claude/settings.local.json
+
 # Local-only planning docs (never push)
 *.local.md
 ROADMAP.local.md
