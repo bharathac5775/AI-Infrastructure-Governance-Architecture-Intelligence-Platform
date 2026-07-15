@@ -601,14 +601,29 @@ if "report" in st.session_state:
                         or any(_rec_lower.startswith(p) for p in _NO_ACTION_PHRASES)
                     )
                 )
+                # Phase 3.5 — Compliance (and other roll-up plugin) findings are
+                # meta-findings: they summarize OTHER findings against a framework
+                # and point at a framework id (e.g. `cis_aws`), not a runtime
+                # resource. They are never individually patchable — the fix is to
+                # remediate the underlying findings mapped to the failing controls.
+                _is_rollup = finding.get("category") == "compliance-gap"
                 is_advisory = (
                     resource_lower in _NON_PATCHABLE
                     or _looks_like_path
                     or _is_advisory_lang
+                    or _is_rollup
                 )
 
                 if is_advisory:
-                    if _looks_like_path:
+                    if _is_rollup:
+                        st.caption(
+                            "ℹ️ Compliance roll-up — this summarizes other findings "
+                            "against a framework, so there is nothing to patch here. "
+                            "Generate fixes on the underlying Security / Reliability / "
+                            "Cost findings mapped to the failing controls above; the "
+                            "framework score rises as those are resolved."
+                        )
+                    elif _looks_like_path:
                         st.caption(
                             f"ℹ️ Resource `{resource_str}` looks like a file or "
                             "template path, not a runtime resource — no automatic "

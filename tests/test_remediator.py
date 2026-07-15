@@ -1294,6 +1294,28 @@ class TestNonPatchableFindings:
         with pytest.raises(NonPatchableFinding):
             remediate_sync(finding, 0, bundle)
 
+    def test_compliance_rollup_raises_non_patchable(self, mock_llm):
+        """Phase 3.5 bug: the Compliance Agent emits roll-up findings whose
+        resource is a framework id (e.g. 'cis_aws'), not a real resource.
+        Attempting to remediate one returned the misleading 'Could not locate
+        Kubernetes resource cis_aws' error. It must now refuse cleanly with a
+        NonPatchableFinding that points the user at the underlying findings."""
+        bundle = {"main.tf": 'resource "aws_s3_bucket" "data" { bucket = "x" }\n'}
+        finding = _f(
+            category="compliance-gap",
+            title="CIS AWS Foundations Benchmark: 4 control(s) failing",
+            resource="cis_aws",
+            severity=Severity.MEDIUM,
+            agent="Compliance Agent",
+        )
+        with pytest.raises(NonPatchableFinding) as exc_info:
+            remediate_sync(finding, 0, bundle)
+        msg = str(exc_info.value).lower()
+        assert "roll-up" in msg or "underlying" in msg
+        assert "could not locate" not in msg, (
+            "Must not fall through to the misleading locate error"
+        )
+
 
 # ---------------------------------------------------------------------------
 # Bug fixes (post-Helm-chart user testing)
