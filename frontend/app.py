@@ -215,23 +215,40 @@ if "report" in st.session_state:
     st.divider()
     st.header("📊 Governance Report")
 
-    # Score overview
-    col1, col2, col3, col4 = st.columns(4)
+    agent_reports = report.get("agent_reports", [])
+
+    # Icon per agent — extensible for plugin agents (Phase 3.5). Falls back to a
+    # generic plug icon for any future plugin rather than mislabeling it.
+    def _agent_icon(agent_name: str) -> str:
+        if "Security" in agent_name:
+            return "🔒"
+        if "Reliability" in agent_name:
+            return "🔄"
+        if "Cost" in agent_name:
+            return "💰"
+        if "Architecture" in agent_name:
+            return "🏛️"
+        if "Compliance" in agent_name:
+            return "📋"
+        return "🔌"
+
+    # Score overview — one column for the overall score plus one per agent, so
+    # plugin agents (e.g. Compliance) get their own tile instead of overwriting
+    # another agent's column.
+    cols = st.columns(1 + len(agent_reports))
 
     overall_score = report.get("overall_score", 0)
     score_color = "🟢" if overall_score >= 70 else "🟡" if overall_score >= 40 else "🔴"
 
-    with col1:
+    with cols[0]:
         st.metric("Overall Score", f"{score_color} {overall_score}/100")
 
     # Agent scores
-    agent_reports = report.get("agent_reports", [])
     for i, agent_report in enumerate(agent_reports):
-        col = [col2, col3, col4][i] if i < 3 else col4
-        with col:
+        with cols[i + 1]:
             name = agent_report["agent_name"].replace(" Agent", "")
             score = agent_report["score"]
-            icon = "🔒" if "Security" in name else "🔄" if "Reliability" in name else "💰"
+            icon = _agent_icon(agent_report["agent_name"])
             st.metric(f"{icon} {name}", f"{score}/100")
 
     st.divider()
@@ -486,7 +503,7 @@ if "report" in st.session_state:
 
     for agent_report in agent_reports:
         agent_name = agent_report["agent_name"]
-        icon = "🔒" if "Security" in agent_name else "🔄" if "Reliability" in agent_name else "💰"
+        icon = _agent_icon(agent_name)
 
         with st.expander(f"{icon} {agent_name} — {len(agent_report['findings'])} findings (Score: {agent_report['score']}/100)"):
             st.markdown(f"**Summary:** {agent_report['summary']}")
