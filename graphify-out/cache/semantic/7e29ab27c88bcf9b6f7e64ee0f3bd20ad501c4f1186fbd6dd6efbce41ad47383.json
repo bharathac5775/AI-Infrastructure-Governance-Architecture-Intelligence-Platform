@@ -1,0 +1,1 @@
+{"nodes": [{"id": "my_chart_values", "label": "my-chart values.yaml (hardcoded DB_PASSWORD)", "file_type": "code", "source_file": "samples/my-chart/values.yaml", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}
