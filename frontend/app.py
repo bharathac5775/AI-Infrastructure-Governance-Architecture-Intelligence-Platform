@@ -96,6 +96,11 @@ with st.sidebar:
     st.divider()
     st.subheader("Other features")
     st.markdown(
+        "- 🔌 **Extensible agents (Plugin Harness)** — new analysis agents can "
+        "be added by dropping a skill file into `skills/` with an `agent_type` "
+        "and `weight`, no code change. The 📋 **Compliance Agent** is the first "
+        "such plugin — it scores your infrastructure against CIS/NIST frameworks "
+        "and appears alongside the core agents in the report.\n"
         "- 📊 **Drift detection** — re-uploading the same files compares "
         "against your last scan and shows what's new, resolved, or persisting\n"
         "- 📄 **PDF export** — auditor-ready report with scores, findings, "
