@@ -100,6 +100,14 @@ _NON_PATCHABLE_RESOURCE_VALUES: set[str] = {
 
 _COMPANION_RESOURCE_CATEGORIES: set[str] = {"autoscaling", "pdb", "network-policy"}
 
+# Phase 3.5 — roll-up / meta findings emitted by plugin agents (e.g. the
+# Compliance Agent) summarize OTHER findings against a framework and point at a
+# framework id (e.g. "cis_aws") rather than a runtime resource. They are never
+# individually patchable; the fix is to remediate the underlying findings mapped
+# to the failing controls. Detected up-front so the remediator returns a clean,
+# meaningful refusal instead of a confusing "could not locate resource" error.
+_NON_PATCHABLE_CATEGORIES: set[str] = {"compliance-gap"}
+
 
 def _companion_template(category: str, finding: Finding) -> tuple[str, str]:
     """Return (yaml_template, suggested_filename) for the companion
@@ -2387,6 +2395,18 @@ async def remediate(
     """
     if not file_contents:
         raise RemediationError("Original file bundle is empty.")
+
+    # Phase 3.5 — roll-up / meta findings (compliance framework summaries) are
+    # not tied to a single resource and cannot be patched. Refuse cleanly before
+    # attempting to locate a file (which would fail with a misleading error).
+    if finding.category in _NON_PATCHABLE_CATEGORIES:
+        raise NonPatchableFinding(
+            f"'{finding.title}' is a compliance roll-up that summarizes other "
+            "findings against a framework — there is no single resource to patch. "
+            "Generate fixes on the underlying Security / Reliability / Cost findings "
+            "mapped to the failing controls; the framework score rises as those are "
+            "resolved."
+        )
 
     # Phase 3.4 — companion-resource findings (HPA, PDB, NetworkPolicy)
     # require creating a NEW Kubernetes resource, not editing the

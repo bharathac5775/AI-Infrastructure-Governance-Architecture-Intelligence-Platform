@@ -5,8 +5,16 @@ from typing import Optional
 def calculate_overall_score(
     agent_reports: list[AgentReport],
     architecture_review: Optional[ArchitectureReview] = None,
+    plugin_reports: Optional[list[tuple[AgentReport, float]]] = None,
 ) -> float:
-    """Calculate weighted overall score from agent reports + architecture review."""
+    """Calculate weighted overall score from agent reports + architecture review.
+
+    Phase 3.5: ``plugin_reports`` is a list of ``(AgentReport, weight)`` pairs for
+    dynamically-registered agents. Each contributes its own ``weight`` to the same
+    normalized pool. When ``plugin_reports`` is empty/None the computation is
+    identical to the pre-3.5 behavior — the core weights, architecture weight, and
+    rounding are untouched — so existing scoring assertions hold exactly.
+    """
     if not agent_reports:
         return 0.0
     weights = {
@@ -25,6 +33,14 @@ def calculate_overall_score(
         arch_weight = 0.15
         weighted_score += architecture_review.architecture_score * arch_weight
         total_weight += arch_weight
+
+    # Phase 3.5 — plugin agents join the normalized weight pool, each with its own
+    # weight (from skill frontmatter). Absent plugins => no change to the result.
+    for report, weight in plugin_reports or []:
+        if weight <= 0.0:
+            continue
+        weighted_score += report.score * weight
+        total_weight += weight
 
     return round(weighted_score / total_weight, 1) if total_weight > 0 else 0.0
 

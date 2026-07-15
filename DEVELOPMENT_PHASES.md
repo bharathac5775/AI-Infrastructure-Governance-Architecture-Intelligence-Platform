@@ -770,3 +770,53 @@ Anything outside this matrix flows to the LLM fallback.
 - **LangChain `ChatPromptTemplate` interprets `{}` in templates as variables** — passing an HCL/JSON file body through `human` template variables blew up because file content contains literal braces. Fixed by building `SystemMessage` + `HumanMessage` directly and bypassing `ChatPromptTemplate.from_messages`.
 - **Mocked LLM didn't recognize raw message-list inputs** — the test fake's `_extract_prompt_text` only handled `PromptValue` shapes. Extended to handle `list[BaseMessage]` so the remediator's direct-call form is mockable.
 - **Stateless file content** — chose to NOT persist file contents in ChromaDB. The frontend caches the original upload in `st.session_state["cached_file_contents"]` and re-supplies it via the remediation request body.
+
+## Phase 3.5 — Plugin Harness (Dynamic Agent Registration) — SHIPPED 2026-07-15
+
+**Theme:** Drop a new skill file into `skills/` and have it picked up automatically as a new analysis agent — no Python code change for a new LLM agent. Compliance (Phase 3.3) becomes the first registered plugin. This closes out Phase 3.
+
+### What Was Built
+
+A two-layer plugin harness, additive-only so the existing hardcoded pipeline and scoring are untouched when no plugin is present:
+
+1. **`app/core/plugin_registry.py` (descriptor layer)** — `PluginAgent` pydantic model (`name`, `agent_name`, `agent_type: rule_based|llm_only|hybrid`, `weight`, `infra_type`, `skill_name`, `prompt`) and `discover_plugins()`. A skill is a registerable plugin **only if its frontmatter declares BOTH `agent_type` and `weight`**. Core agents (`security`/`reliability`/`cost`/`architecture-reviewer`/`supervisor`/`remediator`) are excluded from runtime registration even when tagged, so migration frontmatter never causes double-execution.
+2. **`app/core/plugin_loader.py` (execution layer)** — `run_all_plugins()` runs discovered plugins sequentially (Ollama single-stream). `llm_only`/`hybrid` route through the shared `run_llm_agent` helper; `rule_based` plugins dispatch to a registered adapter in `RULE_BASED_ADAPTERS`. Every plugin runs isolated — a discovery error, missing adapter, or runtime exception is logged and yields no report, never breaking the pipeline.
+3. **`app/core/llm_agent.py` (de-duplication)** — the LLM invoke → strip-fence → `json.loads` → build-findings → dedup → severity-deduction score pattern (previously inlined in `security.py`/`reliability.py`/`cost.py`) extracted into one reusable `run_llm_agent(...)`. New agents use it; the three core agents are intentionally left unchanged to keep their diffs and behavior minimal.
+
+### Architecture Decisions
+
+- **Additive, normalized scoring.** `calculate_overall_score` gains an optional `plugin_reports: list[(AgentReport, weight)]`. Plugin weights join the same normalized pool (`weighted_sum / total_weight`). When `plugin_reports` is empty/None the code path and result are **byte-identical to pre-3.5** — the exact scoring assertions (88.5 / 100.0 / 85.0, unknown-agent 0.28) are preserved verbatim.
+- **Compliance as the first plugin = deterministic adapter, not a new LLM skill.** `skills/compliance.md` declares `agent_type: rule_based`, `weight: 0.10`. Its adapter (`_compliance_adapter`) reuses the Phase 3.3 engine (`enrich_findings_with_compliance` + `compute_compliance_scorecard`) verbatim — no LLM, no re-derivation. Score = mean per-framework `score_pct`; 100.0 (no penalty) when no framework applies. The authoritative `report.compliance` scorecard is still computed in `routes.py` exactly as before; the adapter's internal scorecard is ephemeral (only to derive the agent score).
+- **New pipeline node, pass-through when empty.** `plugin_agents_node` runs between `architecture_review` and `supervisor`. With an empty registry it returns `{"plugin_reports": []}` and the existing 6-node behavior is unchanged.
+- **Existing skills migrated for discoverability only.** `security-*`/`reliability-*`/`cost-*`/`architecture-reviewer` skills gained `agent_type: hybrid` + weights mirroring `report.py` (0.34/0.30/0.21/0.15). Their hardcoded execution path is unchanged; the core-agent exclusion set keeps them out of the runtime plugin set.
+
+### Components Delivered
+
+| Component | Detail |
+|---|---|
+| **New module** | `app/core/plugin_registry.py` — discovery + `PluginAgent` model |
+| **New module** | `app/core/plugin_loader.py` — execution + compliance adapter |
+| **New module** | `app/core/llm_agent.py` — shared `run_llm_agent` + `SEVERITY_DEDUCTIONS` |
+| **New skill** | `skills/compliance.md` — first plugin (rule_based) |
+| **Changed** | `app/core/report.py` — `plugin_reports` param (backwards-compatible) |
+| **Changed** | `app/agents/supervisor.py` — `plugin_agents_node`, state key, edge rewire |
+| **Changed** | `app/core/skills.py` — `load_skill(skill_name, skills_dir=None)` |
+| **Changed** | 7 existing skill files — `agent_type` + `weight` frontmatter |
+| **Tests** | `tests/test_plugin_harness.py` — 19 tests |
+
+### Verification
+
+| Check | Result |
+|---|---|
+| `pytest tests/test_plugin_harness.py` | **19 passed** |
+| Full suite | **524 passed, 38 skipped** (was 505 passed at baseline + 19 new) |
+| Regressions | **0** — the only 8 failures are pre-existing `test_llm_provider.py` cloud-SDK `ModuleNotFoundError`s, unrelated to this phase and present before any change |
+| Zero-plugin invariance | `calculate_overall_score(core, plugin_reports=[])` == `calculate_overall_score(core)` == 88.5 (asserted) |
+| Weight math | core + `(Compliance, 0.10)` → 84.4 (asserted) |
+| End-to-end | `run_analysis` on a privileged-container Deployment yields `[Security, Reliability, Cost, Compliance]` agents; overall score folds in the plugin weight |
+
+### Challenges Addressed
+
+- **`discover_plugins(skills_dir=...)` scanned a custom dir but loaded from the hardcoded `SKILLS_DIR`** — caught by a test using `tmp_path`. Fixed by threading an optional `skills_dir` through `load_skill` (one parser, no duplication) rather than re-implementing frontmatter parsing in the registry.
+- **Double-processing risk from the Compliance Agent's own findings** — verified that its `compliance-gap` findings (empty `compliance_controls`) contribute nothing to the routes-level `failed` control set, so the authoritative `report.compliance` scorecard is unaffected by the plugin also appearing in `agent_reports`.
+- **Smuggling weight onto a pydantic `AgentReport`** — the first scoring draft attached a private `_plugin_weight` attribute; replaced with explicit `(report, weight)` tuples so scoring never depends on model-mutation behavior.

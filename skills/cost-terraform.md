@@ -1,6 +1,8 @@
 ---
 name: cost-terraform
 agent: cost
+agent_type: hybrid
+weight: 0.21
 infra_type: terraform
 description: Cost optimization analysis for Terraform and cloud infrastructure configurations
 version: "1.0"

@@ -26,6 +26,7 @@ class AnalysisState(TypedDict):
     reliability_report: AgentReport | None
     cost_report: AgentReport | None
     architecture_review: ArchitectureReview | None
+    plugin_reports: list  # list[tuple[AgentReport, float]] — (report, weight) pairs
     final_report: AnalysisReport | None
 
 
@@ -113,6 +114,42 @@ async def architecture_reviewer_node(state: AnalysisState) -> dict:
     return {"architecture_review": review}
 
 
+async def plugin_agents_node(state: AnalysisState) -> dict:
+    """Run dynamically-registered plugin agents (Phase 3.5).
+
+    Discovers plugins from skill frontmatter and runs them sequentially after the
+    core agents. Pass-through when no plugin is registered (returns an empty list)
+    so the pipeline and scoring are unchanged without plugins.
+    """
+    from app.core.plugin_loader import run_all_plugins
+    from app.core.plugin_registry import discover_plugins
+
+    plugins = discover_plugins()
+    if not plugins:
+        return {"plugin_reports": []}
+
+    core_reports = [
+        r for r in [
+            state.get("security_report"),
+            state.get("reliability_report"),
+            state.get("cost_report"),
+        ] if r
+    ]
+    logger.info("Starting %d plugin agent(s)...", len(plugins))
+    reports = await run_all_plugins(
+        file_contents=state["file_contents"],
+        agent_reports=core_reports,
+        k8s_resources=state.get("k8s_resources", {}),
+        tf_resources=state.get("tf_resources", []),
+        plugins=plugins,
+    )
+    # Pair each successful report with its plugin's weight for scoring. Match by
+    # agent_name (plugins carry a stable agent_name derived from frontmatter).
+    weight_by_name = {p.agent_name: p.weight for p in plugins}
+    paired = [(r, weight_by_name.get(r.agent_name, 0.0)) for r in reports]
+    return {"plugin_reports": paired}
+
+
 async def supervisor_node(state: AnalysisState) -> dict:
     """Synthesize all agent reports into final report."""
     sec = state["security_report"]
@@ -162,11 +199,19 @@ async def supervisor_node(state: AnalysisState) -> dict:
         risk_summary = "Unable to generate AI risk summary."
         recommendations = ["Review security findings", "Address reliability gaps", "Optimize costs"]
 
-    overall_score = calculate_overall_score(agent_reports, state.get("architecture_review"))
+    overall_score = calculate_overall_score(
+        agent_reports,
+        state.get("architecture_review"),
+        plugin_reports=state.get("plugin_reports") or [],
+    )
+
+    # Phase 3.5 — plugin agent reports are surfaced alongside the core agents.
+    plugin_reports = [r for (r, _w) in (state.get("plugin_reports") or [])]
+    all_agent_reports = agent_reports + plugin_reports
 
     final_report = AnalysisReport(
         files_analyzed=list(state["file_contents"].keys()),
-        agent_reports=agent_reports,
+        agent_reports=all_agent_reports,
         architecture_review=state.get("architecture_review"),
         overall_score=overall_score,
         executive_summary=executive_summary,
@@ -187,16 +232,19 @@ def build_analysis_graph() -> StateGraph:
     graph.add_node("reliability_analysis", reliability_node)
     graph.add_node("cost_analysis", cost_node)
     graph.add_node("architecture_review", architecture_reviewer_node)
+    graph.add_node("plugin_agents", plugin_agents_node)
     graph.add_node("supervisor", supervisor_node)
 
-    # Sequential edges: parse → security → reliability → cost → architecture_review → supervisor
+    # Sequential edges: parse → security → reliability → cost → architecture_review
+    #                   → plugin_agents → supervisor
     # Local LLMs can only handle one request at a time efficiently
     graph.set_entry_point("parse_files")
     graph.add_edge("parse_files", "security_analysis")
     graph.add_edge("security_analysis", "reliability_analysis")
     graph.add_edge("reliability_analysis", "cost_analysis")
     graph.add_edge("cost_analysis", "architecture_review")
-    graph.add_edge("architecture_review", "supervisor")
+    graph.add_edge("architecture_review", "plugin_agents")
+    graph.add_edge("plugin_agents", "supervisor")
     graph.add_edge("supervisor", END)
 
     return graph.compile()
@@ -218,6 +266,7 @@ async def run_analysis(file_contents: dict[str, str]) -> AnalysisReport:
         "reliability_report": None,
         "cost_report": None,
         "architecture_review": None,
+        "plugin_reports": [],
         "final_report": None,
     }
 

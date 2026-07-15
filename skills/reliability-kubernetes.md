@@ -1,6 +1,8 @@
 ---
 name: reliability-kubernetes
 agent: reliability
+agent_type: hybrid
+weight: 0.30
 infra_type: kubernetes
 description: Reliability analysis for Kubernetes YAML manifests
 version: "1.0"
