@@ -668,7 +668,7 @@ class AnalysisReport(BaseModel):
 
 ---
 
-## Phase 3.4 — Auto-Remediation (Scaffolding) — SHIPPED 2026-05-31
+## Phase 3.4 — Auto-Remediation (Scaffolding)
 
 **Headline feature.** Transforms the platform from "tells you what's wrong" to "gives you the patch that fixes it." For every finding the platform produces, the user can click "Generate fix" and receive a unified diff + the full patched file, validated by re-parsing.
 
@@ -771,7 +771,7 @@ Anything outside this matrix flows to the LLM fallback.
 - **Mocked LLM didn't recognize raw message-list inputs** — the test fake's `_extract_prompt_text` only handled `PromptValue` shapes. Extended to handle `list[BaseMessage]` so the remediator's direct-call form is mockable.
 - **Stateless file content** — chose to NOT persist file contents in ChromaDB. The frontend caches the original upload in `st.session_state["cached_file_contents"]` and re-supplies it via the remediation request body.
 
-## Phase 3.5 — Plugin Harness (Dynamic Agent Registration) — SHIPPED 2026-07-15
+## Phase 3.5 — Plugin Harness (Dynamic Agent Registration)
 
 **Theme:** Drop a new skill file into `skills/` and have it picked up automatically as a new analysis agent — no Python code change for a new LLM agent. Compliance (Phase 3.3) becomes the first registered plugin. This closes out Phase 3.
 
