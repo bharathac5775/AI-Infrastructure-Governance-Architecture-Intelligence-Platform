@@ -1,6 +1,8 @@
 ---
 name: architecture-reviewer
 agent: architecture-reviewer
+agent_type: hybrid
+weight: 0.15
 infra_type: all
 description: Cross-cutting architecture review that identifies tradeoffs, conflicts, and design patterns across security/reliability/cost findings
 version: "1.1"

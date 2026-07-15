@@ -8,11 +8,17 @@ from typing import Any
 SKILLS_DIR = Path(__file__).parent.parent.parent / "skills"
 
 
-def load_skill(skill_name: str) -> dict[str, Any]:
+def load_skill(skill_name: str, skills_dir: Path | None = None) -> dict[str, Any]:
     """Load a skill file and return its metadata + prompt content.
 
     Skill files use YAML frontmatter (between --- delimiters) for metadata,
     followed by the prompt content in the body.
+
+    Args:
+        skill_name: The skill file stem (without ``.md``).
+        skills_dir: Optional base directory to load from. Defaults to the
+            package-level ``SKILLS_DIR``. Used by the plugin registry so it can
+            scan and load from the same (possibly custom) directory.
 
     Returns:
         {
@@ -24,7 +30,8 @@ def load_skill(skill_name: str) -> dict[str, Any]:
             ...other frontmatter fields
         }
     """
-    skill_path = SKILLS_DIR / f"{skill_name}.md"
+    base = skills_dir or SKILLS_DIR
+    skill_path = base / f"{skill_name}.md"
     if not skill_path.exists():
         raise FileNotFoundError(f"Skill file not found: {skill_path}")
 

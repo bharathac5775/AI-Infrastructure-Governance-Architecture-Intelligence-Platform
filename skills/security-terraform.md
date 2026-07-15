@@ -1,6 +1,8 @@
 ---
 name: security-terraform
 agent: security
+agent_type: hybrid
+weight: 0.34
 infra_type: terraform
 description: Security analysis for Terraform and cloud infrastructure configurations
 version: "1.0"
