@@ -1,6 +1,8 @@
 ---
 name: security-kubernetes
 agent: security
+agent_type: hybrid
+weight: 0.34
 infra_type: kubernetes
 description: Security analysis for Kubernetes YAML manifests
 version: "1.0"

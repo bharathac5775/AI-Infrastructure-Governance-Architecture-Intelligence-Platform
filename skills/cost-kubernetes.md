@@ -1,6 +1,8 @@
 ---
 name: cost-kubernetes
 agent: cost
+agent_type: hybrid
+weight: 0.21
 infra_type: kubernetes
 description: Cost optimization analysis for Kubernetes YAML manifests
 version: "1.0"

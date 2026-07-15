@@ -1,6 +1,8 @@
 ---
 name: reliability-terraform
 agent: reliability
+agent_type: hybrid
+weight: 0.30
 infra_type: terraform
 description: Reliability analysis for Terraform and cloud infrastructure configurations
 version: "1.0"
