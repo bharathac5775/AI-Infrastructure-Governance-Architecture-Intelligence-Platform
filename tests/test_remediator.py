@@ -12,6 +12,7 @@ Covers:
 from __future__ import annotations
 
 import json
+import re
 
 import pytest
 
@@ -562,6 +563,74 @@ resource "azurerm_key_vault" "main" {
     )
     patch = remediate_sync(finding, 0, bundle)
     assert "purge_protection_enabled = true" in patch.patched_content
+
+
+def test_tf_azure_sql_zone_redundant_deterministic(mock_llm):
+    """Phase 4 follow-up: 'Azure SQL database not zone-redundant' must be a
+    deterministic single-attribute flip, NOT routed to the LLM (which drops
+    resources / truncates on large files)."""
+    bundle = _tf_bundle('''
+resource "azurerm_mssql_database" "main" {
+  name           = "db"
+  server_id      = "x"
+  sku_name       = "GP_S_Gen5_2"
+  zone_redundant = false
+}
+''')
+    finding = _f(
+        category="high-availability",
+        title="Azure SQL database not zone-redundant",
+        resource="azurerm_mssql_database.main",
+        severity=Severity.MEDIUM,
+    )
+    patch = remediate_sync(finding, 0, bundle)
+    assert patch.strategy == "deterministic"
+    assert "zone_redundant = true" in patch.patched_content
+    assert '"GP_S_Gen5_2"' in patch.patched_content  # SKU value preserved verbatim
+
+
+def test_tf_azure_keyvault_deletion_protection_ai_analysis_inferred(mock_llm):
+    """'Key Vault Deletion Protection Disabled' arrives as category=ai-analysis
+    from the Reliability Agent; it must be INFERRED to a deterministic fixer,
+    not sent to the LLM."""
+    bundle = _tf_bundle('''
+resource "azurerm_key_vault" "main" {
+  name                = "main"
+  location            = "eastus"
+  resource_group_name = "rg"
+  tenant_id           = "x"
+  sku_name            = "standard"
+  purge_protection_enabled = false
+}
+''')
+    finding = _f(
+        category="ai-analysis",
+        title="Key Vault Deletion Protection Disabled",
+        resource="azurerm_key_vault.main",
+        severity=Severity.HIGH,
+    )
+    patch = remediate_sync(finding, 0, bundle)
+    assert patch.strategy == "deterministic"
+    assert "purge_protection_enabled = true" in patch.patched_content
+
+
+def test_tf_aws_rds_multi_az_deterministic(mock_llm):
+    bundle = _tf_bundle('''
+resource "aws_db_instance" "db" {
+  identifier = "db"
+  engine     = "postgres"
+  multi_az   = false
+}
+''')
+    finding = _f(
+        category="high-availability",
+        title="RDS instance not Multi-AZ",
+        resource="aws_db_instance.db",
+        severity=Severity.MEDIUM,
+    )
+    patch = remediate_sync(finding, 0, bundle)
+    assert patch.strategy == "deterministic"
+    assert re.search(r"multi_az\s*=\s*true", patch.patched_content)
 
 
 def test_tf_gcp_firewall_open(mock_llm):
