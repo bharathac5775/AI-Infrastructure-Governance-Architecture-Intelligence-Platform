@@ -1541,6 +1541,54 @@ class TestLLMJsonParsing:
         assert patched == original          # full file, not truncated
         assert expl == "ok"
 
+    def test_sentinel_format_with_raw_quotes(self):
+        """The azure-average.tf failure: the local model emitted the file with
+        RAW (unescaped) inner quotes, breaking every JSON strategy and salvaging
+        only 'resource '. The sentinel format is a plain substring slice, so a
+        body full of quotes/newlines is preserved verbatim."""
+        from app.agents.remediator import _parse_llm_json_response
+        resp = (
+            "<<<PATCHED_FILE>>>\n"
+            'resource "azurerm_mssql_database" "main" {\n'
+            '  sku_name       = "GP_S_Gen5_2"\n'
+            "  zone_redundant = true\n"
+            "}\n"
+            "<<<END_PATCHED_FILE>>>\n"
+            "<<<EXPLANATION>>> Enable zone redundancy"
+        )
+        patched, expl = _parse_llm_json_response(resp)
+        assert 'sku_name       = "GP_S_Gen5_2"' in patched   # inner quotes intact
+        assert "zone_redundant = true" in patched
+        assert expl == "Enable zone redundancy"
+
+    def test_sentinel_takes_priority_over_json(self):
+        """If both a sentinel block and JSON-looking text are present, the
+        sentinel (bulletproof) path wins."""
+        from app.agents.remediator import _parse_llm_json_response
+        resp = (
+            "<<<PATCHED_FILE>>>\nfoo: bar\n<<<END_PATCHED_FILE>>>\n"
+            "<<<EXPLANATION>>> did it"
+        )
+        patched, expl = _parse_llm_json_response(resp)
+        assert patched == "foo: bar"
+        assert expl == "did it"
+
+    def test_sentinel_missing_end_marker_recovers_body(self):
+        """Truncated response with a start sentinel but no end marker still
+        yields the body (caller re-validates)."""
+        from app.agents.remediator import _parse_llm_json_response
+        resp = "<<<PATCHED_FILE>>>\nkind: Service\nmetadata:\n  name: x\n"
+        patched, _ = _parse_llm_json_response(resp)
+        assert "kind: Service" in patched
+
+    def test_json_fallback_still_works_without_sentinel(self):
+        """Backward-compat: responses in the old JSON shape (no sentinels) must
+        still parse via the JSON strategies."""
+        from app.agents.remediator import _parse_llm_json_response
+        text = '{"patched_content": "hello", "explanation": "x"}'
+        patched, expl = _parse_llm_json_response(text)
+        assert patched == "hello" and expl == "x"
+
 
 class TestTemplatePathDetection:
     """Bug 3: LLM emits Helm template paths in resource field. The

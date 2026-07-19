@@ -2180,10 +2180,57 @@ def _fix_tf_json(finding: Finding, content: str) -> tuple[str, str, list[str]]:
 
 
 _LLM_PATCH_SCHEMA = (
-    'Respond ONLY with valid JSON of this shape:\n'
-    '{{"patched_content": "<the FULL patched file as a single string, no truncation, no markdown fences>",'
-    ' "explanation": "<one short sentence describing the change>"}}'
+    "Respond using EXACTLY this sentinel format (NOT JSON — do not escape "
+    "anything, do not use quotes around the file):\n"
+    "<<<PATCHED_FILE>>>\n"
+    "<the FULL patched file, verbatim, no truncation, no markdown fences>\n"
+    "<<<END_PATCHED_FILE>>>\n"
+    "<<<EXPLANATION>>> <one short sentence describing the change>\n"
+    "\n"
+    "The file goes between the PATCHED_FILE sentinels exactly as it should be "
+    "written to disk — with real newlines and real quotes, NOT escaped. Emit "
+    "nothing else."
 )
+
+# Sentinel markers for the robust (non-JSON) response format. Chosen so they
+# can never collide with HCL / YAML / JSON content.
+_SENTINEL_FILE_START = "<<<PATCHED_FILE>>>"
+_SENTINEL_FILE_END = "<<<END_PATCHED_FILE>>>"
+_SENTINEL_EXPLANATION = "<<<EXPLANATION>>>"
+
+
+def _parse_sentinel_response(text: str) -> Optional[tuple[str, str]]:
+    """Extract (patched_content, explanation) from the sentinel format.
+
+    Bulletproof for file bodies full of quotes/newlines because it is a plain
+    substring slice — no escaping, no JSON. Returns None if the start sentinel
+    is absent (so the caller can fall back to JSON parsing for older prompts).
+    """
+    start = text.find(_SENTINEL_FILE_START)
+    if start == -1:
+        return None
+    body_start = start + len(_SENTINEL_FILE_START)
+    end = text.find(_SENTINEL_FILE_END, body_start)
+    if end == -1:
+        # Start sentinel but no end — truncated. Take everything after start;
+        # the caller re-validates, so a genuinely broken partial is rejected.
+        body = text[body_start:]
+    else:
+        body = text[body_start:end]
+    # The body typically starts/ends with the newline that framed the sentinel.
+    patched = body.strip("\n")
+
+    explanation = "LLM-generated patch."
+    exp_idx = text.find(_SENTINEL_EXPLANATION)
+    if exp_idx != -1:
+        explanation = text[exp_idx + len(_SENTINEL_EXPLANATION):].strip() or explanation
+        # Keep the explanation to a single line.
+        explanation = explanation.splitlines()[0].strip() if explanation else "LLM-generated patch."
+
+    if not patched.strip():
+        return None
+    return patched, explanation
+
 
 
 def _parse_llm_json_response(text: str) -> tuple[str, str]:
@@ -2213,6 +2260,14 @@ def _parse_llm_json_response(text: str) -> tuple[str, str]:
     text = (text or "").strip()
     if not text:
         raise ValueError("LLM response is empty.")
+
+    # Strategy 0 (preferred): sentinel format. Bulletproof for file bodies full
+    # of quotes/newlines because it is a plain substring slice. Tried BEFORE any
+    # fence-stripping so the markers are matched against the raw response.
+    sentinel = _parse_sentinel_response(text)
+    if sentinel is not None:
+        return sentinel
+
     # Strip ```json / ``` fences if present
     if text.startswith("```"):
         text = text.split("\n", 1)[1] if "\n" in text else text[3:]
