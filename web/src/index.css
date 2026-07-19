@@ -1,0 +1,119 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Inter, self-hosted (no CDN call — respects local-first). Files live in
+   /public/fonts; variable font covers all weights we use. */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/InterVariable.woff2") format("woff2");
+}
+
+@layer base {
+  :root {
+    /* Light theme — zinc neutrals, near-black text, single indigo accent. */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 4%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 4%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 4%;
+
+    /* Accent: indigo, used with discipline (primary button, active, links, ring). */
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 10%;
+
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 10%;
+
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 243 75% 59%;
+
+    /* Restrained semantic colors — badges only. */
+    --danger: 0 72% 51%;
+    --warning: 38 92% 45%;
+    --info: 217 91% 55%;
+    --success: 142 71% 40%;
+  }
+
+  .dark {
+    /* Dark theme — Linear/Vercel-style near-black surfaces, lifted indigo. */
+    --background: 240 10% 4%;
+    --foreground: 0 0% 96%;
+
+    --card: 240 8% 6%;
+    --card-foreground: 0 0% 96%;
+
+    --popover: 240 8% 7%;
+    --popover-foreground: 0 0% 96%;
+
+    --primary: 243 80% 67%;
+    --primary-foreground: 240 10% 6%;
+
+    --secondary: 240 5% 12%;
+    --secondary-foreground: 0 0% 96%;
+
+    --muted: 240 5% 12%;
+    --muted-foreground: 240 5% 60%;
+
+    --accent: 240 5% 14%;
+    --accent-foreground: 0 0% 96%;
+
+    --border: 240 5% 15%;
+    --input: 240 5% 15%;
+    --ring: 243 80% 67%;
+
+    --danger: 0 72% 58%;
+    --warning: 38 92% 55%;
+    --info: 217 91% 62%;
+    --success: 142 65% 47%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "cv11", "ss01";
+    font-variation-settings: normal;
+  }
+
+  /* Consistent focus ring — the only place indigo appears on non-primary els. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer utilities {
+  /* Subtle scrollbars — matches the restrained aesthetic. */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 8px;
+  }
+}
