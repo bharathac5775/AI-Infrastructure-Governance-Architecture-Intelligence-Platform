@@ -30,9 +30,5 @@ Hard rules:
   comment ABOVE the affected resource describing the manual step, and keep the
   rest of the file untouched.
 
-Respond using EXACTLY this sentinel format (NOT JSON — do not escape anything,
-do not wrap the file in quotes, no markdown fences):
-<<<PATCHED_FILE>>>
-<the full patched file, verbatim, exactly as it should be written to disk>
-<<<END_PATCHED_FILE>>>
-<<<EXPLANATION>>> <one short sentence>
+The exact response format you must use is specified at the end of this prompt.
+Follow it precisely and emit nothing else.

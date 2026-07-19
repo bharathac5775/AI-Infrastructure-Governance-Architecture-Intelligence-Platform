@@ -26,9 +26,5 @@ Hard rules:
 - Never delete a resource. Never rename a resource. Never add unrelated security
   hardening on the side — fix only what the finding describes.
 
-Respond using EXACTLY this sentinel format (NOT JSON — do not escape anything,
-do not wrap the file in quotes, no markdown fences):
-<<<PATCHED_FILE>>>
-<the full patched YAML/JSON, verbatim, exactly as it should be written to disk>
-<<<END_PATCHED_FILE>>>
-<<<EXPLANATION>>> <one short sentence>
+The exact response format you must use is specified at the end of this prompt.
+Follow it precisely and emit nothing else.

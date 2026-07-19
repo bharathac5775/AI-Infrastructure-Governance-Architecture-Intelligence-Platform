@@ -769,24 +769,22 @@ resource "aws_s3_bucket" "data" {
 
 
 def test_llm_fallback_retries_on_invalid_output(mock_llm):
-    """First LLM response is unparseable HCL; second succeeds."""
-    bundle = _tf_bundle('''
-resource "aws_s3_bucket" "data" {
-  bucket = "data"
-}
-''')
-    # Override the fake to return bad-then-good. We do this by stuffing a list
-    # into the response_map and consuming it in a custom subclass.
+    """First LLM response is unparseable; second succeeds. Uses a Kubernetes
+    finding so the whole-file LLM path (which has the bad->good retry) runs
+    directly — Terraform now goes through the structured-edit path first."""
+    bundle = {"svc.yaml": (
+        "apiVersion: v1\n"
+        "kind: Service\n"
+        "metadata:\n  name: web\n  namespace: default\n"
+        "spec:\n  type: LoadBalancer\n  selector:\n    app: web\n"
+    )}
     call_count = {"n": 0}
-    good = 'resource "aws_s3_bucket" "data" { bucket = "data"\n  versioning { enabled = true }\n}\n'
-    bad = 'resource "aws_s3_bucket" "data" { bucket = "data" missing brace\n'
+    good = (
+        "apiVersion: v1\nkind: Service\nmetadata:\n  name: web\n  namespace: default\n"
+        "spec:\n  type: ClusterIP\n  selector:\n    app: web\n"
+    )
+    bad = "this: is: not: valid: yaml: at all: ["
 
-    # We can't easily mutate the fake mid-test for this scenario, so we
-    # monkeypatch the LLM call directly via mock_llm.set with a sentinel that
-    # toggles. The simplest approach: set to bad, then in a second pass,
-    # override to good. But the remediator runs both attempts inside one call.
-    #
-    # Instead, simulate by patching get_llm to return a custom Runnable.
     import json as _json
 
     class _ToggleRunnable:
@@ -794,29 +792,28 @@ resource "aws_s3_bucket" "data" {
             call_count["n"] += 1
             payload = bad if call_count["n"] == 1 else good
             class _R:
-                content = _json.dumps({"patched_content": payload, "explanation": "Versioning."})
+                content = _json.dumps({"patched_content": payload, "explanation": "Use ClusterIP."})
             return _R()
 
         def invoke(self, *args, **kwargs):
             import asyncio as _a
             return _a.run(self.ainvoke(*args, **kwargs))
 
-    # Patch right where remediator looks it up
     import app.agents.remediator as rem
     orig = rem.get_llm
     rem.get_llm = lambda *a, **k: _ToggleRunnable()
     try:
         finding = _f(
             category="ai-analysis",
-            title="X",
-            resource="aws_s3_bucket.data",
+            title="Service exposed via LoadBalancer",
+            resource="Service/default/web",
         )
         patch = remediate_sync(finding, 0, bundle)
     finally:
         rem.get_llm = orig
 
     assert call_count["n"] == 2, "LLM should have been retried after invalid first response"
-    assert "versioning" in patch.patched_content
+    assert "ClusterIP" in patch.patched_content
     assert patch.strategy == "llm"
 
 
@@ -1512,6 +1509,110 @@ class TestRuamelMinimalDiff:
         # Both quote styles preserved
         assert '"app:1.0"' in patch.patched_content
         assert "'plain-text'" in patch.patched_content
+
+
+class TestStructuredEditFallback:
+    """Phase 4 follow-up: the LLM fallback for Terraform asks the model for a
+    SMALL structured edit ({op, resource, attribute, value}) and applies it with
+    the deterministic editors, instead of asking it to reproduce the whole file.
+    This eliminates the drop-resources / truncate failures a local model hits on
+    large files."""
+
+    def test_parse_set_attribute(self):
+        from app.agents.remediator import _parse_structured_edit
+        edit = _parse_structured_edit(
+            '{"op":"set_attribute","resource":"azurerm_mssql_database.main",'
+            '"attribute":"zone_redundant","value":true}'
+        )
+        assert edit and edit["op"] == "set_attribute"
+        assert edit["attribute"] == "zone_redundant"
+
+    def test_parse_tolerates_fence_and_prose(self):
+        from app.agents.remediator import _parse_structured_edit
+        text = 'Sure:\n```json\n{"op":"add_block","resource":"a_b.c","block":"x {}"}\n```\nDone'
+        edit = _parse_structured_edit(text)
+        assert edit and edit["op"] == "add_block"
+
+    def test_parse_rejects_non_edit(self):
+        from app.agents.remediator import _parse_structured_edit
+        assert _parse_structured_edit('{"patched_content":"...","explanation":"x"}') is None
+        assert _parse_structured_edit("not json at all") is None
+
+    def test_apply_set_attribute_hcl(self):
+        from app.agents.remediator import apply_structured_edit
+        content = 'resource "azurerm_mssql_database" "main" {\n  zone_redundant = false\n}\n'
+        edit = {"op": "set_attribute", "resource": "azurerm_mssql_database.main",
+                "attribute": "zone_redundant", "value": True, "explanation": "x"}
+        patched, expl, _ = apply_structured_edit(edit, "terraform_hcl", content)
+        assert re.search(r"zone_redundant\s*=\s*true", patched)
+
+    def test_apply_set_attribute_preserves_other_resources(self):
+        """The whole point: applying an edit must NOT drop other resources."""
+        from app.agents.remediator import apply_structured_edit
+        content = (
+            'resource "aws_kms_key" "k" {}\n\n'
+            'resource "azurerm_mssql_database" "main" {\n  zone_redundant = false\n}\n\n'
+            'resource "aws_s3_bucket" "b" {}\n'
+        )
+        edit = {"op": "set_attribute", "resource": "azurerm_mssql_database.main",
+                "attribute": "zone_redundant", "value": True}
+        patched, _, _ = apply_structured_edit(edit, "terraform_hcl", content)
+        assert patched.count('resource "') == 3   # all three still present
+        assert re.search(r"zone_redundant\s*=\s*true", patched)
+
+    def test_apply_add_block_hcl(self):
+        from app.agents.remediator import apply_structured_edit
+        content = 'resource "aws_instance" "web" {\n  ami = "ami-1"\n}\n'
+        edit = {"op": "add_block", "resource": "aws_instance.web",
+                "block": 'metadata_options {\n  http_tokens = "required"\n}'}
+        patched, _, _ = apply_structured_edit(edit, "terraform_hcl", content)
+        assert "metadata_options" in patched and "http_tokens" in patched
+        parse_terraform(patched)  # must still parse
+
+    def test_apply_set_attribute_json(self):
+        from app.agents.remediator import apply_structured_edit
+        content = json.dumps({"resource": {"azurerm_mssql_database": {"main": {"zone_redundant": False}}}})
+        edit = {"op": "set_attribute", "resource": "azurerm_mssql_database.main",
+                "attribute": "zone_redundant", "value": True}
+        patched, _, _ = apply_structured_edit(edit, "terraform_json", content)
+        assert json.loads(patched)["resource"]["azurerm_mssql_database"]["main"]["zone_redundant"] is True
+
+    def test_end_to_end_structured_edit_via_llm(self):
+        """A finding with NO deterministic rule goes to the LLM, which returns a
+        tiny structured edit; the fix applies and all resources are preserved."""
+        import asyncio
+        content = (
+            'resource "aws_kms_key" "k" {}\n\n'
+            'resource "azurerm_mssql_database" "main" {\n'
+            '  sku_name       = "GP_S_Gen5_2"\n  zone_redundant = false\n}\n\n'
+            'resource "aws_s3_bucket" "b" {}\n'
+        )
+        edit_json = json.dumps({
+            "op": "set_attribute", "resource": "azurerm_mssql_database.main",
+            "attribute": "zone_redundant", "value": True, "explanation": "Enable ZR",
+        })
+
+        class _R:
+            content = edit_json
+
+        class _Runnable:
+            async def ainvoke(self, *a, **k):
+                return _R()
+
+        import app.agents.remediator as rem
+        orig = rem.get_llm
+        rem.get_llm = lambda *a, **k: _Runnable()
+        try:
+            finding = _f(category="novel-unmapped-category",
+                         title="SQL should be zone redundant",
+                         resource="azurerm_mssql_database.main")
+            patch = remediate_sync(finding, 0, {"main.tf": content})
+        finally:
+            rem.get_llm = orig
+        assert patch.strategy == "llm"
+        assert re.search(r"zone_redundant\s*=\s*true", patch.patched_content)
+        assert '"GP_S_Gen5_2"' in patch.patched_content       # value preserved verbatim
+        assert patch.patched_content.count('resource "') == 3  # nothing dropped
 
 
 class TestLLMJsonParsing:
