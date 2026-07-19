@@ -211,9 +211,49 @@ def _add_k8s_nodes_and_edges(g: nx.DiGraph, k8s_resources: dict[str, list[dict]]
                         if _selector_matches(selector, wl_labels):
                             g.add_edge(node_id, wl_id, relation="selects")
 
+            # Ingress --routes--> Service(s) it forwards traffic to.
+            if kind == "Ingress":
+                _add_k8s_ingress_refs(g, res, node_id, ns)
+
             # Workload --uses--> Secret / ConfigMap / ServiceAccount.
             if kind in _K8S_WORKLOAD_KINDS:
                 _add_k8s_workload_refs(g, res, node_id, ns)
+
+
+def _add_k8s_ingress_refs(g: nx.DiGraph, ingress: dict, node_id: str, ns: str) -> None:
+    """Ingress --routes--> Service edges.
+
+    Handles both the networking.k8s.io/v1 shape (backend.service.name) and the
+    legacy extensions/v1beta1 shape (backend.serviceName), across defaultBackend
+    and every rule's HTTP paths.
+    """
+    spec = ingress.get("spec", {}) or {}
+
+    def _service_name_from_backend(backend: dict) -> str | None:
+        if not isinstance(backend, dict):
+            return None
+        svc = backend.get("service", {}) or {}
+        if isinstance(svc, dict) and svc.get("name"):
+            return svc["name"]                       # v1
+        if backend.get("serviceName"):
+            return backend["serviceName"]            # legacy v1beta1
+        return None
+
+    def _link(svc_name: str | None) -> None:
+        if not svc_name:
+            return
+        target = _k8s_ref_node_id("Service", ns, svc_name)
+        _ensure_ref_node(g, target, "Service")
+        g.add_edge(node_id, target, relation="routes")
+
+    # defaultBackend (v1) and legacy top-level backend (extensions/v1beta1)
+    _link(_service_name_from_backend(spec.get("defaultBackend", {}) or {}))
+    _link(_service_name_from_backend(spec.get("backend", {}) or {}))
+    # rules[].http.paths[].backend
+    for rule in spec.get("rules", []) or []:
+        http = (rule or {}).get("http", {}) or {}
+        for path in http.get("paths", []) or []:
+            _link(_service_name_from_backend((path or {}).get("backend", {}) or {}))
 
 
 def _ensure_ref_node(g: nx.DiGraph, node_id: str, kind: str) -> None:
