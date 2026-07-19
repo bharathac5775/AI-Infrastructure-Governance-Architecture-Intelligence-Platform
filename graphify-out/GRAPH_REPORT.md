@@ -1,8 +1,7 @@
-# Graph Report - AI-Infrastructure-Governance-Architecture-Intelligence-Platform  (2026-07-19)
+# Graph Report - .  (2026-07-19)
 
 ## Corpus Check
-- 86 files · ~94,734 words
-- Verdict: corpus is large enough that graph structure adds value.
+- cluster-only mode — file stats not available
 
 ## Summary
 - 1494 nodes · 3812 edges · 89 communities (87 shown, 2 thin omitted)
@@ -10,7 +9,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d233d696`
+- Built from commit: `d19ff399`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
