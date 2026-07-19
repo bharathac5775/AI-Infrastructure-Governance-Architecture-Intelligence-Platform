@@ -35,6 +35,13 @@ const ADVISORY_VERBS = [
   "maintain",
   "continue",
   "keep",
+  // Decision/research verbs (kept in sync with the backend's
+  // _ADVISORY_RECOMMENDATION_VERBS).
+  "conduct",
+  "verify",
+  "ensure",
+  "validate",
+  "migrate",
 ];
 
 const NO_ACTION_PHRASES = [
@@ -98,6 +105,10 @@ export function getPatchability(finding: Finding): Patchability {
 
   const isRollup = finding.category === "compliance-gap";
   const isResilience = finding.category === "resilience";
+  // A resource naming multiple targets (comma-separated) is a cross-resource
+  // recommendation — the deterministic patcher targets one address. Mirrors the
+  // backend guard in _locate_file_for_finding.
+  const isMultiResource = resourceStr.includes(",");
   const isPath = looksLikePath(resourceLower);
   const isAdvisoryLang =
     finding.category === "ai-analysis" &&
@@ -116,6 +127,12 @@ export function getPatchability(finding: Finding): Patchability {
       patchable: false,
       kind: "resilience",
       note: "Architectural finding (single point of failure) — a design observation, not a config defect, so there's nothing to auto-patch. Address it by adding redundancy (replicas / Multi-AZ / a standby) or decoupling the dependents shown in the Architecture tab.",
+    };
+  if (isMultiResource)
+    return {
+      patchable: false,
+      kind: "advisory-scope",
+      note: "This finding spans multiple resources — it's a cross-resource recommendation, not a single-attribute fix. Address each resource individually, or apply the recommendation by hand where the design decision applies.",
     };
   if (isPath)
     return {
