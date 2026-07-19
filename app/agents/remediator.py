@@ -21,6 +21,7 @@ from __future__ import annotations
 import asyncio
 import difflib
 import json
+import logging
 import re
 from typing import Any, Optional
 
@@ -34,6 +35,8 @@ from app.parsers.kubernetes import (
     parse_kubernetes_yaml,
 )
 from app.parsers.terraform import extract_tf_resources, parse_terraform
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -2436,6 +2439,165 @@ def _coerce_llm_payload(data: Any) -> tuple[str, str]:
     return patched, explanation
 
 
+# ---------------------------------------------------------------------------
+# Structured-edit LLM fallback (the robust path)
+#
+# Instead of asking a local model to reproduce a whole file verbatim — which it
+# cannot do reliably on large files (it drops resources / truncates) — we ask it
+# for a tiny STRUCTURED EDIT describing WHAT to change, and apply it with the
+# same deterministic editors the rule-based fixers use. The model only emits a
+# handful of tokens, so the failure modes (dropped resources, truncation,
+# unescaped quotes) simply cannot occur.
+#
+# Edit schema (JSON):
+#   {"op": "set_attribute", "resource": "<type.name>|<Kind/ns/name>",
+#    "attribute": "<name>", "value": "<literal>", "explanation": "..."}
+#   {"op": "add_block", "resource": "<type.name>", "block": "<HCL lines>",
+#    "explanation": "..."}
+# ---------------------------------------------------------------------------
+
+_STRUCTURED_EDIT_SCHEMA = (
+    "Respond with a SMALL JSON edit describing ONLY the change — do NOT output "
+    "the file. Two shapes are allowed:\n"
+    '  {"op": "set_attribute", "resource": "<resource address>", '
+    '"attribute": "<attribute name>", "value": "<new value>", '
+    '"explanation": "<one sentence>"}\n'
+    '  {"op": "add_block", "resource": "<resource address>", '
+    '"block": "<one nested block, e.g. metadata_options { http_tokens = \\"required\\" }>", '
+    '"explanation": "<one sentence>"}\n'
+    "For a Terraform resource the address is `type.name` (e.g. "
+    "`azurerm_mssql_database.main`). For booleans use true/false (no quotes); "
+    "for strings include the quotes in the value (e.g. \"TLS1_2\"). Prefer "
+    "set_attribute. Emit ONLY the JSON, nothing else."
+)
+
+
+def _parse_structured_edit(text: str) -> Optional[dict]:
+    """Extract a structured-edit JSON object from an LLM response.
+
+    Returns the dict, or None if no usable edit object is found. Tolerant of
+    markdown fences and surrounding prose (the edit is small, so a simple
+    brace-matched extraction is reliable).
+    """
+    if not text:
+        return None
+    t = text.strip()
+    if t.startswith("```"):
+        t = t.split("\n", 1)[1] if "\n" in t else t[3:]
+        t = t.rsplit("```", 1)[0]
+    t = t.strip()
+    # Try the whole thing first, then the first {...} object found.
+    candidates = [t]
+    brace = re.search(r"\{.*\}", t, re.DOTALL)
+    if brace:
+        candidates.append(brace.group(0))
+    for cand in candidates:
+        for loader in (lambda s: json.loads(s), lambda s: json.loads(s, strict=False)):
+            try:
+                obj = loader(cand)
+                if isinstance(obj, dict) and obj.get("op") in ("set_attribute", "add_block"):
+                    return obj
+            except Exception:
+                continue
+    return None
+
+
+def _value_to_hcl_literal(value: Any) -> str:
+    """Convert a JSON edit value to an HCL literal.
+
+    - Python bool -> true/false
+    - already-quoted string ("TLS1_2") -> as-is
+    - bare string that looks like a bool/number -> as-is
+    - other bare string -> quoted
+    """
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, (int, float)):
+        return str(value)
+    s = str(value).strip()
+    if s.lower() in ("true", "false"):
+        return s.lower()
+    if re.fullmatch(r"-?\d+(\.\d+)?", s):
+        return s
+    if (s.startswith('"') and s.endswith('"')) or s.startswith(("[", "{")):
+        return s  # already a literal / list / object reference
+    if "." in s and re.fullmatch(r"[a-z][\w.-]+", s):
+        return s  # looks like a resource/var reference (aws_x.y.z)
+    return f'"{s}"'
+
+
+def apply_structured_edit(
+    edit: dict, kind: str, content: str
+) -> tuple[str, str, list[str]]:
+    """Apply a structured edit to file content using the deterministic editors.
+
+    Supports Terraform HCL and Terraform JSON. Returns
+    ``(patched, explanation, warnings)``. Raises RemediationError if the edit
+    cannot be applied (caller then falls back to the whole-file approach).
+    """
+    op = edit.get("op")
+    resource = str(edit.get("resource", "")).strip()
+    explanation = str(edit.get("explanation") or "LLM structured edit.")
+    warnings: list[str] = []
+
+    if kind == "terraform_hcl":
+        if "." not in resource:
+            raise RemediationError(f"Structured edit resource '{resource}' is not a Terraform address.")
+        rtype, _, rname = resource.partition(".")
+        rname = rname.split(".", 1)[0]
+        if op == "set_attribute":
+            attr = str(edit.get("attribute", "")).strip()
+            if not attr:
+                raise RemediationError("set_attribute edit missing 'attribute'.")
+            literal = _value_to_hcl_literal(edit.get("value"))
+            patched = _tf_set_argument_in_block(content, rtype, rname, attr, literal)
+            return patched, explanation, warnings
+        if op == "add_block":
+            block = str(edit.get("block", "")).strip()
+            if not block:
+                raise RemediationError("add_block edit missing 'block'.")
+            patched = _tf_inject_argument_in_block(content, rtype, rname, block)
+            return patched, explanation, warnings
+        raise RemediationError(f"Unsupported structured-edit op '{op}'.")
+
+    if kind == "terraform_json":
+        if "." not in resource:
+            raise RemediationError(f"Structured edit resource '{resource}' is not a Terraform address.")
+        rtype, _, rname = resource.partition(".")
+        rname = rname.split(".", 1)[0]
+        parsed = json.loads(content)
+        config = _tfjson_get_resource_block(parsed, rtype, rname)
+        if op == "set_attribute":
+            attr = str(edit.get("attribute", "")).strip()
+            if not attr:
+                raise RemediationError("set_attribute edit missing 'attribute'.")
+            config[attr] = _json_value_from_edit(edit.get("value"))
+            return _tfjson_dump(parsed, content), explanation, warnings
+        raise RemediationError(f"Unsupported structured-edit op '{op}' for Terraform JSON.")
+
+    # Kubernetes structured edits are not yet supported here; K8s has strong
+    # deterministic coverage already, so we defer to the whole-file path.
+    raise RemediationError(f"Structured edits not supported for kind '{kind}'.")
+
+
+def _json_value_from_edit(value: Any) -> Any:
+    """Coerce an edit value into a native JSON value for Terraform-JSON."""
+    if isinstance(value, (bool, int, float, list, dict)):
+        return value
+    s = str(value).strip()
+    if s.lower() == "true":
+        return True
+    if s.lower() == "false":
+        return False
+    if re.fullmatch(r"-?\d+", s):
+        return int(s)
+    if re.fullmatch(r"-?\d+\.\d+", s):
+        return float(s)
+    if s.startswith('"') and s.endswith('"'):
+        return s[1:-1]
+    return s
+
+
 async def _fix_with_llm(
     finding: Finding, filename: str, kind: str, content: str, max_attempts: int = 2
 ) -> tuple[str, str]:
@@ -2471,6 +2633,55 @@ async def _fix_with_llm(
         f"Recommendation: {finding.recommendation}\n"
     )
 
+    from langchain_core.messages import HumanMessage, SystemMessage
+
+    # ------------------------------------------------------------------ #
+    # Primary path: STRUCTURED EDIT (Terraform only for now).
+    #
+    # Ask the model for a tiny edit instruction, then apply it with the
+    # deterministic editors. The model emits ~a dozen tokens, so it cannot
+    # drop resources or truncate the file — the exact failures that plague
+    # the whole-file approach on large files with a local model.
+    # ------------------------------------------------------------------ #
+    if kind in ("terraform_hcl", "terraform_json"):
+        edit_last_error = ""
+        for _ in range(max_attempts):
+            retry = f"\nYour previous edit failed: {edit_last_error}\n" if edit_last_error else ""
+            human_text = (
+                f"FILE: {filename}\nKIND: {kind}\n\n{finding_block}\n"
+                f"------ ORIGINAL FILE ------\n{content}\n------ END ------\n{retry}"
+            )
+            messages = [
+                SystemMessage(content=base_prompt + "\n\n" + _STRUCTURED_EDIT_SCHEMA),
+                HumanMessage(content=human_text),
+            ]
+            try:
+                response = await get_llm().ainvoke(messages)
+                edit = _parse_structured_edit((response.content or "").strip())
+            except Exception as e:  # noqa: BLE001
+                edit_last_error = f"LLM error: {e}"
+                continue
+            if not edit:
+                edit_last_error = "no valid structured edit in response"
+                continue
+            try:
+                patched, explanation, _w = apply_structured_edit(edit, kind, content)
+            except RemediationError as e:
+                edit_last_error = f"could not apply edit: {e}"
+                continue
+            patched = _strip_cosmetic_drift(content, patched)
+            try:
+                _validate_patch(filename, kind, patched)
+                _verify_no_resources_dropped(content, patched, kind)
+            except PatchValidationError as e:
+                edit_last_error = str(e)
+                continue
+            return patched, explanation
+        logger.info(
+            "Structured-edit path exhausted for %s (%s); falling back to whole-file. Last: %s",
+            finding.title, kind, edit_last_error,
+        )
+
     last_error = ""
     for attempt in range(max_attempts):
         # Build the messages directly — bypassing ChatPromptTemplate avoids
@@ -2484,15 +2695,12 @@ async def _fix_with_llm(
             f"------ ORIGINAL FILE ------\n{content}\n------ END ------\n"
             f"{retry_note}"
         )
-        from langchain_core.messages import HumanMessage, SystemMessage
-
         messages = [
             SystemMessage(content=base_prompt + "\n\n" + _LLM_PATCH_SCHEMA.replace("{{", "{").replace("}}", "}")),
             HumanMessage(content=human_text),
         ]
-        llm = get_llm()
         try:
-            response = await llm.ainvoke(messages)
+            response = await get_llm().ainvoke(messages)
             response_text = (response.content or "").strip()
             patched, explanation = _parse_llm_json_response(response_text)
         except Exception as e:
