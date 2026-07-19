@@ -15,13 +15,16 @@ const config: Config = {
     extend: {
       colors: {
         border: "hsl(var(--border))",
+        "border-strong": "hsl(var(--border-strong))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        surface: "hsl(var(--surface))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          hover: "hsl(var(--primary-hover))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -60,18 +63,41 @@ const config: Config = {
       },
       boxShadow: {
         // Soft shadows only where elevation is real (menus/popovers/modals).
-        overlay: "0 8px 24px -8px rgb(0 0 0 / 0.18), 0 2px 8px -4px rgb(0 0 0 / 0.12)",
+        overlay:
+          "0 12px 32px -8px rgb(0 0 0 / 0.20), 0 4px 12px -6px rgb(0 0 0 / 0.14)",
+        drawer: "-16px 0 48px -16px rgb(0 0 0 / 0.28)",
+      },
+      transitionTimingFunction: {
+        // Linear's signature easing — quick out, gentle settle.
+        smooth: "cubic-bezier(0.32, 0.72, 0, 1)",
+      },
+      transitionDuration: {
+        "175": "175ms",
+      },
+      fontSize: {
+        // Tighter, more deliberate scale than Tailwind defaults.
+        "2xs": ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.01em" }],
       },
       keyframes: {
         "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
+        "fade-in-up": {
+          from: { opacity: "0", transform: "translateY(4px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
         "slide-in-right": {
           from: { transform: "translateX(100%)" },
           to: { transform: "translateX(0)" },
         },
+        "scale-in": {
+          from: { opacity: "0", transform: "scale(0.97)" },
+          to: { opacity: "1", transform: "scale(1)" },
+        },
       },
       animation: {
-        "fade-in": "fade-in 120ms ease-out",
-        "slide-in-right": "slide-in-right 180ms cubic-bezier(0.32, 0.72, 0, 1)",
+        "fade-in": "fade-in 150ms ease-out",
+        "fade-in-up": "fade-in-up 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+        "slide-in-right": "slide-in-right 200ms cubic-bezier(0.32, 0.72, 0, 1)",
+        "scale-in": "scale-in 150ms cubic-bezier(0.32, 0.72, 0, 1)",
       },
     },
   },

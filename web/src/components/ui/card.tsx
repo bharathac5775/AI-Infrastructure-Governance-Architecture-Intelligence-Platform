@@ -1,12 +1,21 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-// Flat card: 1px border, no shadow (shadows are reserved for true overlays).
-// Used sparingly — not as decorative nesting.
-export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+// Card with a hairline top-highlight (surface-raised) so it reads as a lifted
+// surface without a heavy shadow. `interactive` adds a border+lift on hover.
+export function Card({
+  className,
+  interactive,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & { interactive?: boolean }) {
   return (
     <div
-      className={cn("rounded-lg border border-border bg-card text-card-foreground", className)}
+      className={cn(
+        "surface-raised rounded-lg border border-border bg-card text-card-foreground transition-all duration-175 ease-smooth",
+        interactive &&
+          "cursor-pointer hover:border-border-strong hover:shadow-overlay",
+        className
+      )}
       {...props}
     />
   );

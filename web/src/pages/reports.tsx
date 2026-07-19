@@ -1,3 +1,4 @@
+import { History } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { EmptyState } from "@/components/ui/states";
 
@@ -6,7 +7,11 @@ export function ReportsPage() {
   return (
     <div>
       <PageHeader title="Reports" description="Past governance analyses." />
-      <EmptyState title="Report history coming next" description="This screen is built in a later phase." />
+      <EmptyState
+        icon={<History />}
+        title="Report history coming next"
+        description="This screen is built in a later phase."
+      />
     </div>
   );
 }

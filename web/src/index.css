@@ -14,9 +14,12 @@
 
 @layer base {
   :root {
-    /* Light theme — zinc neutrals, near-black text, single indigo accent. */
-    --background: 0 0% 100%;
+    /* Light — layered zinc neutrals. Note the deliberate 3-step elevation:
+       background (page) is faintly cool, card is pure white, so cards read as
+       lifted without a shadow. This is the Linear/Vercel trick. */
+    --background: 240 20% 99%;
     --foreground: 240 10% 4%;
+    --surface: 240 24% 97%; /* subtle inset panels (editor gutter, headers) */
 
     --card: 0 0% 100%;
     --card-foreground: 240 10% 4%;
@@ -24,61 +27,68 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 4%;
 
-    /* Accent: indigo, used with discipline (primary button, active, links, ring). */
-    --primary: 243 75% 59%;
+    /* Accent: indigo, used with discipline (primary, active, links, ring). */
+    --primary: 243 75% 58%;
     --primary-foreground: 0 0% 100%;
+    --primary-hover: 243 75% 52%;
 
     --secondary: 240 5% 96%;
     --secondary-foreground: 240 6% 10%;
 
     --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 46%;
+    --muted-foreground: 240 4% 44%;
 
-    --accent: 240 5% 96%;
+    --accent: 240 5% 95%;
     --accent-foreground: 240 6% 10%;
 
-    --border: 240 6% 90%;
-    --input: 240 6% 90%;
-    --ring: 243 75% 59%;
+    /* Two border weights: hairline (dividers) and strong (inputs, focus edge). */
+    --border: 240 6% 91%;
+    --border-strong: 240 6% 84%;
+    --input: 240 6% 88%;
+    --ring: 243 75% 58%;
 
-    /* Restrained semantic colors — badges only. */
-    --danger: 0 72% 51%;
-    --warning: 38 92% 45%;
-    --info: 217 91% 55%;
-    --success: 142 71% 40%;
+    /* Restrained semantic colors — badges/dots only, never filled cards. */
+    --danger: 0 72% 50%;
+    --warning: 32 90% 44%;
+    --info: 217 85% 52%;
+    --success: 142 66% 38%;
   }
 
   .dark {
-    /* Dark theme — Linear/Vercel-style near-black surfaces, lifted indigo. */
-    --background: 240 10% 4%;
-    --foreground: 0 0% 96%;
+    /* Dark — near-black graphite surfaces with genuine elevation steps and a
+       lifted indigo. background < card < popover in lightness so panels layer. */
+    --background: 240 12% 5%;
+    --foreground: 0 0% 95%;
+    --surface: 240 9% 8%;
 
-    --card: 240 8% 6%;
-    --card-foreground: 0 0% 96%;
+    --card: 240 9% 8%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 240 8% 7%;
-    --popover-foreground: 0 0% 96%;
+    --popover: 240 9% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 243 80% 67%;
-    --primary-foreground: 240 10% 6%;
+    --primary: 243 82% 68%;
+    --primary-foreground: 240 12% 6%;
+    --primary-hover: 243 85% 74%;
 
-    --secondary: 240 5% 12%;
-    --secondary-foreground: 0 0% 96%;
+    --secondary: 240 5% 13%;
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 240 5% 12%;
-    --muted-foreground: 240 5% 60%;
+    --muted: 240 5% 13%;
+    --muted-foreground: 240 5% 58%;
 
-    --accent: 240 5% 14%;
-    --accent-foreground: 0 0% 96%;
+    --accent: 240 5% 15%;
+    --accent-foreground: 0 0% 95%;
 
     --border: 240 5% 15%;
-    --input: 240 5% 15%;
-    --ring: 243 80% 67%;
+    --border-strong: 240 5% 22%;
+    --input: 240 5% 20%;
+    --ring: 243 82% 68%;
 
-    --danger: 0 72% 58%;
-    --warning: 38 92% 55%;
-    --info: 217 91% 62%;
-    --success: 142 65% 47%;
+    --danger: 0 74% 60%;
+    --warning: 34 92% 56%;
+    --info: 217 91% 64%;
+    --success: 142 62% 48%;
   }
 
   * {
@@ -87,33 +97,78 @@
 
   html {
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
   body {
-    @apply bg-background text-foreground font-sans;
-    font-feature-settings: "cv11", "ss01";
-    font-variation-settings: normal;
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv11", "ss01", "calt";
+    letter-spacing: -0.006em;
   }
 
-  /* Consistent focus ring — the only place indigo appears on non-primary els. */
+  /* Headings get slightly tighter tracking — a hallmark of handcrafted type. */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+  }
+
+  /* Scores, counts, and metrics use tabular figures so digits don't jitter. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* Global focus ring — the one place indigo appears on non-primary elements. */
   :focus-visible {
     @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.22);
+  }
+}
+
+@layer components {
+  /* Card with a 1px hairline top highlight — catches light like a real surface
+     without a shadow. The signature Linear/Vercel card treatment. */
+  .surface-raised {
+    box-shadow:
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.04),
+      0 1px 2px -1px hsl(240 10% 4% / 0.08),
+      0 2px 8px -4px hsl(240 10% 4% / 0.06);
+  }
+
+  /* Subtle top highlight on filled buttons — reads as a tactile, pressable
+     surface. Very low opacity; invisible until you look for it. */
+  .btn-sheen {
+    box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.12);
   }
 }
 
 @layer utilities {
-  /* Subtle scrollbars — matches the restrained aesthetic. */
+  /* Refined thin scrollbars. */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--border)) transparent;
+    scrollbar-color: hsl(var(--border-strong)) transparent;
   }
   .scrollbar-thin::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: hsl(var(--border));
+    background: hsl(var(--border-strong));
     border-radius: 8px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+    background-clip: content-box;
+  }
+
+  /* Faint grid texture for the empty/hero surfaces — adds craft, not noise. */
+  .bg-dotted {
+    background-image: radial-gradient(hsl(var(--border-strong)) 1px, transparent 1px);
+    background-size: 16px 16px;
   }
 }

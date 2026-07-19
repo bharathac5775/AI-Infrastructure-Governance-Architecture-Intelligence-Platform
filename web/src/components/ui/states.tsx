@@ -1,4 +1,5 @@
 import { Loader2 } from "lucide-react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export function Spinner({ className }: { className?: string }) {
@@ -8,28 +9,39 @@ export function Spinner({ className }: { className?: string }) {
 /** Full-panel centered loading state with an optional label. */
 export function LoadingState({ label = "Loading" }: { label?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 py-16 text-sm text-muted-foreground">
-      <Spinner className="size-5" />
+    <div className="flex flex-col items-center justify-center gap-3 py-20 text-sm text-muted-foreground animate-fade-in">
+      <Spinner className="size-5 text-primary" />
       {label}
     </div>
   );
 }
 
-/** Neutral empty state — no illustration, no oversized icon. */
+/** Neutral empty state — a small icon tile, no illustration, no oversized art. */
 export function EmptyState({
+  icon,
   title,
   description,
   action,
 }: {
+  icon?: ReactNode;
   title: string;
   description?: string;
-  action?: React.ReactNode;
+  action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border py-16 text-center">
-      <p className="text-sm font-medium">{title}</p>
-      {description && <p className="max-w-sm text-sm text-muted-foreground">{description}</p>}
-      {action && <div className="mt-2">{action}</div>}
+    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border-strong py-16 text-center animate-fade-in">
+      {icon && (
+        <div className="flex size-11 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground [&_svg]:size-5">
+          {icon}
+        </div>
+      )}
+      <div className="space-y-1">
+        <p className="text-sm font-medium">{title}</p>
+        {description && (
+          <p className="mx-auto max-w-sm text-sm text-muted-foreground">{description}</p>
+        )}
+      </div>
+      {action && <div className="mt-1">{action}</div>}
     </div>
   );
 }
