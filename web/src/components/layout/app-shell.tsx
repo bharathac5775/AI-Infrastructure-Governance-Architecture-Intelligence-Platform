@@ -11,7 +11,7 @@ export function AppShell() {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
         <main className="scrollbar-thin flex-1 overflow-y-auto">
-          <div className="mx-auto max-w-6xl px-6 py-6">
+          <div className="mx-auto w-full max-w-[1600px] px-8 py-7">
             <Outlet />
           </div>
         </main>

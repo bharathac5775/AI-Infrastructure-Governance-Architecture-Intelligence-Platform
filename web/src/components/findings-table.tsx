@@ -120,8 +120,8 @@ export function FindingsTable({
                     {x.finding.severity}
                   </Badge>
                 </td>
-                <td className="px-4 py-3">
-                  <p className="font-medium leading-snug">{x.finding.title}</p>
+                <td className="px-4 py-3.5">
+                  <p className="text-[0.9375rem] font-medium leading-snug">{x.finding.title}</p>
                   {x.finding.resource && (
                     <p className="mt-0.5 font-mono text-xs text-muted-foreground">
                       {x.finding.resource}

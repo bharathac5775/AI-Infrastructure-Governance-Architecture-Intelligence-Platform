@@ -96,6 +96,10 @@
   }
 
   html {
+    /* Lift the whole rem-based type scale one notch. 107% root ≈ 17.1px, so
+       text-sm (0.875rem, the app's body default) reads ~15px instead of 14px,
+       and every other rem size grows proportionally. Small labels stay legible. */
+    font-size: 107%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
