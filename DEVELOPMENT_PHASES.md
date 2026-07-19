@@ -820,3 +820,48 @@ A two-layer plugin harness, additive-only so the existing hardcoded pipeline and
 - **`discover_plugins(skills_dir=...)` scanned a custom dir but loaded from the hardcoded `SKILLS_DIR`** — caught by a test using `tmp_path`. Fixed by threading an optional `skills_dir` through `load_skill` (one parser, no duplication) rather than re-implementing frontmatter parsing in the registry.
 - **Double-processing risk from the Compliance Agent's own findings** — verified that its `compliance-gap` findings (empty `compliance_controls`) contribute nothing to the routes-level `failed` control set, so the authoritative `report.compliance` scorecard is unaffected by the plugin also appearing in `agent_reports`.
 - **Smuggling weight onto a pydantic `AgentReport`** — the first scoring draft attached a private `_plugin_weight` attribute; replaced with explicit `(report, weight)` tuples so scoring never depends on model-mutation behavior.
+
+## Phase 4.1 + 4.5 — Resource Dependency Graph & SPOF Detector
+
+**Theme:** Move from "what's wrong with each resource" to "how do these resources depend on each other, and which ones are single points of failure." Pure graph analysis over resources already extracted during analysis — no cloud, no live state, no LLM, no paid APIs.
+
+### What Was Built
+
+- **`app/core/graph.py`** — a dependency-graph builder over the two structures every input format normalizes into (`k8s_resources` from YAML/YML/K8s-JSON/rendered-.tgz Helm; `tf_resources` from TF/HCL/Terraform-JSON). Directed graph via **NetworkX** (BSD-3, pure-Python, no system deps). Edge `A -> B` means "A depends on B".
+- **SPOF detector (4.5)** in the same module — flags resources that are high-fan-in (>= 5 transitive dependents) and/or articulation points (removal partitions the graph). Emits `architecture`-category `Finding`s under an "Architecture Agent", severity scaling with dependent count.
+- **Persisted graph (Option A)** — new `DependencyGraph` / `GraphNode` / `GraphEdge` / `Spof` models on `AnalysisReport.dependency_graph` (Optional, None default so old reports and non-infra uploads deserialize cleanly). Built in `supervisor_node` from the live parsed resources and serialized onto the report, so future blast-radius / diagram endpoints can serve it without re-parsing.
+
+### Architecture Decisions
+
+- **Universal coverage by construction.** All six input types converge into `k8s_resources` + `tf_resources` before analysis (`.tgz` is Helm-rendered to YAML in `routes.py`; `.json` is routed to K8s or TF by content). The graph builder targets only those two structures, so it covers every format automatically. Verified against real samples (Terraform-JSON: 26 nodes/37 edges/4 SPOFs; K8s-JSON; HCL).
+- **Edges preserved by the parsers.** Confirmed empirically that `hcl2` keeps `${...}` interpolations and `depends_on` as raw strings, and the K8s parser preserves selectors, `secretKeyRef`/`configMapKeyRef`/`envFrom`, `serviceAccountName`, and volume secret/configMap/PVC names. No parser changes were needed.
+- **Node-id namespacing.** Kubernetes uses `Kind/namespace/name`; Terraform uses `type.name`. Separate namespaces so a mixed upload never collides.
+- **SPOF findings never perturb the score.** The dependency graph and SPOF findings are computed AFTER `calculate_overall_score`, and the SPOF "Architecture Agent" report carries score 100.0 (informational). The locked scoring weights (0.34/0.30/0.21/0.15) and their exact assertions are untouched.
+- **Referenced-but-absent resources** are added as nodes with `present=False` (e.g. a Secret used by a Deployment but not in the upload), so blast-radius can still reason about them.
+- **`kind: List` is expanded** inside the graph builder (the base parser leaves it unexpanded), so List-wrapped manifests contribute real nodes/edges.
+
+### Components Delivered
+
+| Component | Detail |
+|---|---|
+| **New module** | `app/core/graph.py` — builder, SPOF detector, serializer |
+| **New dependency** | `networkx==3.4.2` (BSD-3-Clause) in `requirements.txt` |
+| **Models** | `DependencyGraph`, `GraphNode`, `GraphEdge`, `Spof` + `AnalysisReport.dependency_graph` field |
+| **Changed** | `app/agents/supervisor.py` — build + persist graph, surface SPOFs (isolated in try/except; never breaks a run) |
+| **Tests** | `tests/test_graph.py` — 27 tests |
+
+### Verification
+
+| Check | Result |
+|---|---|
+| `pytest tests/test_graph.py` | **27 passed** |
+| Full suite | **552 passed, 38 skipped** (525 baseline + 27 new) |
+| Regressions | **0** — only the pre-existing 8 `test_llm_provider.py` cloud-SDK failures remain |
+| End-to-end | `run_analysis` on a 7-resource TF bundle produces the graph + a KMS SPOF (6 dependents) as an Architecture Agent finding; graph survives a JSON serialization round-trip |
+| Real samples | Terraform-JSON / K8s-JSON / HCL all build sensible graphs |
+
+### Challenges Addressed
+
+- **Spurious edges from `data.`/`module.` paths** — the reference regex initially matched the middle of `${data.aws_ami.ubuntu.id}`, yielding a bogus `aws_ami.ubuntu` resource edge. Caught by `test_data_source_excluded`. Fixed by also inspecting the token immediately preceding a match and rejecting non-resource prefixes there.
+- **HCL single-value list-wrapping** — references appear as both `"${...}"` and `["${...}"]`; the recursive `_iter_strings` walk handles both.
+- **Drift determinism preserved** — SPOF findings are `architecture`-category (deterministic), so they enter drift's `persisting` bucket for identical uploads and contribute zero to introduced/resolved, keeping the "identical bundle -> all-zero deltas" invariant intact.
