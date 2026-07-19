@@ -290,7 +290,7 @@ class TestSpof:
         assert finds, "expected at least one SPOF finding"
         f = next(f for f in finds if "aws_kms_key.main" in f.resource)
         assert f.agent == SPOF_AGENT_NAME
-        assert f.category == "architecture"
+        assert f.category == "resilience"
         assert f.severity == Severity.HIGH   # 8 dependents -> HIGH
         assert "single point of failure" in f.title.lower()
 
