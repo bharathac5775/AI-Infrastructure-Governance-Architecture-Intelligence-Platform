@@ -140,9 +140,23 @@ export interface BlastRadius {
   is_spof: boolean;
 }
 
+export interface DriftDetail {
+  baseline: { report_id: string; timestamp: string };
+  current: { report_id: string; timestamp: string };
+  score_deltas: Record<string, number | null>;
+  findings_introduced: Finding[];
+  findings_resolved: Finding[];
+  findings_persisting: Finding[];
+  severity_summary: {
+    introduced: Record<string, number>;
+    resolved: Record<string, number>;
+    persisting: Record<string, number>;
+  };
+}
+
 export interface DriftResponse {
   baseline: { report_id: string; timestamp: string } | null;
-  drift: unknown | null;
+  drift: DriftDetail | null;
 }
 
 export interface HealthResponse {
