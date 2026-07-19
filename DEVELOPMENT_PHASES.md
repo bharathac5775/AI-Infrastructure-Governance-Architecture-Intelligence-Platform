@@ -902,3 +902,40 @@ A two-layer plugin harness, additive-only so the existing hardcoded pipeline and
 - **networkx missing in the venv** — the backend server crashed silently in the graph node (`try/except` swallowed `ModuleNotFoundError`), so `dependency_graph` came back NULL in live reports even though tests passed (they ran in system Python). Fixed by installing `networkx==3.4.2` into the venv; `requirements.txt` already declared it.
 - **Mermaid `\n` label break** — `_mermaid_escape_label` stripped backslashes, so `\n` became a literal `n`. Switched to Mermaid's `<br/>`.
 - **Node-id path routing** — K8s ids contain `/`; used a query param for `resource` instead of a path segment.
+
+## Phase 4 — Infrastructure Simulation — COMPLETE
+
+Phase 4 is complete. It shifted the platform from per-resource findings to
+whole-system reasoning: how resources depend on each other, which ones are
+single points of failure, and what breaks if one fails. All of it is pure,
+deterministic graph analysis over data already extracted during analysis — no
+cloud, no live state, no paid APIs.
+
+**Shipped sub-phases** (details in the sections above):
+
+| Sub-phase | Delivered |
+|---|---|
+| 4.1 Dependency Graph | Directed graph over every resource; works for all six input formats (YAML/YML/TF/JSON/HCL/TGZ), which all normalize into `k8s_resources` + `tf_resources`. Persisted on `AnalysisReport.dependency_graph`. |
+| 4.2 Blast Radius | `GET /reports/{id}/blast-radius?resource=...` — everything that transitively depends on a resource, with a criticality band. |
+| 4.4 Architecture Diagram + UI | `GET /reports/{id}/diagram` (Mermaid) + the "🏛️ Architecture & Dependencies" Streamlit panel (diagram, SPOF list, interactive blast-radius picker). |
+| 4.5 SPOF Detector | High-fan-in + articulation-point detection → "Resilience Agent" findings (informational; excluded from the weighted score). |
+
+**4.3 Failure-Mode LLM narrative — DROPPED (deliberate).**
+The plan was to feed the dependency graph to the local LLM for a "what if X
+fails" prose narrative. It was dropped, not deferred-indefinitely, for two
+reasons: (1) it relies on the local Ollama model, which is unreliable for this
+kind of open-ended generation (the same fragility that made whole-file LLM
+remediation fail); and (2) the deterministic **blast radius (4.2)** already
+answers "what breaks if X fails" — accurately, instantly, and without an LLM.
+An LLM narrative would be a lower-trust addition on top, so it was intentionally
+left out to keep Phase 4 fully deterministic and trustworthy.
+
+**Edge coverage note.** The graph detects only *explicit* dependencies —
+literal `${...}` interpolations / `depends_on` in Terraform, and concrete
+references in Kubernetes (Service selectors, Ingress backends, secret/configMap
+refs, service accounts, volumes). It does not infer *implicit* links (e.g. a
+CloudWatch log group tied to a Lambda by naming convention), because guessing
+those risks drawing wrong edges — a wrong dependency is worse than a missing
+one for blast-radius analysis. Resources with no explicit reference appear as
+isolated nodes, which is itself a useful signal (standalone, implicitly linked,
+or possibly missing a wiring resource).
