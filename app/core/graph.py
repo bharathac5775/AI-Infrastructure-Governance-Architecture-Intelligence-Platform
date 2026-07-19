@@ -474,3 +474,162 @@ def build_dependency_graph_model(
     """Convenience: build the graph and return the serialized model in one call."""
     g = build_dependency_graph(k8s_resources=k8s_resources, tf_resources=tf_resources)
     return to_dependency_graph_model(g)
+
+
+# ---------------------------------------------------------------------------
+# Serving from a persisted DependencyGraph (Phase 4.2 blast radius, 4.4 diagram)
+#
+# The endpoints read the graph already stored on the report — no re-parse of the
+# original files (which are not persisted). These helpers rebuild a NetworkX
+# graph from the serialized model and answer queries against it.
+# ---------------------------------------------------------------------------
+
+def graph_from_model(model: DependencyGraph) -> nx.DiGraph:
+    """Rebuild a NetworkX DiGraph from the persisted DependencyGraph model."""
+    g = nx.DiGraph()
+    for n in model.nodes:
+        g.add_node(n.id, kind=n.kind, platform=n.platform, present=n.present)
+    for e in model.edges:
+        # Ensure endpoints exist even if a node entry was somehow missing.
+        if e.source not in g:
+            g.add_node(e.source, kind="Unknown", platform="unknown", present=False)
+        if e.target not in g:
+            g.add_node(e.target, kind="Unknown", platform="unknown", present=False)
+        g.add_edge(e.source, e.target, relation=e.relation)
+    return g
+
+
+def blast_radius(model: DependencyGraph, resource: str) -> dict[str, Any]:
+    """Compute the blast radius of ``resource``: everything that (transitively)
+    depends on it, i.e. what breaks if this resource is removed/fails.
+
+    Returns a dict with the resource, whether it was found, direct vs. transitive
+    dependents, a criticality label, and whether it is a known SPOF. Never raises
+    for an unknown resource — returns ``found=False`` so the API can 404 cleanly
+    while callers still get a structured body.
+    """
+    g = graph_from_model(model)
+    if resource not in g:
+        return {
+            "resource": resource,
+            "found": False,
+            "direct_dependents": [],
+            "transitive_dependents": [],
+            "impact_count": 0,
+            "criticality": "unknown",
+            "is_spof": False,
+        }
+
+    # Reverse edges: predecessors depend on `resource`.
+    reverse = g.reverse(copy=False)
+    direct = sorted(reverse.successors(resource))
+    transitive = sorted(nx.descendants(reverse, resource))  # cycle-safe
+    count = len(transitive)
+
+    criticality = (
+        "critical" if count >= 8
+        else "high" if count >= 4
+        else "medium" if count >= 1
+        else "none"
+    )
+    is_spof = any(s.node == resource for s in model.spofs)
+
+    node_attrs = g.nodes[resource]
+    return {
+        "resource": resource,
+        "found": True,
+        "kind": node_attrs.get("kind", "Unknown"),
+        "platform": node_attrs.get("platform", "unknown"),
+        "present": node_attrs.get("present", True),
+        "direct_dependents": direct,
+        "transitive_dependents": transitive,
+        "impact_count": count,
+        "criticality": criticality,
+        "is_spof": is_spof,
+    }
+
+
+# Mermaid safety: node ids contain dots, slashes, hyphens, colons — none of
+# which are valid in a bare Mermaid node id. We map each real id to a safe
+# synthetic id (n0, n1, ...) and put the real id in the (quoted) label.
+_MERMAID_MAX_NODES = 60  # keep diagrams readable; larger graphs get truncated
+
+
+def _mermaid_escape_label(text: str) -> str:
+    """Escape a label for a Mermaid node. Quotes wrap it; escape inner quotes
+    and characters Mermaid mis-parses."""
+    return (
+        text.replace("\\", "")
+            .replace('"', "'")
+            .replace("\n", " ")
+    )
+
+
+def to_mermaid(model: DependencyGraph, highlight: str | None = None) -> str:
+    """Render the dependency graph as a Mermaid ``flowchart LR`` string.
+
+    - Synthetic node ids (n0, n1, ...) avoid Mermaid's identifier restrictions;
+      real resource ids go in quoted labels.
+    - SPOF nodes get a distinct style; referenced-but-absent nodes are dashed.
+    - ``highlight`` (a resource id) is emphasized if present.
+    - Large graphs are truncated to ``_MERMAID_MAX_NODES`` with a note node.
+    Returns a minimal valid diagram for an empty graph.
+    """
+    if not model.nodes:
+        return "flowchart LR\n  empty[\"No dependency graph available\"]"
+
+    spof_ids = {s.node for s in model.spofs}
+
+    # Deterministic ordering; prioritize SPOFs + their neighborhood if truncating.
+    node_ids = [n.id for n in model.nodes]
+    truncated = False
+    if len(node_ids) > _MERMAID_MAX_NODES:
+        truncated = True
+        # Keep SPOFs, their dependents, and fill the rest deterministically.
+        keep: list[str] = []
+        seen: set[str] = set()
+        edges_by_target: dict[str, list[str]] = {}
+        for e in model.edges:
+            edges_by_target.setdefault(e.target, []).append(e.source)
+        for sid in sorted(spof_ids):
+            for x in [sid, *edges_by_target.get(sid, [])]:
+                if x not in seen:
+                    seen.add(x); keep.append(x)
+        for nid in node_ids:
+            if len(keep) >= _MERMAID_MAX_NODES:
+                break
+            if nid not in seen:
+                seen.add(nid); keep.append(nid)
+        node_ids = keep
+
+    kept = set(node_ids)
+    id_to_synth = {nid: f"n{i}" for i, nid in enumerate(node_ids)}
+    kind_by_id = {n.id: n.kind for n in model.nodes}
+    present_by_id = {n.id: n.present for n in model.nodes}
+
+    lines = ["flowchart LR"]
+    # Node declarations
+    for nid in node_ids:
+        synth = id_to_synth[nid]
+        kind = kind_by_id.get(nid, "")
+        base = _mermaid_escape_label(nid)
+        label = f"{base}<br/>({_mermaid_escape_label(kind)})" if kind else base
+        lines.append(f'  {synth}["{label}"]')
+    # Edges (only between kept nodes)
+    for e in model.edges:
+        if e.source in kept and e.target in kept:
+            a, b = id_to_synth[e.source], id_to_synth[e.target]
+            rel = _mermaid_escape_label(e.relation)
+            lines.append(f"  {a} -->|{rel}| {b}")
+    # Styling
+    for nid in node_ids:
+        synth = id_to_synth[nid]
+        if nid in spof_ids:
+            lines.append(f"  style {synth} fill:#ff6b6b,stroke:#c0392b,color:#fff")
+        elif not present_by_id.get(nid, True):
+            lines.append(f"  style {synth} stroke-dasharray: 5 5,fill:#eee")
+        if highlight and nid == highlight:
+            lines.append(f"  style {synth} stroke:#2980b9,stroke-width:4px")
+    if truncated:
+        lines.append(f'  more["... graph truncated to {_MERMAID_MAX_NODES} of {len(model.nodes)} nodes"]')
+    return "\n".join(lines)
