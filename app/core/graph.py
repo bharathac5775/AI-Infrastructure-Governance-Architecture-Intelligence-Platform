@@ -317,8 +317,11 @@ def _add_tf_nodes_and_edges(g: nx.DiGraph, tf_resources: list[dict]) -> None:
 # depend on it. Roadmap specifies ">5 dependents"; we use >= HIGH_FANIN_THRESHOLD.
 HIGH_FANIN_THRESHOLD = 5
 
-SPOF_AGENT_NAME = "Architecture Agent"
-SPOF_CATEGORY = "architecture"
+# SPOF findings are surfaced under a "Resilience Agent" — a distinct concern
+# from the Phase 2 "Architecture Review" (which has its own architecture_score).
+# Using a separate name avoids colliding with the Architecture Review in the UI.
+SPOF_AGENT_NAME = "Resilience Agent"
+SPOF_CATEGORY = "resilience"
 
 
 def dependents_of(g: nx.DiGraph, node: str) -> list[str]:
@@ -395,9 +398,11 @@ def _spof_severity(dependent_count: int) -> Severity:
 
 
 def spof_findings(g: nx.DiGraph) -> list[Finding]:
-    """Turn detected SPOFs into architecture-category Findings.
+    """Turn detected SPOFs into resilience-category Findings.
 
-    Deterministic — no LLM. Emitted under the "Architecture Agent" so they sit
+    Deterministic — no LLM. Emitted under the "Resilience Agent" so they sit
+    alongside the other agents' findings without colliding with the separate
+    Phase 2 Architecture Review.
     naturally alongside the existing architecture review in the report.
     """
     findings: list[Finding] = []
