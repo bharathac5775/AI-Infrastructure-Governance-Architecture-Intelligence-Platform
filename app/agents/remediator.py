@@ -2201,11 +2201,14 @@ def _parse_llm_json_response(text: str) -> tuple[str, str]:
        JSON-decode that single string in isolation. Survives extra junk
        around the JSON, embedded markdown fences, etc.
     4. ``yaml.safe_load`` of the response — JSON is a subset of YAML, and
-       PyYAML is more permissive about whitespace. Last resort because
-       YAML can interpret some strings as numbers / dates.
+       PyYAML is more permissive about whitespace.
+    5. Salvage an UNTERMINATED / truncated ``patched_content`` by anchoring on
+       the opening quote (no closing quote required). Recovers responses where
+       the model cut off mid-file or emitted a raw ``"`` inside the body. Last
+       resort — the recovered text is still re-validated by the caller, so a
+       genuinely broken partial file is rejected and retried, not returned.
 
-    Raises ValueError with the *first* (most informative) error message if
-    every strategy fails.
+    Raises ValueError if every strategy fails.
     """
     text = (text or "").strip()
     if not text:
@@ -2267,7 +2270,46 @@ def _parse_llm_json_response(text: str) -> tuple[str, str]:
         if first_error is None:
             first_error = f"yaml fallback: {e}"
 
-    raise ValueError(f"LLM response could not be parsed ({first_error})")
+    # Strategy 5: salvage an UNTERMINATED / truncated patched_content. Local
+    # models frequently either (a) cut off mid-file so the closing quote never
+    # arrives, or (b) emit a raw ``"`` inside the HCL/YAML body that ends the
+    # JSON string early. Strategies 1-4 all require a well-formed closing quote;
+    # this one does not. We anchor on the OPENING ``"patched_content": "`` and
+    # take everything after it, then strip a recognizable JSON tail if present.
+    open_m = re.search(r'"patched_content"\s*:\s*"', text)
+    if open_m:
+        body = text[open_m.end():]
+        # If a well-formed tail exists (", "explanation": "...") OR a closing
+        # "} at the very end, cut the body there. Otherwise keep the whole
+        # remainder (truncated response — best effort).
+        tail_m = re.search(r'"\s*,\s*"explanation"\s*:\s*"((?:\\.|[^"\\])*)"', body, re.DOTALL)
+        explanation = "LLM-generated patch (recovered from malformed JSON)."
+        if tail_m:
+            body = body[:tail_m.start()]
+            try:
+                explanation = json.loads('"' + tail_m.group(1) + '"', strict=False)
+            except Exception:
+                pass
+        else:
+            # Strip a trailing closing quote+brace if the model got that far.
+            body = re.sub(r'"\s*}\s*$', "", body)
+            body = re.sub(r'"\s*$', "", body)
+        # Unescape common JSON escapes that may appear in the salvaged body.
+        # We do NOT json.loads it (it may be unterminated); do a targeted
+        # unescape of the sequences a model realistically emits.
+        salvaged = (
+            body.replace('\\n', '\n')
+                .replace('\\t', '\t')
+                .replace('\\"', '"')
+                .replace('\\\\', '\\')
+        )
+        salvaged = salvaged.strip()
+        if salvaged:
+            return salvaged, explanation
+
+    raise ValueError(
+        f"LLM response could not be parsed ({first_error or 'no recoverable content'})"
+    )
 
 
 def _coerce_llm_payload(data: Any) -> tuple[str, str]:

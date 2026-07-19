@@ -1503,6 +1503,44 @@ class TestLLMJsonParsing:
         with pytest.raises(ValueError):
             _parse_llm_json_response('[1, 2, 3]')
 
+    def test_unterminated_patched_content_salvaged(self):
+        """The azure-average.tf failure: the model emitted patched_content with
+        a raw newline and never closed the string ('Unterminated string starting
+        at line N'). Strategies 1-4 all fail; the salvage strategy recovers the
+        body by anchoring on the opening quote."""
+        from app.agents.remediator import _parse_llm_json_response
+        # Opening quote present, no closing quote, raw newlines in the body.
+        text = '{\n"patched_content": "resource \\"x\\" {\nzone_redundant = true\n}'
+        patched, expl = _parse_llm_json_response(text)
+        assert "zone_redundant = true" in patched
+        assert "recovered" in expl.lower()
+
+    def test_salvage_strips_trailing_explanation_tail(self):
+        """When a well-formed explanation tail exists after an otherwise messy
+        body, salvage should cut at the tail and recover the explanation."""
+        from app.agents.remediator import _parse_llm_json_response
+        # Raw newline in body defeats strict/lenient/regex; explanation tail intact.
+        text = (
+            '{"patched_content": "line1\nline2\nline3", '
+            '"explanation": "Set the flag."}'
+        )
+        patched, expl = _parse_llm_json_response(text)
+        assert "line1" in patched and "line3" in patched
+        # explanation must not leak into patched_content
+        assert "explanation" not in patched
+
+    def test_valid_multiline_file_not_truncated_by_salvage(self):
+        """Regression guard: a genuinely valid response with escaped newlines
+        must parse FULLY via strict JSON — the salvage path must never kick in
+        and truncate it."""
+        import json as _json
+        from app.agents.remediator import _parse_llm_json_response
+        original = 'resource "aws_kv" "main" {\n  purge_protection_enabled = true\n}\n'
+        text = _json.dumps({"patched_content": original, "explanation": "ok"})
+        patched, expl = _parse_llm_json_response(text)
+        assert patched == original          # full file, not truncated
+        assert expl == "ok"
+
 
 class TestTemplatePathDetection:
     """Bug 3: LLM emits Helm template paths in resource field. The
