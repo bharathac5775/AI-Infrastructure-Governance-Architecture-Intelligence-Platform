@@ -480,7 +480,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "agents_remediator_remediationerror",
-      "community": 28,
+      "community": 23,
       "norm_label": "remediationerror"
     },
     {
@@ -490,7 +490,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "exception",
-      "community": 28,
+      "community": 23,
       "norm_label": "exception"
     },
     {
@@ -560,7 +560,7 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "agents_remediator_filename_kind",
-      "community": 30,
+      "community": 92,
       "norm_label": "_filename_kind()"
     },
     {
@@ -620,7 +620,7 @@
       "source_location": "L523",
       "_origin": "ast",
       "id": "agents_remediator_locate_terraform_file",
-      "community": 30,
+      "community": 92,
       "norm_label": "_locate_terraform_file()"
     },
     {
@@ -630,7 +630,7 @@
       "source_location": "L562",
       "_origin": "ast",
       "id": "agents_remediator_locate_kubernetes_file",
-      "community": 30,
+      "community": 92,
       "norm_label": "_locate_kubernetes_file()"
     },
     {
@@ -640,7 +640,7 @@
       "source_location": "L720",
       "_origin": "ast",
       "id": "agents_remediator_validate_patch",
-      "community": 5,
+      "community": 93,
       "norm_label": "_validate_patch()"
     },
     {
@@ -670,7 +670,7 @@
       "source_location": "L838",
       "_origin": "ast",
       "id": "agents_remediator_make_unified_diff",
-      "community": 41,
+      "community": 30,
       "norm_label": "_make_unified_diff()"
     },
     {
@@ -790,7 +790,7 @@
       "source_location": "L1113",
       "_origin": "ast",
       "id": "agents_remediator_k8s_container_match",
-      "community": 30,
+      "community": 41,
       "norm_label": "_k8s_container_match()"
     },
     {
@@ -870,7 +870,7 @@
       "source_location": "L1933",
       "_origin": "ast",
       "id": "agents_remediator_tfjson_get_resource_block",
-      "community": 41,
+      "community": 1,
       "norm_label": "_tfjson_get_resource_block()"
     },
     {
@@ -880,7 +880,7 @@
       "source_location": "L1951",
       "_origin": "ast",
       "id": "agents_remediator_tfjson_add_companion_resource",
-      "community": 41,
+      "community": 23,
       "norm_label": "_tfjson_add_companion_resource()"
     },
     {
@@ -900,7 +900,7 @@
       "source_location": "L1982",
       "_origin": "ast",
       "id": "agents_remediator_fix_tf_json",
-      "community": 41,
+      "community": 30,
       "norm_label": "_fix_tf_json()"
     },
     {
@@ -930,7 +930,7 @@
       "source_location": "L2427",
       "_origin": "ast",
       "id": "agents_remediator_coerce_llm_payload",
-      "community": 1,
+      "community": 90,
       "norm_label": "_coerce_llm_payload()"
     },
     {
@@ -940,7 +940,7 @@
       "source_location": "L2427",
       "_origin": "ast",
       "id": "app_agents_remediator_py_any",
-      "community": 1,
+      "community": 90,
       "norm_label": "any"
     },
     {
@@ -960,7 +960,7 @@
       "source_location": "L2505",
       "_origin": "ast",
       "id": "agents_remediator_value_to_hcl_literal",
-      "community": 1,
+      "community": 90,
       "norm_label": "_value_to_hcl_literal()"
     },
     {
@@ -980,7 +980,7 @@
       "source_location": "L2583",
       "_origin": "ast",
       "id": "agents_remediator_json_value_from_edit",
-      "community": 1,
+      "community": 90,
       "norm_label": "_json_value_from_edit()"
     },
     {
@@ -990,7 +990,7 @@
       "source_location": "L2601",
       "_origin": "ast",
       "id": "agents_remediator_fix_with_llm",
-      "community": 1,
+      "community": 30,
       "norm_label": "_fix_with_llm()"
     },
     {
@@ -1000,7 +1000,7 @@
       "source_location": "L2740",
       "_origin": "ast",
       "id": "agents_remediator_remediate",
-      "community": 28,
+      "community": 30,
       "norm_label": "remediate()"
     },
     {
@@ -1010,7 +1010,7 @@
       "source_location": "L2740",
       "_origin": "ast",
       "id": "patch",
-      "community": 4,
+      "community": 30,
       "norm_label": "patch"
     },
     {
@@ -1040,7 +1040,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "agents_remediator_rationale_48",
-      "community": 28,
+      "community": 23,
       "norm_label": "raised when remediation cannot proceed (no file match, no fixer, etc.)."
     },
     {
@@ -1090,7 +1090,7 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "agents_remediator_rationale_208",
-      "community": 30,
+      "community": 92,
       "norm_label": "return one of: 'kubernetes_yaml', 'terraform_hcl', 'terraform_json',     or 'unk"
     },
     {
@@ -1150,7 +1150,7 @@
       "source_location": "L526",
       "_origin": "ast",
       "id": "agents_remediator_rationale_526",
-      "community": 30,
+      "community": 92,
       "norm_label": "locate the .tf/.hcl/.json file containing ``aws_foo.bar``."
     },
     {
@@ -1160,7 +1160,7 @@
       "source_location": "L565",
       "_origin": "ast",
       "id": "agents_remediator_rationale_565",
-      "community": 30,
+      "community": 92,
       "norm_label": "locate the .yaml/.yml file containing the named k8s resource.      the canonical"
     },
     {
@@ -1170,7 +1170,7 @@
       "source_location": "L721",
       "_origin": "ast",
       "id": "agents_remediator_rationale_721",
-      "community": 5,
+      "community": 93,
       "norm_label": "re-parse the patched output. raise patchvalidationerror if it fails."
     },
     {
@@ -1200,7 +1200,7 @@
       "source_location": "L839",
       "_origin": "ast",
       "id": "agents_remediator_rationale_839",
-      "community": 41,
+      "community": 30,
       "norm_label": "return a unified-diff string. empty if the contents are identical."
     },
     {
@@ -1310,7 +1310,7 @@
       "source_location": "L1114",
       "_origin": "ast",
       "id": "agents_remediator_rationale_1114",
-      "community": 30,
+      "community": 41,
       "norm_label": "heuristic: the rule findings include the container name in the     description a"
     },
     {
@@ -1380,7 +1380,7 @@
       "source_location": "L1934",
       "_origin": "ast",
       "id": "agents_remediator_rationale_1934",
-      "community": 41,
+      "community": 1,
       "norm_label": "return the per-resource config dict from parsed terraform json.      shape: ``pa"
     },
     {
@@ -1390,7 +1390,7 @@
       "source_location": "L1954",
       "_origin": "ast",
       "id": "agents_remediator_rationale_1954",
-      "community": 41,
+      "community": 23,
       "norm_label": "add a new entry under parsed[\"resource\"][rtype][rname] = config.      creates th"
     },
     {
@@ -1410,7 +1410,7 @@
       "source_location": "L1983",
       "_origin": "ast",
       "id": "agents_remediator_rationale_1983",
-      "community": 41,
+      "community": 30,
       "norm_label": "apply a deterministic fix to a terraform json file.      same category coverage"
     },
     {
@@ -1440,7 +1440,7 @@
       "source_location": "L2428",
       "_origin": "ast",
       "id": "agents_remediator_rationale_2428",
-      "community": 1,
+      "community": 90,
       "norm_label": "normalize a parsed llm payload to (patched_content, explanation)."
     },
     {
@@ -1460,7 +1460,7 @@
       "source_location": "L2506",
       "_origin": "ast",
       "id": "agents_remediator_rationale_2506",
-      "community": 1,
+      "community": 90,
       "norm_label": "convert a json edit value to an hcl literal.      - python bool -> true/false"
     },
     {
@@ -1480,7 +1480,7 @@
       "source_location": "L2584",
       "_origin": "ast",
       "id": "agents_remediator_rationale_2584",
-      "community": 1,
+      "community": 90,
       "norm_label": "coerce an edit value into a native json value for terraform-json."
     },
     {
@@ -1490,7 +1490,7 @@
       "source_location": "L2604",
       "_origin": "ast",
       "id": "agents_remediator_rationale_2604",
-      "community": 1,
+      "community": 30,
       "norm_label": "ask the llm to produce a patched file. validate by re-parse, retry once.      re"
     },
     {
@@ -1500,7 +1500,7 @@
       "source_location": "L2745",
       "_origin": "ast",
       "id": "agents_remediator_rationale_2745",
-      "community": 28,
+      "community": 30,
       "norm_label": "generate a patch for the given finding against the original bundle.      steps:"
     },
     {
@@ -1720,7 +1720,7 @@
       "source_location": "L153",
       "_origin": "ast",
       "id": "agents_supervisor_supervisor_node",
-      "community": 27,
+      "community": 35,
       "norm_label": "supervisor_node()"
     },
     {
@@ -1760,7 +1760,7 @@
       "source_location": "L287",
       "_origin": "ast",
       "id": "app_agents_supervisor_py_analysisreport",
-      "community": 27,
+      "community": 35,
       "norm_label": "analysisreport"
     },
     {
@@ -1820,7 +1820,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "agents_supervisor_rationale_154",
-      "community": 27,
+      "community": 35,
       "norm_label": "synthesize all agent reports into final report."
     },
     {
@@ -1870,7 +1870,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "api_routes_parse_tf_resources",
-      "community": 3,
+      "community": 43,
       "norm_label": "_parse_tf_resources()"
     },
     {
@@ -1880,7 +1880,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "api_routes_health_check",
-      "community": 28,
+      "community": 60,
       "norm_label": "health_check()"
     },
     {
@@ -1890,7 +1890,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "api_routes_analyze_infrastructure",
-      "community": 38,
+      "community": 56,
       "norm_label": "analyze_infrastructure()"
     },
     {
@@ -1900,7 +1900,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "uploadfile",
-      "community": 28,
+      "community": 60,
       "norm_label": "uploadfile"
     },
     {
@@ -1920,7 +1920,7 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "analysisrequest",
-      "community": 28,
+      "community": 60,
       "norm_label": "analysisrequest"
     },
     {
@@ -1980,7 +1980,7 @@
       "source_location": "L274",
       "_origin": "ast",
       "id": "api_routes_delete_report_endpoint",
-      "community": 89,
+      "community": 88,
       "norm_label": "delete_report_endpoint()"
     },
     {
@@ -2020,7 +2020,7 @@
       "source_location": "L348",
       "_origin": "ast",
       "id": "api_routes_remediationrequest",
-      "community": 28,
+      "community": 60,
       "norm_label": "remediationrequest"
     },
     {
@@ -2040,7 +2040,7 @@
       "source_location": "L358",
       "_origin": "ast",
       "id": "api_routes_flat_findings",
-      "community": 88,
+      "community": 60,
       "norm_label": "_flat_findings()"
     },
     {
@@ -2050,7 +2050,7 @@
       "source_location": "L358",
       "_origin": "ast",
       "id": "app_api_routes_py_analysisreport",
-      "community": 28,
+      "community": 60,
       "norm_label": "analysisreport"
     },
     {
@@ -2060,7 +2060,7 @@
       "source_location": "L368",
       "_origin": "ast",
       "id": "api_routes_remediate_finding",
-      "community": 88,
+      "community": 60,
       "norm_label": "remediate_finding()"
     },
     {
@@ -2070,7 +2070,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "api_routes_rationale_27",
-      "community": 3,
+      "community": 43,
       "norm_label": "parse all terraform-flavored files in the bundle into a flat resource     list."
     },
     {
@@ -2080,7 +2080,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "api_routes_rationale_56",
-      "community": 38,
+      "community": 56,
       "norm_label": "upload infrastructure files and run multi-agent analysis."
     },
     {
@@ -2150,7 +2150,7 @@
       "source_location": "L275",
       "_origin": "ast",
       "id": "api_routes_rationale_275",
-      "community": 89,
+      "community": 88,
       "norm_label": "delete a specific report."
     },
     {
@@ -2190,7 +2190,7 @@
       "source_location": "L349",
       "_origin": "ast",
       "id": "api_routes_rationale_349",
-      "community": 28,
+      "community": 60,
       "norm_label": "caller re-supplies the original file bundle at remediation time.      reports ar"
     },
     {
@@ -2200,7 +2200,7 @@
       "source_location": "L359",
       "_origin": "ast",
       "id": "api_routes_rationale_359",
-      "community": 88,
+      "community": 60,
       "norm_label": "return findings in a stable order matching how the frontend indexes them."
     },
     {
@@ -2210,7 +2210,7 @@
       "source_location": "L371",
       "_origin": "ast",
       "id": "api_routes_rationale_371",
-      "community": 88,
+      "community": 60,
       "norm_label": "phase 3.4 \u2014 generate a code patch that fixes a single finding.      the finding"
     },
     {
@@ -2330,7 +2330,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "core_compliance_enrich_findings_with_compliance",
-      "community": 38,
+      "community": 13,
       "norm_label": "enrich_findings_with_compliance()"
     },
     {
@@ -2470,7 +2470,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "core_compliance_rationale_108",
-      "community": 38,
+      "community": 13,
       "norm_label": "mutates report in-place: sets `finding.compliance_controls` on every finding."
     },
     {
@@ -2540,7 +2540,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_dedup",
-      "community": 15,
+      "community": 4,
       "norm_label": "dedup.py"
     },
     {
@@ -2550,7 +2550,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "core_dedup_split_camelcase",
-      "community": 49,
+      "community": 44,
       "norm_label": "_split_camelcase()"
     },
     {
@@ -2560,7 +2560,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "core_dedup_extract_keywords",
-      "community": 49,
+      "community": 44,
       "norm_label": "extract_keywords()"
     },
     {
@@ -2590,7 +2590,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_dedup_rationale_1",
-      "community": 15,
+      "community": 4,
       "norm_label": "shared utility functions for agent deduplication."
     },
     {
@@ -2600,7 +2600,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "core_dedup_rationale_48",
-      "community": 49,
+      "community": 44,
       "norm_label": "insert spaces at camelcase and pascalcase boundaries.      'horizontalpodautosca"
     },
     {
@@ -2610,7 +2610,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "core_dedup_rationale_60",
-      "community": 49,
+      "community": 44,
       "norm_label": "extract significant keywords from text, with synonym expansion."
     },
     {
@@ -2660,7 +2660,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "core_drift_finding_signature",
-      "community": 44,
+      "community": 2,
       "norm_label": "_finding_signature()"
     },
     {
@@ -2730,7 +2730,7 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "core_drift_rule_only_score",
-      "community": 43,
+      "community": 0,
       "norm_label": "_rule_only_score()"
     },
     {
@@ -2740,7 +2740,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "core_drift_rule_only_overall_score",
-      "community": 44,
+      "community": 0,
       "norm_label": "_rule_only_overall_score()"
     },
     {
@@ -2800,7 +2800,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "core_drift_rationale_73",
-      "community": 44,
+      "community": 2,
       "norm_label": "stable identity for a finding across runs.      tuple of (agent, category, title"
     },
     {
@@ -2860,7 +2860,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "core_drift_rationale_142",
-      "community": 43,
+      "community": 0,
       "norm_label": "return rule-only score for an agent, or none if the agent isn't in the report."
     },
     {
@@ -2870,7 +2870,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "core_drift_rationale_149",
-      "community": 44,
+      "community": 0,
       "norm_label": "recompute the overall score from rule-only per-agent scores.      architecture i"
     },
     {
@@ -2950,7 +2950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_graph",
-      "community": 27,
+      "community": 9,
       "norm_label": "graph.py"
     },
     {
@@ -2960,7 +2960,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "core_graph_iter_strings",
-      "community": 27,
+      "community": 86,
       "norm_label": "_iter_strings()"
     },
     {
@@ -2980,7 +2980,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "core_graph_extract_tf_references",
-      "community": 27,
+      "community": 86,
       "norm_label": "extract_tf_references()"
     },
     {
@@ -2990,7 +2990,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "core_graph_expand_k8s_lists",
-      "community": 27,
+      "community": 9,
       "norm_label": "_expand_k8s_lists()"
     },
     {
@@ -3000,7 +3000,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "core_graph_pod_labels",
-      "community": 27,
+      "community": 9,
       "norm_label": "_pod_labels()"
     },
     {
@@ -3010,7 +3010,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "core_graph_selector_matches",
-      "community": 27,
+      "community": 9,
       "norm_label": "_selector_matches()"
     },
     {
@@ -3020,7 +3020,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "core_graph_k8s_namespace",
-      "community": 27,
+      "community": 9,
       "norm_label": "_k8s_namespace()"
     },
     {
@@ -3030,7 +3030,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "core_graph_k8s_ref_node_id",
-      "community": 27,
+      "community": 9,
       "norm_label": "_k8s_ref_node_id()"
     },
     {
@@ -3040,7 +3040,7 @@
       "source_location": "L164",
       "_origin": "ast",
       "id": "core_graph_build_dependency_graph",
-      "community": 27,
+      "community": 39,
       "norm_label": "build_dependency_graph()"
     },
     {
@@ -3050,7 +3050,7 @@
       "source_location": "L164",
       "_origin": "ast",
       "id": "digraph",
-      "community": 27,
+      "community": 9,
       "norm_label": "digraph"
     },
     {
@@ -3060,74 +3060,84 @@
       "source_location": "L185",
       "_origin": "ast",
       "id": "core_graph_add_k8s_nodes_and_edges",
-      "community": 27,
+      "community": 9,
       "norm_label": "_add_k8s_nodes_and_edges()"
+    },
+    {
+      "label": "_add_k8s_ingress_refs()",
+      "file_type": "code",
+      "source_file": "app/core/graph.py",
+      "source_location": "L223",
+      "_origin": "ast",
+      "id": "core_graph_add_k8s_ingress_refs",
+      "community": 9,
+      "norm_label": "_add_k8s_ingress_refs()"
     },
     {
       "label": "_ensure_ref_node()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L219",
+      "source_location": "L259",
       "_origin": "ast",
       "id": "core_graph_ensure_ref_node",
-      "community": 27,
+      "community": 9,
       "norm_label": "_ensure_ref_node()"
     },
     {
       "label": "_add_k8s_workload_refs()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L226",
+      "source_location": "L266",
       "_origin": "ast",
       "id": "core_graph_add_k8s_workload_refs",
-      "community": 27,
+      "community": 9,
       "norm_label": "_add_k8s_workload_refs()"
     },
     {
       "label": "_add_tf_nodes_and_edges()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L285",
+      "source_location": "L325",
       "_origin": "ast",
       "id": "core_graph_add_tf_nodes_and_edges",
-      "community": 27,
+      "community": 9,
       "norm_label": "_add_tf_nodes_and_edges()"
     },
     {
       "label": "dependents_of()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L327",
+      "source_location": "L367",
       "_origin": "ast",
       "id": "core_graph_dependents_of",
-      "community": 27,
+      "community": 9,
       "norm_label": "dependents_of()"
     },
     {
       "label": "find_spofs()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L339",
+      "source_location": "L379",
       "_origin": "ast",
       "id": "core_graph_find_spofs",
-      "community": 27,
+      "community": 9,
       "norm_label": "find_spofs()"
     },
     {
       "label": "_spof_severity()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L392",
+      "source_location": "L432",
       "_origin": "ast",
       "id": "core_graph_spof_severity",
-      "community": 27,
+      "community": 9,
       "norm_label": "_spof_severity()"
     },
     {
       "label": "Severity",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L392",
+      "source_location": "L432",
       "_origin": "ast",
       "id": "app_core_graph_py_severity",
       "community": 15,
@@ -3137,17 +3147,17 @@
       "label": "spof_findings()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L400",
+      "source_location": "L440",
       "_origin": "ast",
       "id": "core_graph_spof_findings",
-      "community": 27,
+      "community": 9,
       "norm_label": "spof_findings()"
     },
     {
       "label": "Finding",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L400",
+      "source_location": "L440",
       "_origin": "ast",
       "id": "app_core_graph_py_finding",
       "community": 15,
@@ -3157,27 +3167,27 @@
       "label": "to_dependency_graph_model()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L441",
+      "source_location": "L481",
       "_origin": "ast",
       "id": "core_graph_to_dependency_graph_model",
-      "community": 27,
+      "community": 15,
       "norm_label": "to_dependency_graph_model()"
     },
     {
       "label": "DependencyGraph",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L441",
+      "source_location": "L481",
       "_origin": "ast",
       "id": "dependencygraph",
-      "community": 27,
+      "community": 15,
       "norm_label": "dependencygraph"
     },
     {
       "label": "build_dependency_graph_model()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L475",
+      "source_location": "L515",
       "_origin": "ast",
       "id": "core_graph_build_dependency_graph_model",
       "community": 27,
@@ -3187,37 +3197,37 @@
       "label": "graph_from_model()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L492",
+      "source_location": "L532",
       "_origin": "ast",
       "id": "core_graph_graph_from_model",
-      "community": 27,
+      "community": 9,
       "norm_label": "graph_from_model()"
     },
     {
       "label": "blast_radius()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L507",
+      "source_location": "L547",
       "_origin": "ast",
       "id": "core_graph_blast_radius",
-      "community": 27,
+      "community": 87,
       "norm_label": "blast_radius()"
     },
     {
       "label": "_mermaid_escape_label()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L563",
+      "source_location": "L603",
       "_origin": "ast",
       "id": "core_graph_mermaid_escape_label",
-      "community": 27,
+      "community": 9,
       "norm_label": "_mermaid_escape_label()"
     },
     {
       "label": "to_mermaid()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L573",
+      "source_location": "L613",
       "_origin": "ast",
       "id": "core_graph_to_mermaid",
       "community": 27,
@@ -3230,7 +3240,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_graph_rationale_1",
-      "community": 27,
+      "community": 9,
       "norm_label": "resource dependency graph (phase 4.1).  builds a directed dependency graph over"
     },
     {
@@ -3240,7 +3250,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "core_graph_rationale_63",
-      "community": 27,
+      "community": 86,
       "norm_label": "yield every string found anywhere inside a nested dict/list structure."
     },
     {
@@ -3250,7 +3260,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "core_graph_rationale_76",
-      "community": 27,
+      "community": 86,
       "norm_label": "return the set of terraform resource addresses (``type.name``) this     config r"
     },
     {
@@ -3260,7 +3270,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "core_graph_rationale_108",
-      "community": 27,
+      "community": 9,
       "norm_label": "return a copy of ``k8s_resources`` with any ``kind: list`` documents     expande"
     },
     {
@@ -3270,7 +3280,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "core_graph_rationale_129",
-      "community": 27,
+      "community": 9,
       "norm_label": "labels on the pod template (what a service selector matches against)."
     },
     {
@@ -3280,7 +3290,7 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "core_graph_rationale_141",
-      "community": 27,
+      "community": 9,
       "norm_label": "true if a service ``spec.selector`` (plain label map) matches ``labels``."
     },
     {
@@ -3290,7 +3300,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "core_graph_rationale_156",
-      "community": 27,
+      "community": 9,
       "norm_label": "node id for a referenced-but-maybe-not-uploaded k8s resource."
     },
     {
@@ -3300,66 +3310,76 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "core_graph_rationale_168",
-      "community": 27,
+      "community": 39,
       "norm_label": "build a directed dependency graph from parsed resources.      every node carries"
+    },
+    {
+      "label": "Ingress --routes--> Service edges.      Handles both the networking.k8s.io/v1 sh",
+      "file_type": "rationale",
+      "source_file": "app/core/graph.py",
+      "source_location": "L224",
+      "_origin": "ast",
+      "id": "core_graph_rationale_224",
+      "community": 9,
+      "norm_label": "ingress --routes--> service edges.      handles both the networking.k8s.io/v1 sh"
     },
     {
       "label": "Add a referenced node if absent, marking it as not-present (external).",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L220",
+      "source_location": "L260",
       "_origin": "ast",
-      "id": "core_graph_rationale_220",
-      "community": 27,
+      "id": "core_graph_rationale_260",
+      "community": 9,
       "norm_label": "add a referenced node if absent, marking it as not-present (external)."
     },
     {
       "label": "Every resource that (transitively) depends on ``node``.      Edges point depende",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L328",
+      "source_location": "L368",
       "_origin": "ast",
-      "id": "core_graph_rationale_328",
-      "community": 27,
+      "id": "core_graph_rationale_368",
+      "community": 9,
       "norm_label": "every resource that (transitively) depends on ``node``.      edges point depende"
     },
     {
       "label": "Identify single points of failure in the dependency graph.      Two independent",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L340",
+      "source_location": "L380",
       "_origin": "ast",
-      "id": "core_graph_rationale_340",
-      "community": 27,
+      "id": "core_graph_rationale_380",
+      "community": 9,
       "norm_label": "identify single points of failure in the dependency graph.      two independent"
     },
     {
       "label": "Turn detected SPOFs into resilience-category Findings.      Deterministic \u2014 no L",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L401",
+      "source_location": "L441",
       "_origin": "ast",
-      "id": "core_graph_rationale_401",
-      "community": 27,
+      "id": "core_graph_rationale_441",
+      "community": 9,
       "norm_label": "turn detected spofs into resilience-category findings.      deterministic \u2014 no l"
     },
     {
       "label": "Serialize a NetworkX graph + its SPOFs into the persistable pydantic model.",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L442",
+      "source_location": "L482",
       "_origin": "ast",
-      "id": "core_graph_rationale_442",
-      "community": 27,
+      "id": "core_graph_rationale_482",
+      "community": 15,
       "norm_label": "serialize a networkx graph + its spofs into the persistable pydantic model."
     },
     {
       "label": "Convenience: build the graph and return the serialized model in one call.",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L479",
+      "source_location": "L519",
       "_origin": "ast",
-      "id": "core_graph_rationale_479",
+      "id": "core_graph_rationale_519",
       "community": 27,
       "norm_label": "convenience: build the graph and return the serialized model in one call."
     },
@@ -3367,39 +3387,39 @@
       "label": "Rebuild a NetworkX DiGraph from the persisted DependencyGraph model.",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L493",
+      "source_location": "L533",
       "_origin": "ast",
-      "id": "core_graph_rationale_493",
-      "community": 27,
+      "id": "core_graph_rationale_533",
+      "community": 9,
       "norm_label": "rebuild a networkx digraph from the persisted dependencygraph model."
     },
     {
       "label": "Compute the blast radius of ``resource``: everything that (transitively)     dep",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L508",
+      "source_location": "L548",
       "_origin": "ast",
-      "id": "core_graph_rationale_508",
-      "community": 27,
+      "id": "core_graph_rationale_548",
+      "community": 87,
       "norm_label": "compute the blast radius of ``resource``: everything that (transitively)     dep"
     },
     {
       "label": "Escape a label for a Mermaid node. Quotes wrap it; escape inner quotes     and c",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L564",
+      "source_location": "L604",
       "_origin": "ast",
-      "id": "core_graph_rationale_564",
-      "community": 27,
+      "id": "core_graph_rationale_604",
+      "community": 9,
       "norm_label": "escape a label for a mermaid node. quotes wrap it; escape inner quotes     and c"
     },
     {
       "label": "Render the dependency graph as a Mermaid ``flowchart LR`` string.      - Synthet",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L574",
+      "source_location": "L614",
       "_origin": "ast",
-      "id": "core_graph_rationale_574",
+      "id": "core_graph_rationale_614",
       "community": 27,
       "norm_label": "render the dependency graph as a mermaid ``flowchart lr`` string.      - synthet"
     },
@@ -3530,7 +3550,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_llm_agent",
-      "community": 39,
+      "community": 4,
       "norm_label": "llm_agent.py"
     },
     {
@@ -3540,7 +3560,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "core_llm_agent_score_from_findings",
-      "community": 39,
+      "community": 4,
       "norm_label": "score_from_findings()"
     },
     {
@@ -3550,7 +3570,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "app_core_llm_agent_py_finding",
-      "community": 39,
+      "community": 4,
       "norm_label": "finding"
     },
     {
@@ -3560,7 +3580,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "core_llm_agent_format_infra_content",
-      "community": 39,
+      "community": 4,
       "norm_label": "_format_infra_content()"
     },
     {
@@ -3570,7 +3590,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "core_llm_agent_parse_llm_findings",
-      "community": 39,
+      "community": 4,
       "norm_label": "parse_llm_findings()"
     },
     {
@@ -3580,7 +3600,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "core_llm_agent_run_llm_agent",
-      "community": 39,
+      "community": 4,
       "norm_label": "run_llm_agent()"
     },
     {
@@ -3590,7 +3610,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "app_core_llm_agent_py_agentreport",
-      "community": 39,
+      "community": 4,
       "norm_label": "agentreport"
     },
     {
@@ -3600,7 +3620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_llm_agent_rationale_1",
-      "community": 39,
+      "community": 4,
       "norm_label": "shared llm-agent execution helper.  phase 3.5 extracts the llm invoke -> parse -"
     },
     {
@@ -3610,7 +3630,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "core_llm_agent_rationale_36",
-      "community": 39,
+      "community": 4,
       "norm_label": "compute a 0-100 agent score from findings via severity deductions.      identica"
     },
     {
@@ -3620,7 +3640,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "core_llm_agent_rationale_45",
-      "community": 39,
+      "community": 4,
       "norm_label": "concatenate uploaded files into a single prompt-ready block.      matches the ``"
     },
     {
@@ -3630,7 +3650,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "core_llm_agent_rationale_56",
-      "community": 39,
+      "community": 4,
       "norm_label": "parse an llm json response into findings + summary.      tolerates a leading/tra"
     },
     {
@@ -3640,7 +3660,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "core_llm_agent_rationale_97",
-      "community": 39,
+      "community": 4,
       "norm_label": "run a single llm-backed agent and return its ``agentreport``.      this is the d"
     },
     {
@@ -3720,7 +3740,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_plugin_loader",
-      "community": 4,
+      "community": 35,
       "norm_label": "plugin_loader.py"
     },
     {
@@ -3730,7 +3750,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "core_plugin_loader_compliance_adapter",
-      "community": 38,
+      "community": 35,
       "norm_label": "_compliance_adapter()"
     },
     {
@@ -3740,7 +3760,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "app_core_plugin_loader_py_agentreport",
-      "community": 17,
+      "community": 35,
       "norm_label": "agentreport"
     },
     {
@@ -3750,7 +3770,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "core_plugin_loader_run_plugin",
-      "community": 17,
+      "community": 35,
       "norm_label": "run_plugin()"
     },
     {
@@ -3760,7 +3780,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "pluginagent",
-      "community": 17,
+      "community": 35,
       "norm_label": "pluginagent"
     },
     {
@@ -3770,7 +3790,7 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "core_plugin_loader_run_all_plugins",
-      "community": 17,
+      "community": 35,
       "norm_label": "run_all_plugins()"
     },
     {
@@ -3780,7 +3800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_plugin_loader_rationale_1",
-      "community": 4,
+      "community": 35,
       "norm_label": "plugin loader \u2014 runs discovered plugin agents and returns their reports.  phase"
     },
     {
@@ -3790,7 +3810,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "core_plugin_loader_rationale_40",
-      "community": 38,
+      "community": 35,
       "norm_label": "wrap the existing compliance scorecard into an ``agentreport``.      reuses ``ap"
     },
     {
@@ -3800,7 +3820,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "core_plugin_loader_rationale_129",
-      "community": 17,
+      "community": 35,
       "norm_label": "run a single plugin agent and return its report (or none if skipped)."
     },
     {
@@ -3810,7 +3830,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "core_plugin_loader_rationale_159",
-      "community": 17,
+      "community": 35,
       "norm_label": "discover (or accept) plugins and run them sequentially.      returns the list of"
     },
     {
@@ -3960,7 +3980,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "core_report_calculate_overall_score",
-      "community": 62,
+      "community": 49,
       "norm_label": "calculate_overall_score()"
     },
     {
@@ -3970,7 +3990,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "app_core_report_py_agentreport",
-      "community": 62,
+      "community": 4,
       "norm_label": "agentreport"
     },
     {
@@ -3980,7 +4000,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "app_core_report_py_architecturereview",
-      "community": 62,
+      "community": 4,
       "norm_label": "architecturereview"
     },
     {
@@ -4020,7 +4040,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "core_report_rationale_10",
-      "community": 62,
+      "community": 49,
       "norm_label": "calculate weighted overall score from agent reports + architecture review."
     },
     {
@@ -4180,7 +4200,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "core_store_save_report",
-      "community": 89,
+      "community": 88,
       "norm_label": "save_report()"
     },
     {
@@ -4190,7 +4210,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "app_core_store_py_analysisreport",
-      "community": 89,
+      "community": 88,
       "norm_label": "analysisreport"
     },
     {
@@ -4230,7 +4250,7 @@
       "source_location": "L197",
       "_origin": "ast",
       "id": "core_store_delete_report",
-      "community": 89,
+      "community": 88,
       "norm_label": "delete_report()"
     },
     {
@@ -4280,7 +4300,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "core_store_rationale_35",
-      "community": 89,
+      "community": 88,
       "norm_label": "persist a report to chromadb. returns report_id."
     },
     {
@@ -4320,7 +4340,7 @@
       "source_location": "L198",
       "_origin": "ast",
       "id": "core_store_rationale_198",
-      "community": 89,
+      "community": 88,
       "norm_label": "delete a specific report from chromadb and the in-memory cache."
     },
     {
@@ -4350,7 +4370,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_main",
-      "community": 89,
+      "community": 88,
       "norm_label": "main.py"
     },
     {
@@ -4360,7 +4380,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "app_main_root",
-      "community": 89,
+      "community": 88,
       "norm_label": "root()"
     },
     {
@@ -4370,7 +4390,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "app_models",
-      "community": 15,
+      "community": 4,
       "norm_label": "models.py"
     },
     {
@@ -4400,7 +4420,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "enum",
-      "community": 15,
+      "community": 4,
       "norm_label": "enum"
     },
     {
@@ -4450,7 +4470,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "app_models_crosscuttinggap",
-      "community": 4,
+      "community": 25,
       "norm_label": "crosscuttinggap"
     },
     {
@@ -4460,7 +4480,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "app_models_architecturereview",
-      "community": 62,
+      "community": 0,
       "norm_label": "architecturereview"
     },
     {
@@ -4520,7 +4540,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "app_models_dependencygraph",
-      "community": 27,
+      "community": 15,
       "norm_label": "dependencygraph"
     },
     {
@@ -4530,7 +4550,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "app_models_analysisreport",
-      "community": 89,
+      "community": 35,
       "norm_label": "analysisreport"
     },
     {
@@ -4540,7 +4560,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "app_models_analysisreport_init",
-      "community": 89,
+      "community": 35,
       "norm_label": ".__init__()"
     },
     {
@@ -4550,7 +4570,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "app_models_analysisrequest",
-      "community": 28,
+      "community": 60,
       "norm_label": "analysisrequest"
     },
     {
@@ -4560,7 +4580,7 @@
       "source_location": "L149",
       "_origin": "ast",
       "id": "app_models_healthresponse",
-      "community": 28,
+      "community": 60,
       "norm_label": "healthresponse"
     },
     {
@@ -4570,7 +4590,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "app_models_patch",
-      "community": 28,
+      "community": 30,
       "norm_label": "patch"
     },
     {
@@ -4580,7 +4600,7 @@
       "source_location": "L157",
       "_origin": "ast",
       "id": "app_models_rationale_157",
-      "community": 28,
+      "community": 30,
       "norm_label": "a generated fix for a single finding.      the remediator returns the *patched f"
     },
     {
@@ -4670,7 +4690,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "parsers_kubernetes_get_containers",
-      "community": 3,
+      "community": 4,
       "norm_label": "get_containers()"
     },
     {
@@ -4720,7 +4740,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "parsers_kubernetes_rationale_27",
-      "community": 3,
+      "community": 4,
       "norm_label": "extract containers from a pod spec."
     },
     {
@@ -4750,7 +4770,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "parsers_terraform",
-      "community": 3,
+      "community": 43,
       "norm_label": "terraform.py"
     },
     {
@@ -4760,7 +4780,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "parsers_terraform_parse_terraform",
-      "community": 3,
+      "community": 43,
       "norm_label": "parse_terraform()"
     },
     {
@@ -4770,7 +4790,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "app_parsers_terraform_py_any",
-      "community": 3,
+      "community": 43,
       "norm_label": "any"
     },
     {
@@ -4780,7 +4800,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "parsers_terraform_extract_tf_resources",
-      "community": 3,
+      "community": 43,
       "norm_label": "extract_tf_resources()"
     },
     {
@@ -4790,7 +4810,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "parsers_terraform_extract_tf_variables",
-      "community": 3,
+      "community": 43,
       "norm_label": "extract_tf_variables()"
     },
     {
@@ -4800,7 +4820,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "parsers_terraform_resources_with_companion",
-      "community": 3,
+      "community": 89,
       "norm_label": "resources_with_companion()"
     },
     {
@@ -4810,7 +4830,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "parsers_terraform_rationale_9",
-      "community": 3,
+      "community": 43,
       "norm_label": "parse terraform hcl content."
     },
     {
@@ -4820,7 +4840,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "parsers_terraform_rationale_18",
-      "community": 3,
+      "community": 43,
       "norm_label": "extract resources from parsed terraform.      handles two formats:     - hcl2 pa"
     },
     {
@@ -4830,7 +4850,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "parsers_terraform_rationale_46",
-      "community": 3,
+      "community": 43,
       "norm_label": "extract variables from parsed terraform."
     },
     {
@@ -4840,7 +4860,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "parsers_terraform_rationale_57",
-      "community": 3,
+      "community": 89,
       "norm_label": "return parent resource names that have a companion resource of the given type."
     },
     {
@@ -5340,7 +5360,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "fixtures_llm_responses",
-      "community": 38,
+      "community": 95,
       "norm_label": "llm_responses.py"
     },
     {
@@ -5360,7 +5380,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "fixtures_llm_responses_make_agent_finding",
-      "community": 38,
+      "community": 95,
       "norm_label": "make_agent_finding()"
     },
     {
@@ -5370,7 +5390,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "fixtures_llm_responses_rationale_1",
-      "community": 38,
+      "community": 95,
       "norm_label": "canned llm responses keyed by agent type.  each agent's `chain.ainvoke(...)` is"
     },
     {
@@ -5390,7 +5410,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "fixtures_llm_responses_rationale_74",
-      "community": 38,
+      "community": 95,
       "norm_label": "build an agent finding for use inside an llm-mocked response."
     },
     {
@@ -5400,7 +5420,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "fixtures_scoring",
-      "community": 15,
+      "community": 4,
       "norm_label": "scoring.py"
     },
     {
@@ -5420,7 +5440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "fixtures_scoring_rationale_1",
-      "community": 15,
+      "community": 4,
       "norm_label": "per-agent score deductions table.  this duplicates the table from app/agents/{se"
     },
     {
@@ -6280,7 +6300,7 @@
       "source_location": "L579",
       "_origin": "ast",
       "id": "tests_test_compliance_testcomputescorecardsemantics",
-      "community": 8,
+      "community": 37,
       "norm_label": "testcomputescorecardsemantics"
     },
     {
@@ -6290,7 +6310,7 @@
       "source_location": "L580",
       "_origin": "ast",
       "id": "tests_test_compliance_testcomputescorecardsemantics_test_clean_k8s_report_yields_100_pct_for_applicable_frameworks",
-      "community": 8,
+      "community": 37,
       "norm_label": ".test_clean_k8s_report_yields_100_pct_for_applicable_frameworks()"
     },
     {
@@ -6300,7 +6320,7 @@
       "source_location": "L589",
       "_origin": "ast",
       "id": "tests_test_compliance_testcomputescorecardsemantics_test_failed_finding_drops_score",
-      "community": 8,
+      "community": 37,
       "norm_label": ".test_failed_finding_drops_score()"
     },
     {
@@ -6310,7 +6330,7 @@
       "source_location": "L602",
       "_origin": "ast",
       "id": "tests_test_compliance_testcomputescorecardsemantics_test_score_formula_passed_over_total",
-      "community": 8,
+      "community": 37,
       "norm_label": ".test_score_formula_passed_over_total()"
     },
     {
@@ -6320,7 +6340,7 @@
       "source_location": "L616",
       "_origin": "ast",
       "id": "tests_test_compliance_testcomputescorecardsemantics_test_unmapped_finding_does_not_affect_score",
-      "community": 8,
+      "community": 37,
       "norm_label": ".test_unmapped_finding_does_not_affect_score()"
     },
     {
@@ -6640,7 +6660,7 @@
       "source_location": "L581",
       "_origin": "ast",
       "id": "tests_test_compliance_rationale_581",
-      "community": 8,
+      "community": 37,
       "norm_label": "k8s upload, no findings \u2192 all assessable controls pass \u2192 100%."
     },
     {
@@ -6650,7 +6670,7 @@
       "source_location": "L617",
       "_origin": "ast",
       "id": "tests_test_compliance_rationale_617",
-      "community": 8,
+      "community": 37,
       "norm_label": "a finding with empty compliance_controls is neutral."
     },
     {
@@ -6890,7 +6910,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "tests_test_dedup_testextractkeywords",
-      "community": 49,
+      "community": 44,
       "norm_label": "testextractkeywords"
     },
     {
@@ -6900,7 +6920,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "tests_test_dedup_testextractkeywords_test_camelcase_split",
-      "community": 49,
+      "community": 44,
       "norm_label": ".test_camelcase_split()"
     },
     {
@@ -6910,7 +6930,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "tests_test_dedup_testextractkeywords_test_pascal_and_camel_mixed",
-      "community": 49,
+      "community": 44,
       "norm_label": ".test_pascal_and_camel_mixed()"
     },
     {
@@ -6920,7 +6940,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_test_dedup_testextractkeywords_test_stop_words_removed",
-      "community": 49,
+      "community": 44,
       "norm_label": ".test_stop_words_removed()"
     },
     {
@@ -6930,7 +6950,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "tests_test_dedup_testextractkeywords_test_synonym_expansion_password",
-      "community": 49,
+      "community": 44,
       "norm_label": ".test_synonym_expansion_password()"
     },
     {
@@ -6940,7 +6960,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "tests_test_dedup_testextractkeywords_test_synonym_hpa_expansion",
-      "community": 49,
+      "community": 44,
       "norm_label": ".test_synonym_hpa_expansion()"
     },
     {
@@ -6950,7 +6970,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "tests_test_dedup_testextractkeywords_test_plural_to_singular",
-      "community": 49,
+      "community": 44,
       "norm_label": ".test_plural_to_singular()"
     },
     {
@@ -6960,7 +6980,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "tests_test_dedup_testextractkeywords_test_distinct_probes_not_collapsed",
-      "community": 49,
+      "community": 44,
       "norm_label": ".test_distinct_probes_not_collapsed()"
     },
     {
@@ -6970,7 +6990,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "tests_test_dedup_testextractkeywords_test_short_words_filtered",
-      "community": 49,
+      "community": 44,
       "norm_label": ".test_short_words_filtered()"
     },
     {
@@ -6980,7 +7000,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "tests_test_dedup_testextractkeywords_test_punctuation_stripped",
-      "community": 49,
+      "community": 44,
       "norm_label": ".test_punctuation_stripped()"
     },
     {
@@ -6990,7 +7010,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "tests_test_dedup_testextractkeywords_test_empty_string_returns_empty_set",
-      "community": 49,
+      "community": 44,
       "norm_label": ".test_empty_string_returns_empty_set()"
     },
     {
@@ -7160,7 +7180,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_drift",
-      "community": 44,
+      "community": 0,
       "norm_label": "test_drift.py"
     },
     {
@@ -7180,7 +7200,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_test_drift_py_finding",
-      "community": 4,
+      "community": 0,
       "norm_label": "finding"
     },
     {
@@ -7190,7 +7210,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_test_drift_py_analysisreport",
-      "community": 4,
+      "community": 0,
       "norm_label": "analysisreport"
     },
     {
@@ -7240,7 +7260,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "tests_test_drift_testfindingsignature",
-      "community": 44,
+      "community": 2,
       "norm_label": "testfindingsignature"
     },
     {
@@ -7250,7 +7270,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "tests_test_drift_testfindingsignature_test_signature_match_ignores_severity_and_description",
-      "community": 44,
+      "community": 2,
       "norm_label": ".test_signature_match_ignores_severity_and_description()"
     },
     {
@@ -7260,7 +7280,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "tests_test_drift_testfindingsignature_test_signature_breaks_on_resource_change",
-      "community": 44,
+      "community": 2,
       "norm_label": ".test_signature_breaks_on_resource_change()"
     },
     {
@@ -7270,7 +7290,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "tests_test_drift_testfindingsignature_test_signature_breaks_on_title_change",
-      "community": 44,
+      "community": 2,
       "norm_label": ".test_signature_breaks_on_title_change()"
     },
     {
@@ -7330,7 +7350,7 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "tests_test_drift_testruleonlyscore",
-      "community": 43,
+      "community": 0,
       "norm_label": "testruleonlyscore"
     },
     {
@@ -7340,7 +7360,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "tests_test_drift_testruleonlyscore_test_no_findings_returns_100",
-      "community": 43,
+      "community": 0,
       "norm_label": ".test_no_findings_returns_100()"
     },
     {
@@ -7350,7 +7370,7 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "tests_test_drift_testruleonlyscore_test_high_finding_deducts_10",
-      "community": 43,
+      "community": 0,
       "norm_label": ".test_high_finding_deducts_10()"
     },
     {
@@ -7360,7 +7380,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "tests_test_drift_testruleonlyscore_test_ai_analysis_findings_excluded",
-      "community": 43,
+      "community": 0,
       "norm_label": ".test_ai_analysis_findings_excluded()"
     },
     {
@@ -7370,7 +7390,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "tests_test_drift_testruleonlyscore_test_missing_agent_returns_none",
-      "community": 43,
+      "community": 0,
       "norm_label": ".test_missing_agent_returns_none()"
     },
     {
@@ -7380,7 +7400,7 @@
       "source_location": "L163",
       "_origin": "ast",
       "id": "tests_test_drift_testruleonlyscore_test_score_floored_at_zero",
-      "community": 43,
+      "community": 0,
       "norm_label": ".test_score_floored_at_zero()"
     },
     {
@@ -7390,7 +7410,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "tests_test_drift_testruleonlyoverallscore",
-      "community": 44,
+      "community": 0,
       "norm_label": "testruleonlyoverallscore"
     },
     {
@@ -7400,7 +7420,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "tests_test_drift_testruleonlyoverallscore_test_three_clean_agents_returns_100",
-      "community": 44,
+      "community": 0,
       "norm_label": ".test_three_clean_agents_returns_100()"
     },
     {
@@ -7410,7 +7430,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "tests_test_drift_testruleonlyoverallscore_test_security_finding_drags_overall_down",
-      "community": 44,
+      "community": 0,
       "norm_label": ".test_security_finding_drags_overall_down()"
     },
     {
@@ -7600,7 +7620,7 @@
       "source_location": "L436",
       "_origin": "ast",
       "id": "tests_test_drift_testcomputedriftmetadata",
-      "community": 4,
+      "community": 0,
       "norm_label": "testcomputedriftmetadata"
     },
     {
@@ -7620,7 +7640,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_drift_rationale_1",
-      "community": 44,
+      "community": 0,
       "norm_label": "tests for drift detection (phase 3.2).  reference: app/core/drift.py  these test"
     },
     {
@@ -7650,7 +7670,7 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "tests_test_drift_rationale_152",
-      "community": 43,
+      "community": 0,
       "norm_label": "the whole point of the fix: llm findings don't affect drift score."
     },
     {
@@ -7710,7 +7730,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_testpersistenceexclusion_test_save_report_drops_file_contents",
-      "community": 89,
+      "community": 88,
       "norm_label": ".test_save_report_drops_file_contents()"
     },
     {
@@ -7720,7 +7740,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_testpersistenceexclusion_test_get_report_returns_empty_file_contents_for_legacy_data",
-      "community": 89,
+      "community": 88,
       "norm_label": ".test_get_report_returns_empty_file_contents_for_legacy_data()"
     },
     {
@@ -7740,7 +7760,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_testanalyzetextecho_test_analyze_text_returns_file_contents",
-      "community": 89,
+      "community": 88,
       "norm_label": ".test_analyze_text_returns_file_contents()"
     },
     {
@@ -7750,7 +7770,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_testanalyzetextecho_test_get_report_after_analyze_does_not_leak_file_contents",
-      "community": 89,
+      "community": 88,
       "norm_label": ".test_get_report_after_analyze_does_not_leak_file_contents()"
     },
     {
@@ -7770,7 +7790,7 @@
       "source_location": "L134",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_testremediationusesechoedcontents_test_remediate_endpoint_works_with_echoed_yaml",
-      "community": 89,
+      "community": 88,
       "norm_label": ".test_remediate_endpoint_works_with_echoed_yaml()"
     },
     {
@@ -7790,7 +7810,7 @@
       "source_location": "L199",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_testhelmchartcachepath_test_helm_chart_response_includes_rendered_yaml",
-      "community": 89,
+      "community": 88,
       "norm_label": ".test_helm_chart_response_includes_rendered_yaml()"
     },
     {
@@ -7810,7 +7830,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_rationale_36",
-      "community": 89,
+      "community": 88,
       "norm_label": "even if a report carries file_contents in memory, it must not         land in ch"
     },
     {
@@ -7820,7 +7840,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_rationale_59",
-      "community": 89,
+      "community": 88,
       "norm_label": "a report saved before this feature existed (or any report         cleanly persis"
     },
     {
@@ -7830,7 +7850,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_rationale_110",
-      "community": 89,
+      "community": 88,
       "norm_label": "end-to-end: live response has file_contents, but a subsequent         get on the"
     },
     {
@@ -7840,7 +7860,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_rationale_135",
-      "community": 89,
+      "community": 88,
       "norm_label": "end-to-end: a yaml upload analyses, the response echoes the         file_content"
     },
     {
@@ -7860,7 +7880,7 @@
       "source_location": "L200",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_rationale_200",
-      "community": 89,
+      "community": 88,
       "norm_label": "skips automatically if `helm` cli isn't installed \u2014 the chart         renderer n"
     },
     {
@@ -8080,7 +8100,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "tests_test_graph_k8s",
-      "community": 27,
+      "community": 39,
       "norm_label": "_k8s()"
     },
     {
@@ -8090,7 +8110,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "tests_test_graph_edge_set",
-      "community": 27,
+      "community": 39,
       "norm_label": "_edge_set()"
     },
     {
@@ -8100,7 +8120,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_test_graph_testtfreferences",
-      "community": 27,
+      "community": 86,
       "norm_label": "testtfreferences"
     },
     {
@@ -8110,7 +8130,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "tests_test_graph_testtfreferences_test_simple_interpolation",
-      "community": 27,
+      "community": 86,
       "norm_label": ".test_simple_interpolation()"
     },
     {
@@ -8120,7 +8140,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "tests_test_graph_testtfreferences_test_bare_depends_on",
-      "community": 27,
+      "community": 86,
       "norm_label": ".test_bare_depends_on()"
     },
     {
@@ -8130,7 +8150,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "tests_test_graph_testtfreferences_test_nested_block_reference",
-      "community": 27,
+      "community": 86,
       "norm_label": ".test_nested_block_reference()"
     },
     {
@@ -8140,7 +8160,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "tests_test_graph_testtfreferences_test_var_and_local_are_not_references",
-      "community": 27,
+      "community": 86,
       "norm_label": ".test_var_and_local_are_not_references()"
     },
     {
@@ -8150,7 +8170,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "tests_test_graph_testtfreferences_test_data_source_excluded",
-      "community": 27,
+      "community": 86,
       "norm_label": ".test_data_source_excluded()"
     },
     {
@@ -8160,7 +8180,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_graph_testtfreferences_test_multiple_refs_in_one_string",
-      "community": 27,
+      "community": 86,
       "norm_label": ".test_multiple_refs_in_one_string()"
     },
     {
@@ -8170,7 +8190,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "tests_test_graph_testterraformgraph",
-      "community": 27,
+      "community": 39,
       "norm_label": "testterraformgraph"
     },
     {
@@ -8180,7 +8200,7 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "tests_test_graph_testterraformgraph_test_interpolation_edge",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_interpolation_edge()"
     },
     {
@@ -8190,7 +8210,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "tests_test_graph_testterraformgraph_test_depends_on_edge",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_depends_on_edge()"
     },
     {
@@ -8200,7 +8220,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "tests_test_graph_testterraformgraph_test_referenced_but_absent_marked_not_present",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_referenced_but_absent_marked_not_present()"
     },
     {
@@ -8210,7 +8230,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "tests_test_graph_testterraformgraph_test_no_self_reference",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_no_self_reference()"
     },
     {
@@ -8220,7 +8240,7 @@
       "source_location": "L157",
       "_origin": "ast",
       "id": "tests_test_graph_testkubernetesgraph",
-      "community": 27,
+      "community": 39,
       "norm_label": "testkubernetesgraph"
     },
     {
@@ -8230,7 +8250,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "tests_test_graph_testkubernetesgraph_test_service_selects_deployment",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_service_selects_deployment()"
     },
     {
@@ -8240,7 +8260,7 @@
       "source_location": "L162",
       "_origin": "ast",
       "id": "tests_test_graph_testkubernetesgraph_test_secret_key_ref_edge",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_secret_key_ref_edge()"
     },
     {
@@ -8250,7 +8270,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "tests_test_graph_testkubernetesgraph_test_configmap_envfrom_edge",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_configmap_envfrom_edge()"
     },
     {
@@ -8260,7 +8280,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "tests_test_graph_testkubernetesgraph_test_service_account_edge",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_service_account_edge()"
     },
     {
@@ -8270,64 +8290,84 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "tests_test_graph_testkubernetesgraph_test_volume_secret_edge",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_volume_secret_edge()"
+    },
+    {
+      "label": ".test_ingress_routes_to_service_v1()",
+      "file_type": "code",
+      "source_file": "tests/test_graph.py",
+      "source_location": "L178",
+      "_origin": "ast",
+      "id": "tests_test_graph_testkubernetesgraph_test_ingress_routes_to_service_v1",
+      "community": 39,
+      "norm_label": ".test_ingress_routes_to_service_v1()"
+    },
+    {
+      "label": ".test_ingress_default_backend_and_legacy_shape()",
+      "file_type": "code",
+      "source_file": "tests/test_graph.py",
+      "source_location": "L201",
+      "_origin": "ast",
+      "id": "tests_test_graph_testkubernetesgraph_test_ingress_default_backend_and_legacy_shape",
+      "community": 39,
+      "norm_label": ".test_ingress_default_backend_and_legacy_shape()"
     },
     {
       "label": ".test_selector_respects_namespace()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L178",
+      "source_location": "L212",
       "_origin": "ast",
       "id": "tests_test_graph_testkubernetesgraph_test_selector_respects_namespace",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_selector_respects_namespace()"
     },
     {
       "label": ".test_kind_list_is_expanded()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L197",
+      "source_location": "L231",
       "_origin": "ast",
       "id": "tests_test_graph_testkubernetesgraph_test_kind_list_is_expanded",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_kind_list_is_expanded()"
     },
     {
       "label": "TestMixedAndNamespacing",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L228",
+      "source_location": "L262",
       "_origin": "ast",
       "id": "tests_test_graph_testmixedandnamespacing",
-      "community": 27,
+      "community": 39,
       "norm_label": "testmixedandnamespacing"
     },
     {
       "label": ".test_k8s_and_tf_node_ids_do_not_collide()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L229",
+      "source_location": "L263",
       "_origin": "ast",
       "id": "tests_test_graph_testmixedandnamespacing_test_k8s_and_tf_node_ids_do_not_collide",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_k8s_and_tf_node_ids_do_not_collide()"
     },
     {
       "label": ".test_empty_inputs_yield_empty_graph()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L240",
+      "source_location": "L274",
       "_origin": "ast",
       "id": "tests_test_graph_testmixedandnamespacing_test_empty_inputs_yield_empty_graph",
-      "community": 27,
+      "community": 39,
       "norm_label": ".test_empty_inputs_yield_empty_graph()"
     },
     {
       "label": "_fanin_tf()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L251",
+      "source_location": "L285",
       "_origin": "ast",
       "id": "tests_test_graph_fanin_tf",
       "community": 27,
@@ -8337,7 +8377,7 @@
       "label": "TestSpof",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L260",
+      "source_location": "L294",
       "_origin": "ast",
       "id": "tests_test_graph_testspof",
       "community": 27,
@@ -8347,7 +8387,7 @@
       "label": ".test_high_fanin_is_spof()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L261",
+      "source_location": "L295",
       "_origin": "ast",
       "id": "tests_test_graph_testspof_test_high_fanin_is_spof",
       "community": 27,
@@ -8357,7 +8397,7 @@
       "label": ".test_below_threshold_not_high_fanin()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L270",
+      "source_location": "L304",
       "_origin": "ast",
       "id": "tests_test_graph_testspof_test_below_threshold_not_high_fanin",
       "community": 27,
@@ -8367,7 +8407,7 @@
       "label": ".test_dependents_direction()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L278",
+      "source_location": "L312",
       "_origin": "ast",
       "id": "tests_test_graph_testspof_test_dependents_direction",
       "community": 27,
@@ -8377,7 +8417,7 @@
       "label": ".test_spof_findings_shape()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L287",
+      "source_location": "L321",
       "_origin": "ast",
       "id": "tests_test_graph_testspof_test_spof_findings_shape",
       "community": 27,
@@ -8387,7 +8427,7 @@
       "label": ".test_severity_scales_with_dependents()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L297",
+      "source_location": "L331",
       "_origin": "ast",
       "id": "tests_test_graph_testspof_test_severity_scales_with_dependents",
       "community": 27,
@@ -8397,7 +8437,7 @@
       "label": "TestSerialization",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L309",
+      "source_location": "L343",
       "_origin": "ast",
       "id": "tests_test_graph_testserialization",
       "community": 27,
@@ -8407,7 +8447,7 @@
       "label": ".test_to_model_shape()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L310",
+      "source_location": "L344",
       "_origin": "ast",
       "id": "tests_test_graph_testserialization_test_to_model_shape",
       "community": 27,
@@ -8417,7 +8457,7 @@
       "label": ".test_model_round_trips_through_json()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L320",
+      "source_location": "L354",
       "_origin": "ast",
       "id": "tests_test_graph_testserialization_test_model_round_trips_through_json",
       "community": 27,
@@ -8427,7 +8467,7 @@
       "label": ".test_deterministic_ordering()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L327",
+      "source_location": "L361",
       "_origin": "ast",
       "id": "tests_test_graph_testserialization_test_deterministic_ordering",
       "community": 27,
@@ -8437,87 +8477,87 @@
       "label": "TestBlastRadius",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L339",
+      "source_location": "L373",
       "_origin": "ast",
       "id": "tests_test_graph_testblastradius",
-      "community": 27,
+      "community": 87,
       "norm_label": "testblastradius"
     },
     {
       "label": "._model()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L340",
+      "source_location": "L374",
       "_origin": "ast",
       "id": "tests_test_graph_testblastradius_model",
-      "community": 27,
+      "community": 87,
       "norm_label": "._model()"
     },
     {
       "label": ".test_hub_impact_and_criticality()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L343",
+      "source_location": "L377",
       "_origin": "ast",
       "id": "tests_test_graph_testblastradius_test_hub_impact_and_criticality",
-      "community": 27,
+      "community": 87,
       "norm_label": ".test_hub_impact_and_criticality()"
     },
     {
       "label": ".test_leaf_has_no_dependents()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L352",
+      "source_location": "L386",
       "_origin": "ast",
       "id": "tests_test_graph_testblastradius_test_leaf_has_no_dependents",
-      "community": 27,
+      "community": 87,
       "norm_label": ".test_leaf_has_no_dependents()"
     },
     {
       "label": ".test_unknown_resource_found_false()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L359",
+      "source_location": "L393",
       "_origin": "ast",
       "id": "tests_test_graph_testblastradius_test_unknown_resource_found_false",
-      "community": 27,
+      "community": 87,
       "norm_label": ".test_unknown_resource_found_false()"
     },
     {
       "label": ".test_empty_graph()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L365",
+      "source_location": "L399",
       "_origin": "ast",
       "id": "tests_test_graph_testblastradius_test_empty_graph",
-      "community": 27,
+      "community": 87,
       "norm_label": ".test_empty_graph()"
     },
     {
       "label": ".test_criticality_bands()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L369",
+      "source_location": "L403",
       "_origin": "ast",
       "id": "tests_test_graph_testblastradius_test_criticality_bands",
-      "community": 27,
+      "community": 87,
       "norm_label": ".test_criticality_bands()"
     },
     {
       "label": ".test_cycle_safe()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L373",
+      "source_location": "L407",
       "_origin": "ast",
       "id": "tests_test_graph_testblastradius_test_cycle_safe",
-      "community": 27,
+      "community": 87,
       "norm_label": ".test_cycle_safe()"
     },
     {
       "label": "TestMermaid",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L387",
+      "source_location": "L421",
       "_origin": "ast",
       "id": "tests_test_graph_testmermaid",
       "community": 27,
@@ -8527,7 +8567,7 @@
       "label": ".test_empty_graph_valid()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L388",
+      "source_location": "L422",
       "_origin": "ast",
       "id": "tests_test_graph_testmermaid_test_empty_graph_valid",
       "community": 27,
@@ -8537,7 +8577,7 @@
       "label": ".test_contains_nodes_and_edges()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L392",
+      "source_location": "L426",
       "_origin": "ast",
       "id": "tests_test_graph_testmermaid_test_contains_nodes_and_edges",
       "community": 27,
@@ -8547,7 +8587,7 @@
       "label": ".test_node_ids_are_safe()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L403",
+      "source_location": "L437",
       "_origin": "ast",
       "id": "tests_test_graph_testmermaid_test_node_ids_are_safe",
       "community": 27,
@@ -8557,7 +8597,7 @@
       "label": ".test_spof_styled()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L414",
+      "source_location": "L448",
       "_origin": "ast",
       "id": "tests_test_graph_testmermaid_test_spof_styled",
       "community": 27,
@@ -8567,7 +8607,7 @@
       "label": ".test_highlight_applied()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L419",
+      "source_location": "L453",
       "_origin": "ast",
       "id": "tests_test_graph_testmermaid_test_highlight_applied",
       "community": 27,
@@ -8577,7 +8617,7 @@
       "label": ".test_large_graph_truncated()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L424",
+      "source_location": "L458",
       "_origin": "ast",
       "id": "tests_test_graph_testmermaid_test_large_graph_truncated",
       "community": 27,
@@ -8587,7 +8627,7 @@
       "label": ".test_roundtrip_model_to_networkx()",
       "file_type": "code",
       "source_file": "tests/test_graph.py",
-      "source_location": "L430",
+      "source_location": "L464",
       "_origin": "ast",
       "id": "tests_test_graph_testmermaid_test_roundtrip_model_to_networkx",
       "community": 27,
@@ -8604,12 +8644,22 @@
       "norm_label": "tests for the phase 4.1 dependency graph + 4.5 spof detector.  reference code: -"
     },
     {
+      "label": "Ingress backend.service.name (networking.k8s.io/v1) must create an         Ingre",
+      "file_type": "rationale",
+      "source_file": "tests/test_graph.py",
+      "source_location": "L179",
+      "_origin": "ast",
+      "id": "tests_test_graph_rationale_179",
+      "community": 39,
+      "norm_label": "ingress backend.service.name (networking.k8s.io/v1) must create an         ingre"
+    },
+    {
       "label": "Real ids have dots/slashes; the synthetic ids used as Mermaid node         ident",
       "file_type": "rationale",
       "source_file": "tests/test_graph.py",
-      "source_location": "L404",
+      "source_location": "L438",
       "_origin": "ast",
-      "id": "tests_test_graph_rationale_404",
+      "id": "tests_test_graph_rationale_438",
       "community": 27,
       "norm_label": "real ids have dots/slashes; the synthetic ids used as mermaid node         ident"
     },
@@ -8620,7 +8670,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_graph_endpoints",
-      "community": 89,
+      "community": 88,
       "norm_label": "test_graph_endpoints.py"
     },
     {
@@ -8630,7 +8680,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "tests_test_graph_endpoints_fanin_tf",
-      "community": 89,
+      "community": 88,
       "norm_label": "_fanin_tf()"
     },
     {
@@ -8640,7 +8690,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "tests_test_graph_endpoints_report_with_graph",
-      "community": 89,
+      "community": 88,
       "norm_label": "report_with_graph()"
     },
     {
@@ -8650,7 +8700,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "tests_test_graph_endpoints_report_without_graph",
-      "community": 89,
+      "community": 88,
       "norm_label": "report_without_graph()"
     },
     {
@@ -8780,7 +8830,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_graph_endpoints_rationale_1",
-      "community": 89,
+      "community": 88,
       "norm_label": "tests for the phase 4.2 blast-radius and 4.4 diagram api endpoints.  served from"
     },
     {
@@ -9140,7 +9190,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_parsers",
-      "community": 3,
+      "community": 43,
       "norm_label": "test_parsers.py"
     },
     {
@@ -9280,7 +9330,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "tests_test_parsers_testterraformparser",
-      "community": 3,
+      "community": 43,
       "norm_label": "testterraformparser"
     },
     {
@@ -9290,7 +9340,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "tests_test_parsers_testterraformparser_test_parse_hcl_single_resource",
-      "community": 3,
+      "community": 43,
       "norm_label": ".test_parse_hcl_single_resource()"
     },
     {
@@ -9300,7 +9350,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "tests_test_parsers_testterraformparser_test_parse_hcl_multiple_resources",
-      "community": 3,
+      "community": 43,
       "norm_label": ".test_parse_hcl_multiple_resources()"
     },
     {
@@ -9310,7 +9360,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "tests_test_parsers_testterraformparser_test_parse_terraform_json_format",
-      "community": 3,
+      "community": 43,
       "norm_label": ".test_parse_terraform_json_format()"
     },
     {
@@ -9320,7 +9370,7 @@
       "source_location": "L200",
       "_origin": "ast",
       "id": "tests_test_parsers_testterraformparser_test_parse_empty_terraform",
-      "community": 3,
+      "community": 43,
       "norm_label": ".test_parse_empty_terraform()"
     },
     {
@@ -9330,7 +9380,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "tests_test_parsers_testterraformparser_test_invalid_hcl_raises_value_error",
-      "community": 3,
+      "community": 43,
       "norm_label": ".test_invalid_hcl_raises_value_error()"
     },
     {
@@ -9340,7 +9390,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "tests_test_parsers_testresourceswithcompanion",
-      "community": 3,
+      "community": 89,
       "norm_label": "testresourceswithcompanion"
     },
     {
@@ -9350,7 +9400,7 @@
       "source_location": "L213",
       "_origin": "ast",
       "id": "tests_test_parsers_testresourceswithcompanion_test_finds_companion_via_bucket_field",
-      "community": 3,
+      "community": 89,
       "norm_label": ".test_finds_companion_via_bucket_field()"
     },
     {
@@ -9360,7 +9410,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "tests_test_parsers_testresourceswithcompanion_test_finds_companion_via_other_string_field",
-      "community": 3,
+      "community": 89,
       "norm_label": ".test_finds_companion_via_other_string_field()"
     },
     {
@@ -9370,7 +9420,7 @@
       "source_location": "L232",
       "_origin": "ast",
       "id": "tests_test_parsers_testresourceswithcompanion_test_no_companion_returns_empty_set",
-      "community": 3,
+      "community": 89,
       "norm_label": ".test_no_companion_returns_empty_set()"
     },
     {
@@ -9380,7 +9430,7 @@
       "source_location": "L239",
       "_origin": "ast",
       "id": "tests_test_parsers_testresourceswithcompanion_test_companion_missing_reference_returns_empty",
-      "community": 3,
+      "community": 89,
       "norm_label": ".test_companion_missing_reference_returns_empty()"
     },
     {
@@ -9390,7 +9440,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "tests_test_parsers_testresourceswithcompanion_test_handles_list_value",
-      "community": 3,
+      "community": 89,
       "norm_label": ".test_handles_list_value()"
     },
     {
@@ -9400,7 +9450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_parsers_rationale_1",
-      "community": 3,
+      "community": 43,
       "norm_label": "tests for parsers \u2014 k8s yaml/json and terraform hcl/json.  reference: - app/pars"
     },
     {
@@ -9420,7 +9470,7 @@
       "source_location": "L180",
       "_origin": "ast",
       "id": "tests_test_parsers_rationale_180",
-      "community": 3,
+      "community": 43,
       "norm_label": "phase 2 regression: extract_tf_resources must handle json dict format."
     },
     {
@@ -9430,7 +9480,7 @@
       "source_location": "L223",
       "_origin": "ast",
       "id": "tests_test_parsers_rationale_223",
-      "community": 3,
+      "community": 89,
       "norm_label": "when the bucket field isn't standard, scan all string values."
     },
     {
@@ -9440,7 +9490,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "tests_test_parsers_rationale_249",
-      "community": 3,
+      "community": 89,
       "norm_label": "hcl2 sometimes wraps single string values in lists."
     },
     {
@@ -9680,7 +9730,7 @@
       "source_location": "L196",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_testpluginexecution_test_compliance_adapter_returns_valid_report",
-      "community": 17,
+      "community": 4,
       "norm_label": ".test_compliance_adapter_returns_valid_report()"
     },
     {
@@ -9770,7 +9820,7 @@
       "source_location": "L197",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_rationale_197",
-      "community": 17,
+      "community": 4,
       "norm_label": "the compliance plugin runs against core findings and yields a report."
     },
     {
@@ -10110,7 +10160,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "tests_test_remediator_f",
-      "community": 9,
+      "community": 10,
       "norm_label": "_f()"
     },
     {
@@ -10140,7 +10190,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "tests_test_remediator_test_locate_terraform_file_finds_aws_resource",
-      "community": 9,
+      "community": 10,
       "norm_label": "test_locate_terraform_file_finds_aws_resource()"
     },
     {
@@ -10150,7 +10200,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_remediator_test_locate_kubernetes_file_finds_named_deployment",
-      "community": 9,
+      "community": 10,
       "norm_label": "test_locate_kubernetes_file_finds_named_deployment()"
     },
     {
@@ -10160,7 +10210,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "tests_test_remediator_test_locate_raises_when_resource_missing",
-      "community": 9,
+      "community": 10,
       "norm_label": "test_locate_raises_when_resource_missing()"
     },
     {
@@ -10170,7 +10220,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "tests_test_remediator_test_locate_raises_on_empty_resource",
-      "community": 9,
+      "community": 10,
       "norm_label": "test_locate_raises_on_empty_resource()"
     },
     {
@@ -10450,7 +10500,7 @@
       "source_location": "L720",
       "_origin": "ast",
       "id": "tests_test_remediator_test_validate_rejects_unparseable_yaml",
-      "community": 5,
+      "community": 93,
       "norm_label": "test_validate_rejects_unparseable_yaml()"
     },
     {
@@ -10460,7 +10510,7 @@
       "source_location": "L725",
       "_origin": "ast",
       "id": "tests_test_remediator_test_validate_rejects_empty_patched_content",
-      "community": 5,
+      "community": 93,
       "norm_label": "test_validate_rejects_empty_patched_content()"
     },
     {
@@ -10470,7 +10520,7 @@
       "source_location": "L730",
       "_origin": "ast",
       "id": "tests_test_remediator_test_validate_passes_for_well_formed_terraform",
-      "community": 5,
+      "community": 93,
       "norm_label": "test_validate_passes_for_well_formed_terraform()"
     },
     {
@@ -10480,7 +10530,7 @@
       "source_location": "L734",
       "_origin": "ast",
       "id": "tests_test_remediator_test_validate_rejects_unparseable_terraform",
-      "community": 5,
+      "community": 93,
       "norm_label": "test_validate_rejects_unparseable_terraform()"
     },
     {
@@ -10740,7 +10790,7 @@
       "source_location": "L1131",
       "_origin": "ast",
       "id": "tests_test_remediator_testcosmeticdriftfilter_test_filter_applied_in_llm_path_end_to_end",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_filter_applied_in_llm_path_end_to_end()"
     },
     {
@@ -10760,7 +10810,7 @@
       "source_location": "L1199",
       "_origin": "ast",
       "id": "tests_test_remediator_testegressfixer_test_overly_permissive_egress_is_deterministic",
-      "community": 9,
+      "community": 28,
       "norm_label": ".test_overly_permissive_egress_is_deterministic()"
     },
     {
@@ -10770,7 +10820,7 @@
       "source_location": "L1240",
       "_origin": "ast",
       "id": "tests_test_remediator_testegressfixer_test_ingress_finding_still_works",
-      "community": 9,
+      "community": 28,
       "norm_label": ".test_ingress_finding_still_works()"
     },
     {
@@ -10780,7 +10830,7 @@
       "source_location": "L1264",
       "_origin": "ast",
       "id": "tests_test_remediator_testegressfixer_test_sg_without_literal_zero_cidr_falls_back_to_llm",
-      "community": 9,
+      "community": 28,
       "norm_label": ".test_sg_without_literal_zero_cidr_falls_back_to_llm()"
     },
     {
@@ -10900,7 +10950,7 @@
       "source_location": "L1401",
       "_origin": "ast",
       "id": "tests_test_remediator_testruamelminimaldiff_test_helm_rendered_yaml_minimal_diff_for_secret_fix",
-      "community": 9,
+      "community": 28,
       "norm_label": ".test_helm_rendered_yaml_minimal_diff_for_secret_fix()"
     },
     {
@@ -10910,7 +10960,7 @@
       "source_location": "L1479",
       "_origin": "ast",
       "id": "tests_test_remediator_testruamelminimaldiff_test_quoted_strings_survive_round_trip",
-      "community": 9,
+      "community": 28,
       "norm_label": ".test_quoted_strings_survive_round_trip()"
     },
     {
@@ -10980,7 +11030,7 @@
       "source_location": "L1563",
       "_origin": "ast",
       "id": "tests_test_remediator_teststructurededitfallback_test_apply_add_block_hcl",
-      "community": 3,
+      "community": 1,
       "norm_label": ".test_apply_add_block_hcl()"
     },
     {
@@ -11000,7 +11050,7 @@
       "source_location": "L1580",
       "_origin": "ast",
       "id": "tests_test_remediator_teststructurededitfallback_test_end_to_end_structured_edit_via_llm",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_end_to_end_structured_edit_via_llm()"
     },
     {
@@ -11280,7 +11330,7 @@
       "source_location": "L2079",
       "_origin": "ast",
       "id": "tests_test_remediator_testk8sjsonroundtrip",
-      "community": 60,
+      "community": 28,
       "norm_label": "testk8sjsonroundtrip"
     },
     {
@@ -11290,7 +11340,7 @@
       "source_location": "L2089",
       "_origin": "ast",
       "id": "tests_test_remediator_testk8sjsonroundtrip_test_k8s_json_run_as_root_fix_emits_json",
-      "community": 60,
+      "community": 28,
       "norm_label": ".test_k8s_json_run_as_root_fix_emits_json()"
     },
     {
@@ -11300,7 +11350,7 @@
       "source_location": "L2131",
       "_origin": "ast",
       "id": "tests_test_remediator_testk8sjsonroundtrip_test_k8s_json_filesystem_fix_emits_json",
-      "community": 60,
+      "community": 28,
       "norm_label": ".test_k8s_json_filesystem_fix_emits_json()"
     },
     {
@@ -11310,7 +11360,7 @@
       "source_location": "L2157",
       "_origin": "ast",
       "id": "tests_test_remediator_testk8sjsonroundtrip_test_k8s_json_preserves_indent_width",
-      "community": 60,
+      "community": 28,
       "norm_label": ".test_k8s_json_preserves_indent_width()"
     },
     {
@@ -11320,7 +11370,7 @@
       "source_location": "L2188",
       "_origin": "ast",
       "id": "tests_test_remediator_testk8sjsonroundtrip_test_k8s_json_secret_fix_emits_json",
-      "community": 60,
+      "community": 28,
       "norm_label": ".test_k8s_json_secret_fix_emits_json()"
     },
     {
@@ -11690,7 +11740,7 @@
       "source_location": "L2877",
       "_origin": "ast",
       "id": "tests_test_remediator_testhelmannotatedpathdetection_test_helm_annotated_path_raises_non_patchable",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_helm_annotated_path_raises_non_patchable()"
     },
     {
@@ -11980,7 +12030,7 @@
       "source_location": "L3511",
       "_origin": "ast",
       "id": "tests_test_remediator_testaianalysiscategoryinference",
-      "community": 9,
+      "community": 5,
       "norm_label": "testaianalysiscategoryinference"
     },
     {
@@ -11990,7 +12040,7 @@
       "source_location": "L3519",
       "_origin": "ast",
       "id": "tests_test_remediator_testaianalysiscategoryinference_test_publicly_accessible_database_routed_to_public_exposure",
-      "community": 9,
+      "community": 5,
       "norm_label": ".test_publicly_accessible_database_routed_to_public_exposure()"
     },
     {
@@ -12000,7 +12050,7 @@
       "source_location": "L3542",
       "_origin": "ast",
       "id": "tests_test_remediator_testaianalysiscategoryinference_test_unencrypted_ebs_volume_routed_to_encryption",
-      "community": 9,
+      "community": 5,
       "norm_label": ".test_unencrypted_ebs_volume_routed_to_encryption()"
     },
     {
@@ -12010,7 +12060,7 @@
       "source_location": "L3561",
       "_origin": "ast",
       "id": "tests_test_remediator_testaianalysiscategoryinference_test_hardcoded_password_routed_to_hardcoded_secret",
-      "community": 9,
+      "community": 5,
       "norm_label": ".test_hardcoded_password_routed_to_hardcoded_secret()"
     },
     {
@@ -12020,7 +12070,7 @@
       "source_location": "L3581",
       "_origin": "ast",
       "id": "tests_test_remediator_testaianalysiscategoryinference_test_cloudtrail_logging_disabled_routed_to_logging",
-      "community": 9,
+      "community": 5,
       "norm_label": ".test_cloudtrail_logging_disabled_routed_to_logging()"
     },
     {
@@ -12030,7 +12080,7 @@
       "source_location": "L3601",
       "_origin": "ast",
       "id": "tests_test_remediator_testaianalysiscategoryinference_test_imdsv2_routed_to_instance_metadata",
-      "community": 9,
+      "community": 5,
       "norm_label": ".test_imdsv2_routed_to_instance_metadata()"
     },
     {
@@ -12040,7 +12090,7 @@
       "source_location": "L3621",
       "_origin": "ast",
       "id": "tests_test_remediator_testaianalysiscategoryinference_test_inference_does_not_apply_to_rule_engine_findings",
-      "community": 9,
+      "community": 5,
       "norm_label": ".test_inference_does_not_apply_to_rule_engine_findings()"
     },
     {
@@ -12050,7 +12100,7 @@
       "source_location": "L3649",
       "_origin": "ast",
       "id": "tests_test_remediator_testaianalysiscategoryinference_test_uninferable_ai_analysis_falls_through_to_llm",
-      "community": 9,
+      "community": 5,
       "norm_label": ".test_uninferable_ai_analysis_falls_through_to_llm()"
     },
     {
@@ -12060,7 +12110,7 @@
       "source_location": "L3683",
       "_origin": "ast",
       "id": "tests_test_remediator_testaianalysiscategoryinference_test_inference_requires_resource_prefix_match",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_inference_requires_resource_prefix_match()"
     },
     {
@@ -12070,7 +12120,7 @@
       "source_location": "L3701",
       "_origin": "ast",
       "id": "tests_test_remediator_testaianalysiscategoryinference_test_inference_returns_none_for_non_ai_analysis",
-      "community": 9,
+      "community": 5,
       "norm_label": ".test_inference_returns_none_for_non_ai_analysis()"
     },
     {
@@ -12080,7 +12130,7 @@
       "source_location": "L3714",
       "_origin": "ast",
       "id": "tests_test_remediator_testaianalysiscategoryinference_test_inference_short_circuits_llm_call",
-      "community": 9,
+      "community": 5,
       "norm_label": ".test_inference_short_circuits_llm_call()"
     },
     {
@@ -12220,7 +12270,7 @@
       "source_location": "L1132",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_1132",
-      "community": 9,
+      "community": 10,
       "norm_label": "end-to-end: llm emits a patch with dash-line drift; the cleaned         diff has"
     },
     {
@@ -12240,7 +12290,7 @@
       "source_location": "L1241",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_1241",
-      "community": 9,
+      "community": 28,
       "norm_label": "the rule-based 'security group open to 0.0.0.0/0' finding (which         is ingr"
     },
     {
@@ -12250,7 +12300,7 @@
       "source_location": "L1265",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_1265",
-      "community": 9,
+      "community": 28,
       "norm_label": "if the sg has no literal 0.0.0.0/0 (e.g. it uses var.allowed_cidrs),         the"
     },
     {
@@ -12310,7 +12360,7 @@
       "source_location": "L1480",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_1480",
-      "community": 9,
+      "community": 28,
       "norm_label": "single-quoted, double-quoted, and bare strings must keep their         quoting s"
     },
     {
@@ -12340,7 +12390,7 @@
       "source_location": "L1581",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_1581",
-      "community": 9,
+      "community": 10,
       "norm_label": "a finding with no deterministic rule goes to the llm, which returns a         ti"
     },
     {
@@ -12560,7 +12610,7 @@
       "source_location": "L2080",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_2080",
-      "community": 60,
+      "community": 28,
       "norm_label": "bug from k8s-api-deployment.json: a kubernetes manifest uploaded as     .json wa"
     },
     {
@@ -12570,7 +12620,7 @@
       "source_location": "L2158",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_2158",
-      "community": 60,
+      "community": 28,
       "norm_label": "a 4-space-indented input should round-trip with 4 spaces."
     },
     {
@@ -12580,7 +12630,7 @@
       "source_location": "L2189",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_2189",
-      "community": 60,
+      "community": 28,
       "norm_label": "hardcoded-secret fix on a json manifest: the env section is         rewritten an"
     },
     {
@@ -12740,7 +12790,7 @@
       "source_location": "L2878",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_2878",
-      "community": 9,
+      "community": 10,
       "norm_label": "end-to-end: the exact bug from the screenshot."
     },
     {
@@ -12920,7 +12970,7 @@
       "source_location": "L3512",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_3512",
-      "community": 9,
+      "community": 5,
       "norm_label": "the reliability/cost agents emit findings with category=\"ai-analysis\"     that f"
     },
     {
@@ -12930,7 +12980,7 @@
       "source_location": "L3520",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_3520",
-      "community": 9,
+      "community": 5,
       "norm_label": "real failure mode from samples/vulnerable-infra.tf: reliability         agent em"
     },
     {
@@ -12940,7 +12990,7 @@
       "source_location": "L3622",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_3622",
-      "community": 9,
+      "community": 5,
       "norm_label": "the inference helper must be a no-op for findings with a real         rule-engin"
     },
     {
@@ -12950,7 +13000,7 @@
       "source_location": "L3650",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_3650",
-      "community": 9,
+      "community": 5,
       "norm_label": "when the inference table doesn't match (novel title, unknown         resource ty"
     },
     {
@@ -12960,7 +13010,7 @@
       "source_location": "L3684",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_3684",
-      "community": 9,
+      "community": 10,
       "norm_label": "title keywords match but resource prefix doesn't \u2014 must not         route to the"
     },
     {
@@ -12970,7 +13020,7 @@
       "source_location": "L3715",
       "_origin": "ast",
       "id": "tests_test_remediator_rationale_3715",
-      "community": 9,
+      "community": 5,
       "norm_label": "confirm the inference path doesn't invoke the llm \u2014 the whole         point is t"
     },
     {
@@ -13270,7 +13320,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scoring",
-      "community": 62,
+      "community": 94,
       "norm_label": "test_scoring.py"
     },
     {
@@ -13280,7 +13330,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "tests_test_scoring_testcalculateoverallscore",
-      "community": 62,
+      "community": 49,
       "norm_label": "testcalculateoverallscore"
     },
     {
@@ -13290,7 +13340,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "tests_test_scoring_testcalculateoverallscore_test_three_agents_only",
-      "community": 62,
+      "community": 49,
       "norm_label": ".test_three_agents_only()"
     },
     {
@@ -13300,7 +13350,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "tests_test_scoring_testcalculateoverallscore_test_with_architecture_review",
-      "community": 62,
+      "community": 49,
       "norm_label": ".test_with_architecture_review()"
     },
     {
@@ -13310,7 +13360,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "tests_test_scoring_testcalculateoverallscore_test_architecture_drags_down",
-      "community": 62,
+      "community": 49,
       "norm_label": ".test_architecture_drags_down()"
     },
     {
@@ -13320,7 +13370,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "tests_test_scoring_testcalculateoverallscore_test_empty_reports_returns_zero",
-      "community": 62,
+      "community": 49,
       "norm_label": ".test_empty_reports_returns_zero()"
     },
     {
@@ -13330,7 +13380,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "tests_test_scoring_testcalculateoverallscore_test_unknown_agent_uses_default_weight",
-      "community": 62,
+      "community": 49,
       "norm_label": ".test_unknown_agent_uses_default_weight()"
     },
     {
@@ -13340,7 +13390,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "tests_test_scoring_testcalculateoverallscore_test_single_known_agent",
-      "community": 62,
+      "community": 49,
       "norm_label": ".test_single_known_agent()"
     },
     {
@@ -13350,7 +13400,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "tests_test_scoring_testcalculateoverallscore_test_rounding_to_one_decimal",
-      "community": 62,
+      "community": 49,
       "norm_label": ".test_rounding_to_one_decimal()"
     },
     {
@@ -13480,7 +13530,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "tests_test_scoring_testseveritydeductionsinsync",
-      "community": 62,
+      "community": 94,
       "norm_label": "testseveritydeductionsinsync"
     },
     {
@@ -13490,7 +13540,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "tests_test_scoring_testseveritydeductionsinsync_test_table_matches_security_agent",
-      "community": 62,
+      "community": 94,
       "norm_label": ".test_table_matches_security_agent()"
     },
     {
@@ -13500,7 +13550,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scoring_rationale_1",
-      "community": 62,
+      "community": 94,
       "norm_label": "tests for scoring math.  reference code: - app/core/report.py::calculate_overall"
     },
     {
@@ -13510,7 +13560,7 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "tests_test_scoring_rationale_145",
-      "community": 62,
+      "community": 94,
       "norm_label": "guard against drift between the test-side deductions table and prod."
     },
     {
@@ -29918,6 +29968,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
+      "source_location": "L223",
+      "weight": 1.0,
+      "source": "core_graph",
+      "target": "core_graph_add_k8s_ingress_refs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app/core/graph.py",
       "source_location": "L185",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -30577,6 +30637,28 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "tests/test_graph.py",
+      "source_location": "L209",
+      "weight": 1.0,
+      "source": "tests_test_graph_testkubernetesgraph_test_ingress_default_backend_and_legacy_shape",
+      "target": "core_graph_build_dependency_graph"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "tests/test_graph.py",
+      "source_location": "L198",
+      "weight": 1.0,
+      "source": "tests_test_graph_testkubernetesgraph_test_ingress_routes_to_service_v1",
+      "target": "core_graph_build_dependency_graph"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "tests/test_graph.py",
       "source_location": "L215",
       "weight": 1.0,
       "source": "tests_test_graph_testkubernetesgraph_test_kind_list_is_expanded",
@@ -30763,6 +30845,17 @@
       "context": "parameter_type",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
+      "source_location": "L223",
+      "weight": 1.0,
+      "source": "core_graph_add_k8s_ingress_refs",
+      "target": "digraph",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "app/core/graph.py",
       "source_location": "L185",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -30924,6 +31017,17 @@
       "source_file": "app/core/graph.py",
       "source_location": "L216",
       "weight": 1.0,
+      "source": "core_graph_add_k8s_nodes_and_edges",
+      "target": "core_graph_add_k8s_ingress_refs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "app/core/graph.py",
+      "source_location": "L216",
+      "weight": 1.0,
       "confidence_score": 1.0,
       "source": "core_graph_add_k8s_nodes_and_edges",
       "target": "core_graph_add_k8s_workload_refs"
@@ -30940,6 +31044,16 @@
       "target": "parsers_kubernetes_get_resource_name"
     },
     {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "app/core/graph.py",
+      "source_location": "L224",
+      "weight": 1.0,
+      "source": "core_graph_rationale_224",
+      "target": "core_graph_add_k8s_ingress_refs",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -30954,11 +31068,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L220",
+      "source_location": "L260",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_220",
-      "target": "core_graph_ensure_ref_node"
+      "source": "core_graph_rationale_260",
+      "target": "core_graph_ensure_ref_node",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -30997,11 +31111,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L328",
+      "source_location": "L368",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_328",
-      "target": "core_graph_dependents_of"
+      "source": "core_graph_rationale_368",
+      "target": "core_graph_dependents_of",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -31029,11 +31143,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L340",
+      "source_location": "L380",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_340",
-      "target": "core_graph_find_spofs"
+      "source": "core_graph_rationale_380",
+      "target": "core_graph_find_spofs",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -31187,11 +31301,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L401",
+      "source_location": "L441",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_401",
-      "target": "core_graph_spof_findings"
+      "source": "core_graph_rationale_441",
+      "target": "core_graph_spof_findings",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -31334,11 +31448,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L442",
+      "source_location": "L482",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_442",
-      "target": "core_graph_to_dependency_graph_model"
+      "source": "core_graph_rationale_482",
+      "target": "core_graph_to_dependency_graph_model",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -31514,11 +31628,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L479",
+      "source_location": "L519",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_479",
-      "target": "core_graph_build_dependency_graph_model"
+      "source": "core_graph_rationale_519",
+      "target": "core_graph_build_dependency_graph_model",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -31689,11 +31803,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L493",
+      "source_location": "L533",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_493",
-      "target": "core_graph_graph_from_model"
+      "source": "core_graph_rationale_533",
+      "target": "core_graph_graph_from_model",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -31721,11 +31835,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L508",
+      "source_location": "L548",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_508",
-      "target": "core_graph_blast_radius"
+      "source": "core_graph_rationale_548",
+      "target": "core_graph_blast_radius",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -31808,11 +31922,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L564",
+      "source_location": "L604",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_564",
-      "target": "core_graph_mermaid_escape_label"
+      "source": "core_graph_rationale_604",
+      "target": "core_graph_mermaid_escape_label",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -31829,11 +31943,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L574",
+      "source_location": "L614",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_574",
-      "target": "core_graph_to_mermaid"
+      "source": "core_graph_rationale_614",
+      "target": "core_graph_to_mermaid",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -46540,6 +46654,28 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_graph.py",
+      "source_location": "L209",
+      "weight": 1.0,
+      "source": "tests_test_graph_testkubernetesgraph_test_ingress_default_backend_and_legacy_shape",
+      "target": "tests_test_graph_k8s",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_graph.py",
+      "source_location": "L198",
+      "weight": 1.0,
+      "source": "tests_test_graph_testkubernetesgraph_test_ingress_routes_to_service_v1",
+      "target": "tests_test_graph_k8s",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_graph.py",
       "source_location": "L215",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -46633,6 +46769,28 @@
       "confidence_score": 1.0,
       "source": "tests_test_graph_testkubernetesgraph_test_configmap_envfrom_edge",
       "target": "tests_test_graph_edge_set"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_graph.py",
+      "source_location": "L210",
+      "weight": 1.0,
+      "source": "tests_test_graph_testkubernetesgraph_test_ingress_default_backend_and_legacy_shape",
+      "target": "tests_test_graph_edge_set",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_graph.py",
+      "source_location": "L199",
+      "weight": 1.0,
+      "source": "tests_test_graph_testkubernetesgraph_test_ingress_routes_to_service_v1",
+      "target": "tests_test_graph_edge_set",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -46836,6 +46994,26 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_graph.py",
+      "source_location": "L201",
+      "weight": 1.0,
+      "source": "tests_test_graph_testkubernetesgraph",
+      "target": "tests_test_graph_testkubernetesgraph_test_ingress_default_backend_and_legacy_shape",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_graph.py",
+      "source_location": "L178",
+      "weight": 1.0,
+      "source": "tests_test_graph_testkubernetesgraph",
+      "target": "tests_test_graph_testkubernetesgraph_test_ingress_routes_to_service_v1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_graph.py",
       "source_location": "L194",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -46891,6 +47069,16 @@
       "confidence_score": 1.0,
       "source": "tests_test_graph_testkubernetesgraph",
       "target": "tests_test_graph_testkubernetesgraph_test_volume_secret_edge"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_graph.py",
+      "source_location": "L179",
+      "weight": 1.0,
+      "source": "tests_test_graph_rationale_179",
+      "target": "tests_test_graph_testkubernetesgraph_test_ingress_routes_to_service_v1",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -47301,11 +47489,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_graph.py",
-      "source_location": "L404",
+      "source_location": "L438",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_graph_rationale_404",
-      "target": "tests_test_graph_testmermaid_test_node_ids_are_safe"
+      "source": "tests_test_graph_rationale_438",
+      "target": "tests_test_graph_testmermaid_test_node_ids_are_safe",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -56606,9 +56794,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design",
-      "target": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration"
     },
     {
       "relation": "contains",
@@ -56616,9 +56804,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
-      "target": "specs_plugin_harness_design_architecture",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_architecture"
     },
     {
       "relation": "contains",
@@ -56626,9 +56814,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L106",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
-      "target": "specs_plugin_harness_design_data_flow",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_data_flow"
     },
     {
       "relation": "contains",
@@ -56636,9 +56824,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L113",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
-      "target": "specs_plugin_harness_design_error_handling",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_error_handling"
     },
     {
       "relation": "contains",
@@ -56646,9 +56834,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
-      "target": "specs_plugin_harness_design_goal",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_goal"
     },
     {
       "relation": "contains",
@@ -56656,9 +56844,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
-      "target": "specs_plugin_harness_design_hard_constraints_non_negotiable_acceptance_gates",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_hard_constraints_non_negotiable_acceptance_gates"
     },
     {
       "relation": "contains",
@@ -56666,9 +56854,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L135",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
-      "target": "specs_plugin_harness_design_out_of_scope_deferred_dropped_per_roadmap",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_out_of_scope_deferred_dropped_per_roadmap"
     },
     {
       "relation": "contains",
@@ -56676,9 +56864,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L121",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
-      "target": "specs_plugin_harness_design_testing_tests_test_plugin_harness_py",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_testing_tests_test_plugin_harness_py"
     },
     {
       "relation": "contains",
@@ -56982,5 +57170,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "2fc450e71a1ea244e55a1b21e066ba3cd6bd7982"
+  "built_at_commit": "3d153e5d77ee57d732790231f2e5b80aedf9d7c3"
 }
