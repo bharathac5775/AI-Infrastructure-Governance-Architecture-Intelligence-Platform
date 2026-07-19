@@ -1,14 +1,13 @@
-# Phase 3.5 — Plugin Harness (Dynamic Agent Registration)
+# Plugin Harness (Dynamic Agent Registration)
 
-**Date:** 2026-07-15
 **Status:** Design approved, pending implementation
-**Depends on:** Phase 3.3 (Compliance Framework Mapping — shipped)
+**Depends on:** Compliance Framework Mapping (shipped)
 
 ## Goal
 
 Drop a new skill file into `skills/` and have it picked up automatically as a
 new analysis agent — **no Python code change required for a new LLM agent**.
-Compliance (Phase 3.3) becomes the first registered plugin.
+Compliance becomes the first registered plugin.
 
 ## Hard constraints (non-negotiable acceptance gates)
 
@@ -58,7 +57,7 @@ Compliance (Phase 3.3) becomes the first registered plugin.
   dedup vs rule findings → severity-deduction score pattern into a single
   `run_llm_agent(agent_name, system_prompt, human_template, file_contents, rule_findings=...)`.
 - `security.py` / `reliability.py` / `cost.py` are **not required** to adopt it
-  in this phase (to keep their exact behavior and diffs minimal), but the plugin
+  in this work (to keep their exact behavior and diffs minimal), but the plugin
   loader uses it so the pattern lives in exactly one place going forward. The
   severity-deduction table is imported from a single source of truth.
 
@@ -138,4 +137,4 @@ parse_files → security → reliability → cost → architecture_review
 - Scheduled scans (no always-on infra).
 - Parallel agent execution (Ollama single-stream).
 - Migrating the 3 core agents to `run_llm_agent` internally (behavior-risk with
-  no functional gain this phase).
+  no functional gain here).
