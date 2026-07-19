@@ -80,8 +80,9 @@ export function RemediationPanel({
       <div className="flex items-start gap-2.5 rounded-lg border border-warning/25 bg-warning/[0.07] px-3.5 py-3 text-sm text-warning">
         <FileWarning className="mt-0.5 size-4 shrink-0" />
         <span>
-          Original files aren't cached for this report. Re-run the analysis from the Analyze
-          screen to enable one-click fixes.
+          Original files aren't loaded for this report. Use the{" "}
+          <span className="font-medium">Re-upload original files</span> panel above the findings to
+          load them — then this fix will activate.
         </span>
       </div>
     );

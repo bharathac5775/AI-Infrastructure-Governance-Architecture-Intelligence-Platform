@@ -29,7 +29,13 @@ function flattenFindings(report: AnalysisReport): IndexedFinding[] {
 
 const SEVERITIES: Severity[] = ["critical", "high", "medium", "low", "info"];
 
-export function FindingsTable({ report }: { report: AnalysisReport }) {
+export function FindingsTable({
+  report,
+  fileContents,
+}: {
+  report: AnalysisReport;
+  fileContents: Record<string, string>;
+}) {
   const all = useMemo(() => flattenFindings(report), [report]);
   const agents = useMemo(
     () => Array.from(new Set(all.map((x) => x.finding.agent))).sort(),
@@ -149,7 +155,7 @@ export function FindingsTable({ report }: { report: AnalysisReport }) {
             reportId={report.report_id}
             finding={selected.finding}
             findingIndex={selected.index}
-            fileContents={report.file_contents ?? {}}
+            fileContents={fileContents}
           />
         )}
       </Dialog>

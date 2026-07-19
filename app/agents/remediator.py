@@ -251,6 +251,16 @@ _ADVISORY_RECOMMENDATION_VERBS: tuple[str, ...] = (
     "investigate",
     "audit",
     "assess",
+    # Decision/research verbs the Cost & Architecture agents also emit —
+    # "Conduct a workload analysis...", "Verify that X meets...", "Ensure the
+    # sizing is adequate", "Validate throughput before...", "Migrate to
+    # M-family if...". Like the others, these ask the user to make a judgement
+    # call, not apply a specific code change.
+    "conduct",
+    "verify",
+    "ensure",
+    "validate",
+    "migrate",
     # "Maintain X" / "Continue using X" — recommendations that praise the
     # current config and ask the user to keep doing it. The Cost Agent
     # often emits these when the resource is already cost-efficient.
@@ -481,6 +491,18 @@ def _locate_file_for_finding(
         raise NonPatchableFinding(
             "This finding has no associated resource — it's an advisory "
             "that cannot be fixed by editing a single file."
+        )
+    # A resource that names MULTIPLE targets (comma-separated, e.g.
+    # "aws_launch_template.app, aws_autoscaling_group.app_asg") describes a
+    # cross-resource recommendation. A deterministic patch targets one address,
+    # so this can't be applied as a single edit — refuse cleanly rather than
+    # failing to "locate" a resource literally named with a comma in it.
+    if "," in resource:
+        raise NonPatchableFinding(
+            f"This finding spans multiple resources ({finding.resource!r}) — "
+            "it's a cross-resource recommendation, not a single-attribute fix. "
+            "Address each resource individually, or apply the recommendation by "
+            "hand where the design decision applies."
         )
     if is_non_patchable(finding):
         raise NonPatchableFinding(

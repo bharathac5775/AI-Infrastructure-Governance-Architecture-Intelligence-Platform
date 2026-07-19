@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { FileText, Download, ArrowLeft } from "lucide-react";
+import { FileText, Download, ArrowLeft, FileJson } from "lucide-react";
+import type { AnalysisReport } from "@/types/api";
 import { api } from "@/lib/api";
 import { PageHeader } from "@/components/layout/page-header";
 import { LoadingState, EmptyState } from "@/components/ui/states";
@@ -11,7 +13,24 @@ import { FindingsTable } from "@/components/findings-table";
 import { ArchitecturePanel } from "@/components/architecture-panel";
 import { CompliancePanel } from "@/components/compliance-panel";
 import { DriftPanel } from "@/components/drift-panel";
+import { ReuploadPanel } from "@/components/reupload-panel";
 import { formatTimestamp } from "@/lib/report-utils";
+
+// Client-side JSON export: serialize the report the API already returned and
+// trigger a browser download. No backend round-trip needed. file_contents is
+// stripped so the download matches what the backend persists.
+function downloadJson(report: AnalysisReport) {
+  const { file_contents: _drop, ...rest } = report;
+  const blob = new Blob([JSON.stringify(rest, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `governance-report-${report.report_id}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
 export function ReportPage() {
   const { id = "" } = useParams();
@@ -20,6 +39,10 @@ export function ReportPage() {
     queryFn: () => api.getReport(id),
     enabled: !!id,
   });
+  // Files re-uploaded in-browser for a history report that has no cached
+  // contents. Merged with the report's own file_contents below and passed to
+  // the findings table so remediation works without a fresh analysis.
+  const [reuploaded, setReuploaded] = useState<Record<string, string>>({});
 
   if (report.isLoading) return <LoadingState label="Loading report" />;
   if (report.isError || !report.data) {
@@ -50,6 +73,11 @@ export function ReportPage() {
   const spofCount = r.dependency_graph?.spofs.length ?? 0;
   const frameworkCount = r.compliance?.frameworks.length ?? 0;
 
+  // Effective file contents = whatever the report shipped with, plus anything
+  // re-uploaded in this session. Remediation reads from this.
+  const effectiveContents = { ...(r.file_contents ?? {}), ...reuploaded };
+  const needsReupload = Object.keys(effectiveContents).length === 0 && r.files_analyzed.length > 0;
+
   return (
     <div>
       <PageHeader
@@ -57,11 +85,16 @@ export function ReportPage() {
         crumbs={[{ label: "Reports", to: "/reports" }, { label: r.report_id }]}
         description={`${r.files_analyzed.length} file${r.files_analyzed.length === 1 ? "" : "s"} · ${formatTimestamp(r.timestamp)}`}
         actions={
-          <Button variant="secondary" asChild>
-            <a href={api.pdfUrl(r.report_id)} target="_blank" rel="noreferrer">
-              <Download /> Export PDF
-            </a>
-          </Button>
+          <>
+            <Button variant="secondary" onClick={() => downloadJson(r)}>
+              <FileJson /> Download JSON
+            </Button>
+            <Button variant="secondary" asChild>
+              <a href={api.pdfUrl(r.report_id)} target="_blank" rel="noreferrer">
+                <Download /> Export PDF
+              </a>
+            </Button>
+          </>
         }
       />
 
@@ -97,7 +130,20 @@ export function ReportPage() {
         </TabsList>
 
         <TabsContent value="findings">
-          <FindingsTable report={r} />
+          {needsReupload && (
+            <div className="mb-4">
+              <ReuploadPanel
+                neededFiles={r.files_analyzed}
+                provided={reuploaded}
+                onFiles={(contents) =>
+                  setReuploaded((prev) =>
+                    Object.keys(contents).length === 0 ? {} : { ...prev, ...contents }
+                  )
+                }
+              />
+            </div>
+          )}
+          <FindingsTable report={r} fileContents={effectiveContents} />
         </TabsContent>
         <TabsContent value="architecture">
           <ArchitecturePanel report={r} />
