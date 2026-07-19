@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
 import {
   Wrench,
@@ -81,11 +80,9 @@ export function RemediationPanel({
       <div className="flex items-start gap-2.5 rounded-lg border border-warning/25 bg-warning/[0.07] px-3.5 py-3 text-sm text-warning">
         <FileWarning className="mt-0.5 size-4 shrink-0" />
         <span>
-          Original files aren't cached for this report. To enable one-click fixes,{" "}
-          <Link to="/" className="font-medium underline underline-offset-2 hover:text-warning/80">
-            re-run the analysis
-          </Link>{" "}
-          on the Analyze screen — the fresh report keeps its files in memory for remediation.
+          Original files aren't loaded for this report. Use the{" "}
+          <span className="font-medium">Re-upload original files</span> panel above the findings to
+          load them — then this fix will activate.
         </span>
       </div>
     );
