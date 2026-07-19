@@ -22,13 +22,16 @@ from __future__ import annotations
 from app.core.graph import (
     HIGH_FANIN_THRESHOLD,
     SPOF_AGENT_NAME,
+    blast_radius,
     build_dependency_graph,
     build_dependency_graph_model,
     dependents_of,
     extract_tf_references,
     find_spofs,
+    graph_from_model,
     spof_findings,
     to_dependency_graph_model,
+    to_mermaid,
 )
 from app.models import DependencyGraph, Severity
 from app.parsers.kubernetes import extract_k8s_resources, parse_kubernetes_yaml
@@ -327,3 +330,105 @@ class TestSerialization:
         m2 = build_dependency_graph_model(tf_resources=_tf(tf))
         assert [n.id for n in m1.nodes] == [n.id for n in m2.nodes]
         assert [(e.source, e.target) for e in m1.edges] == [(e.source, e.target) for e in m2.edges]
+
+
+# ---------------------------------------------------------------------------
+# Blast radius (4.2)
+# ---------------------------------------------------------------------------
+
+class TestBlastRadius:
+    def _model(self, n):
+        return build_dependency_graph_model(tf_resources=_tf(_fanin_tf(n)))
+
+    def test_hub_impact_and_criticality(self):
+        m = self._model(8)
+        br = blast_radius(m, "aws_kms_key.main")
+        assert br["found"] is True
+        assert br["impact_count"] == 8
+        assert br["criticality"] == "critical"   # >=8
+        assert br["is_spof"] is True
+        assert "aws_s3_bucket.b0" in br["transitive_dependents"]
+
+    def test_leaf_has_no_dependents(self):
+        m = self._model(3)
+        br = blast_radius(m, "aws_s3_bucket.b0")
+        assert br["found"] is True
+        assert br["impact_count"] == 0
+        assert br["criticality"] == "none"
+
+    def test_unknown_resource_found_false(self):
+        m = self._model(3)
+        br = blast_radius(m, "does.not.exist")
+        assert br["found"] is False
+        assert br["impact_count"] == 0
+
+    def test_empty_graph(self):
+        br = blast_radius(DependencyGraph(), "anything")
+        assert br["found"] is False
+
+    def test_criticality_bands(self):
+        assert blast_radius(self._model(4), "aws_kms_key.main")["criticality"] == "high"    # >=4
+        assert blast_radius(self._model(1), "aws_kms_key.main")["criticality"] == "medium"  # >=1
+
+    def test_cycle_safe(self):
+        # Build a small cycle a->b->a and ensure traversal terminates.
+        m = build_dependency_graph_model(tf_resources=_tf(
+            'resource "aws_a" "x" { v = aws_b.y.id }\n'
+            'resource "aws_b" "y" { v = aws_a.x.id }\n'
+        ))
+        br = blast_radius(m, "aws_a.x")
+        assert br["found"] is True  # does not hang
+
+
+# ---------------------------------------------------------------------------
+# Mermaid diagram (4.4)
+# ---------------------------------------------------------------------------
+
+class TestMermaid:
+    def test_empty_graph_valid(self):
+        out = to_mermaid(DependencyGraph())
+        assert out.startswith("flowchart LR")
+
+    def test_contains_nodes_and_edges(self):
+        m = build_dependency_graph_model(tf_resources=_tf(
+            'resource "aws_kms_key" "main" {}\n'
+            'resource "aws_db_instance" "db" { kms_key_id = aws_kms_key.main.arn }\n'
+        ))
+        out = to_mermaid(m)
+        assert out.startswith("flowchart LR")
+        assert "aws_kms_key.main" in out       # real id appears in a label
+        assert "aws_db_instance.db" in out
+        assert "-->" in out                     # at least one edge
+
+    def test_node_ids_are_safe(self):
+        """Real ids have dots/slashes; the synthetic ids used as Mermaid node
+        identifiers must be simple nX tokens so the diagram parses."""
+        m = build_dependency_graph_model(k8s_resources=_k8s(_K8S_BUNDLE))
+        out = to_mermaid(m)
+        import re as _re
+        # Every declared node uses an nN identifier before its [ label.
+        decls = _re.findall(r"^\s+(\S+)\[", out, _re.MULTILINE)
+        assert decls, "expected node declarations"
+        assert all(_re.fullmatch(r"n\d+|empty|more", d) for d in decls)
+
+    def test_spof_styled(self):
+        m = build_dependency_graph_model(tf_resources=_tf(_fanin_tf(6)))
+        out = to_mermaid(m)
+        assert "style" in out and "ff6b6b" in out   # SPOF fill colour
+
+    def test_highlight_applied(self):
+        m = build_dependency_graph_model(tf_resources=_tf(_fanin_tf(3)))
+        out = to_mermaid(m, highlight="aws_kms_key.main")
+        assert "stroke-width:4px" in out
+
+    def test_large_graph_truncated(self):
+        # 80 leaf resources on one hub -> exceeds _MERMAID_MAX_NODES (60).
+        m = build_dependency_graph_model(tf_resources=_tf(_fanin_tf(80)))
+        out = to_mermaid(m)
+        assert "truncated" in out
+
+    def test_roundtrip_model_to_networkx(self):
+        m = build_dependency_graph_model(tf_resources=_tf(_fanin_tf(4)))
+        g = graph_from_model(m)
+        assert g.number_of_nodes() == len(m.nodes)
+        assert g.number_of_edges() == len(m.edges)

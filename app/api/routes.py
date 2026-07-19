@@ -203,6 +203,58 @@ async def get_report_endpoint(report_id: str):
     return report
 
 
+@router.get("/reports/{report_id}/blast-radius")
+async def blast_radius_endpoint(report_id: str, resource: str = Query(..., min_length=1)):
+    """Phase 4.2 — what breaks if ``resource`` is removed/fails.
+
+    Served from the dependency graph persisted on the report (no re-parse).
+    ``resource`` is a query param so Kubernetes ids (``Kind/ns/name``, which
+    contain slashes) and Terraform ids (``type.name``) work without path-encoding.
+    """
+    from app.core.graph import blast_radius as _blast_radius
+
+    report = get_report(report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found.")
+    if not report.dependency_graph:
+        raise HTTPException(
+            status_code=404,
+            detail="This report has no dependency graph (analyzed before Phase 4, "
+                   "or non-infrastructure content). Re-analyze to generate one.",
+        )
+    result = _blast_radius(report.dependency_graph, resource)
+    if not result["found"]:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Resource '{resource}' not found in this report's dependency graph.",
+        )
+    return result
+
+
+@router.get("/reports/{report_id}/diagram")
+async def diagram_endpoint(report_id: str, format: str = Query(default="mermaid"), highlight: str | None = None):
+    """Phase 4.4 — architecture diagram of the dependency graph.
+
+    ``format=mermaid`` (default, only supported format) returns a Mermaid
+    flowchart as text/plain. Served from the persisted graph.
+    """
+    from app.core.graph import to_mermaid
+
+    if format != "mermaid":
+        raise HTTPException(status_code=400, detail="Only format=mermaid is supported.")
+    report = get_report(report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found.")
+    if not report.dependency_graph:
+        raise HTTPException(
+            status_code=404,
+            detail="This report has no dependency graph (analyzed before Phase 4, "
+                   "or non-infrastructure content). Re-analyze to generate one.",
+        )
+    mermaid = to_mermaid(report.dependency_graph, highlight=highlight)
+    return Response(content=mermaid, media_type="text/plain")
+
+
 @router.get("/reports")
 async def list_reports_endpoint(limit: int = Query(default=50, le=200)):
     """List recent reports with metadata."""
