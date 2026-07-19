@@ -155,8 +155,8 @@
     "semantic_hash": ""
   },
   "frontend/app.py": {
-    "mtime": 1784471983.4043732,
-    "ast_hash": "b3b6888bded3c31c048b01529a68442a",
+    "mtime": 1784477209.1747851,
+    "ast_hash": "4298b98cf5ebcaa840dee33136e29fb4",
     "semantic_hash": ""
   },
   "samples/average-infra.tf": {
@@ -354,11 +354,6 @@
     "ast_hash": "2c38bb6cd4311ec92c642b0c40602002",
     "semantic_hash": ""
   },
-  "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md": {
-    "mtime": 1784112741.2069879,
-    "ast_hash": "cdbff150415f5221cb7e35a2d19d6918",
-    "semantic_hash": ""
-  },
   "requirements-dev.txt": {
     "mtime": 1780086167.785779,
     "ast_hash": "ddc57dc8d3fa5c0970dcb2c700568544",
@@ -530,18 +525,23 @@
     "semantic_hash": ""
   },
   "app/core/graph.py": {
-    "mtime": 1784471983.4038885,
-    "ast_hash": "01ebcddddb359d6afeac67b825895873",
+    "mtime": 1784477209.174437,
+    "ast_hash": "b3f5537b019f9158c3ea931024b0f16f",
     "semantic_hash": ""
   },
   "tests/test_graph.py": {
-    "mtime": 1784471983.404782,
-    "ast_hash": "1a3b45c84d9f35dc43f66bd2c1706013",
+    "mtime": 1784477209.1750252,
+    "ast_hash": "75db919adf16802916c0fee753e924c1",
     "semantic_hash": ""
   },
   "tests/test_graph_endpoints.py": {
     "mtime": 1784471983.4054046,
     "ast_hash": "67166c6ab28241404c2c8da60954b221",
+    "semantic_hash": ""
+  },
+  "docs/superpowers/specs/plugin-harness-design.md": {
+    "mtime": 1784112741.2069879,
+    "ast_hash": "cdbff150415f5221cb7e35a2d19d6918",
     "semantic_hash": ""
   }
 }

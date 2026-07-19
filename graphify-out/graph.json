@@ -3097,7 +3097,7 @@
       "label": "dependents_of()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L324",
+      "source_location": "L327",
       "_origin": "ast",
       "id": "core_graph_dependents_of",
       "community": 27,
@@ -3107,7 +3107,7 @@
       "label": "find_spofs()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L336",
+      "source_location": "L339",
       "_origin": "ast",
       "id": "core_graph_find_spofs",
       "community": 27,
@@ -3117,7 +3117,7 @@
       "label": "_spof_severity()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L389",
+      "source_location": "L392",
       "_origin": "ast",
       "id": "core_graph_spof_severity",
       "community": 27,
@@ -3127,7 +3127,7 @@
       "label": "Severity",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L389",
+      "source_location": "L392",
       "_origin": "ast",
       "id": "app_core_graph_py_severity",
       "community": 15,
@@ -3137,7 +3137,7 @@
       "label": "spof_findings()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L397",
+      "source_location": "L400",
       "_origin": "ast",
       "id": "core_graph_spof_findings",
       "community": 27,
@@ -3147,7 +3147,7 @@
       "label": "Finding",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L397",
+      "source_location": "L400",
       "_origin": "ast",
       "id": "app_core_graph_py_finding",
       "community": 15,
@@ -3157,7 +3157,7 @@
       "label": "to_dependency_graph_model()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L436",
+      "source_location": "L441",
       "_origin": "ast",
       "id": "core_graph_to_dependency_graph_model",
       "community": 27,
@@ -3167,7 +3167,7 @@
       "label": "DependencyGraph",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L436",
+      "source_location": "L441",
       "_origin": "ast",
       "id": "dependencygraph",
       "community": 27,
@@ -3177,7 +3177,7 @@
       "label": "build_dependency_graph_model()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L470",
+      "source_location": "L475",
       "_origin": "ast",
       "id": "core_graph_build_dependency_graph_model",
       "community": 27,
@@ -3187,7 +3187,7 @@
       "label": "graph_from_model()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L487",
+      "source_location": "L492",
       "_origin": "ast",
       "id": "core_graph_graph_from_model",
       "community": 27,
@@ -3197,7 +3197,7 @@
       "label": "blast_radius()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L502",
+      "source_location": "L507",
       "_origin": "ast",
       "id": "core_graph_blast_radius",
       "community": 27,
@@ -3207,7 +3207,7 @@
       "label": "_mermaid_escape_label()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L558",
+      "source_location": "L563",
       "_origin": "ast",
       "id": "core_graph_mermaid_escape_label",
       "community": 27,
@@ -3217,7 +3217,7 @@
       "label": "to_mermaid()",
       "file_type": "code",
       "source_file": "app/core/graph.py",
-      "source_location": "L568",
+      "source_location": "L573",
       "_origin": "ast",
       "id": "core_graph_to_mermaid",
       "community": 27,
@@ -3317,9 +3317,9 @@
       "label": "Every resource that (transitively) depends on ``node``.      Edges point depende",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L325",
+      "source_location": "L328",
       "_origin": "ast",
-      "id": "core_graph_rationale_325",
+      "id": "core_graph_rationale_328",
       "community": 27,
       "norm_label": "every resource that (transitively) depends on ``node``.      edges point depende"
     },
@@ -3327,29 +3327,29 @@
       "label": "Identify single points of failure in the dependency graph.      Two independent",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L337",
+      "source_location": "L340",
       "_origin": "ast",
-      "id": "core_graph_rationale_337",
+      "id": "core_graph_rationale_340",
       "community": 27,
       "norm_label": "identify single points of failure in the dependency graph.      two independent"
     },
     {
-      "label": "Turn detected SPOFs into architecture-category Findings.      Deterministic \u2014 no",
+      "label": "Turn detected SPOFs into resilience-category Findings.      Deterministic \u2014 no L",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L398",
+      "source_location": "L401",
       "_origin": "ast",
-      "id": "core_graph_rationale_398",
+      "id": "core_graph_rationale_401",
       "community": 27,
-      "norm_label": "turn detected spofs into architecture-category findings.      deterministic \u2014 no"
+      "norm_label": "turn detected spofs into resilience-category findings.      deterministic \u2014 no l"
     },
     {
       "label": "Serialize a NetworkX graph + its SPOFs into the persistable pydantic model.",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L437",
+      "source_location": "L442",
       "_origin": "ast",
-      "id": "core_graph_rationale_437",
+      "id": "core_graph_rationale_442",
       "community": 27,
       "norm_label": "serialize a networkx graph + its spofs into the persistable pydantic model."
     },
@@ -3357,9 +3357,9 @@
       "label": "Convenience: build the graph and return the serialized model in one call.",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L474",
+      "source_location": "L479",
       "_origin": "ast",
-      "id": "core_graph_rationale_474",
+      "id": "core_graph_rationale_479",
       "community": 27,
       "norm_label": "convenience: build the graph and return the serialized model in one call."
     },
@@ -3367,9 +3367,9 @@
       "label": "Rebuild a NetworkX DiGraph from the persisted DependencyGraph model.",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L488",
+      "source_location": "L493",
       "_origin": "ast",
-      "id": "core_graph_rationale_488",
+      "id": "core_graph_rationale_493",
       "community": 27,
       "norm_label": "rebuild a networkx digraph from the persisted dependencygraph model."
     },
@@ -3377,9 +3377,9 @@
       "label": "Compute the blast radius of ``resource``: everything that (transitively)     dep",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L503",
+      "source_location": "L508",
       "_origin": "ast",
-      "id": "core_graph_rationale_503",
+      "id": "core_graph_rationale_508",
       "community": 27,
       "norm_label": "compute the blast radius of ``resource``: everything that (transitively)     dep"
     },
@@ -3387,9 +3387,9 @@
       "label": "Escape a label for a Mermaid node. Quotes wrap it; escape inner quotes     and c",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L559",
+      "source_location": "L564",
       "_origin": "ast",
-      "id": "core_graph_rationale_559",
+      "id": "core_graph_rationale_564",
       "community": 27,
       "norm_label": "escape a label for a mermaid node. quotes wrap it; escape inner quotes     and c"
     },
@@ -3397,9 +3397,9 @@
       "label": "Render the dependency graph as a Mermaid ``flowchart LR`` string.      - Synthet",
       "file_type": "rationale",
       "source_file": "app/core/graph.py",
-      "source_location": "L569",
+      "source_location": "L574",
       "_origin": "ast",
-      "id": "core_graph_rationale_569",
+      "id": "core_graph_rationale_574",
       "community": 27,
       "norm_label": "render the dependency graph as a mermaid ``flowchart lr`` string.      - synthet"
     },
@@ -4887,7 +4887,7 @@
       "label": "_fmt_delta()",
       "file_type": "code",
       "source_file": "frontend/app.py",
-      "source_location": "L431",
+      "source_location": "L440",
       "_origin": "ast",
       "id": "frontend_app_fmt_delta",
       "community": 64,
@@ -4897,7 +4897,7 @@
       "label": "_render_findings()",
       "file_type": "code",
       "source_file": "frontend/app.py",
-      "source_location": "L494",
+      "source_location": "L503",
       "_origin": "ast",
       "id": "frontend_app_render_findings",
       "community": 64,
@@ -14974,162 +14974,162 @@
       "norm_label": "license"
     },
     {
-      "label": "2026-07-15-phase-3-5-plugin-harness-design.md",
+      "label": "plugin-harness-design.md",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design",
+      "id": "specs_plugin_harness_design",
       "community": 33,
-      "norm_label": "2026-07-15-phase-3-5-plugin-harness-design.md"
+      "norm_label": "plugin-harness-design.md"
     },
     {
       "label": "Phase 3.5 \u2014 Plugin Harness (Dynamic Agent Registration)",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "id": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
       "community": 33,
       "norm_label": "phase 3.5 \u2014 plugin harness (dynamic agent registration)"
     },
     {
       "label": "Goal",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L7",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_goal",
+      "id": "specs_plugin_harness_design_goal",
       "community": 33,
       "norm_label": "goal"
     },
     {
       "label": "Hard constraints (non-negotiable acceptance gates)",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L13",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_hard_constraints_non_negotiable_acceptance_gates",
+      "id": "specs_plugin_harness_design_hard_constraints_non_negotiable_acceptance_gates",
       "community": 33,
       "norm_label": "hard constraints (non-negotiable acceptance gates)"
     },
     {
       "label": "Architecture",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L29",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_architecture",
+      "id": "specs_plugin_harness_design_architecture",
       "community": 33,
       "norm_label": "architecture"
     },
     {
       "label": "New module: `app/core/plugin_registry.py` (descriptor layer)",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L31",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_new_module_app_core_plugin_registry_py_descriptor_layer",
+      "id": "specs_plugin_harness_design_new_module_app_core_plugin_registry_py_descriptor_layer",
       "community": 33,
       "norm_label": "new module: `app/core/plugin_registry.py` (descriptor layer)"
     },
     {
       "label": "New module: `app/core/plugin_loader.py` (execution layer)",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L43",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_new_module_app_core_plugin_loader_py_execution_layer",
+      "id": "specs_plugin_harness_design_new_module_app_core_plugin_loader_py_execution_layer",
       "community": 33,
       "norm_label": "new module: `app/core/plugin_loader.py` (execution layer)"
     },
     {
       "label": "Refactor (de-duplication): `app/core/llm_agent.py`",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L55",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_refactor_de_duplication_app_core_llm_agent_py",
+      "id": "specs_plugin_harness_design_refactor_de_duplication_app_core_llm_agent_py",
       "community": 33,
       "norm_label": "refactor (de-duplication): `app/core/llm_agent.py`"
     },
     {
       "label": "Scoring change: `app/core/report.py`",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L65",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_scoring_change_app_core_report_py",
+      "id": "specs_plugin_harness_design_scoring_change_app_core_report_py",
       "community": 33,
       "norm_label": "scoring change: `app/core/report.py`"
     },
     {
       "label": "Pipeline change: `app/agents/supervisor.py`",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L73",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_pipeline_change_app_agents_supervisor_py",
+      "id": "specs_plugin_harness_design_pipeline_change_app_agents_supervisor_py",
       "community": 33,
       "norm_label": "pipeline change: `app/agents/supervisor.py`"
     },
     {
       "label": "First plugin: compliance",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L83",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_first_plugin_compliance",
+      "id": "specs_plugin_harness_design_first_plugin_compliance",
       "community": 33,
       "norm_label": "first plugin: compliance"
     },
     {
       "label": "Existing skill migration (discoverability, not behavior)",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L95",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_existing_skill_migration_discoverability_not_behavior",
+      "id": "specs_plugin_harness_design_existing_skill_migration_discoverability_not_behavior",
       "community": 33,
       "norm_label": "existing skill migration (discoverability, not behavior)"
     },
     {
       "label": "Data flow",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L107",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_data_flow",
+      "id": "specs_plugin_harness_design_data_flow",
       "community": 33,
       "norm_label": "data flow"
     },
     {
       "label": "Error handling",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L114",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_error_handling",
+      "id": "specs_plugin_harness_design_error_handling",
       "community": 33,
       "norm_label": "error handling"
     },
     {
       "label": "Testing (`tests/test_plugin_harness.py`)",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L122",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_testing_tests_test_plugin_harness_py",
+      "id": "specs_plugin_harness_design_testing_tests_test_plugin_harness_py",
       "community": 33,
       "norm_label": "testing (`tests/test_plugin_harness.py`)"
     },
     {
       "label": "Out of scope (deferred / dropped per roadmap)",
       "file_type": "document",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L136",
       "_origin": "ast",
-      "id": "specs_2026_07_15_phase_3_5_plugin_harness_design_out_of_scope_deferred_dropped_per_roadmap",
+      "id": "specs_plugin_harness_design_out_of_scope_deferred_dropped_per_roadmap",
       "community": 33,
       "norm_label": "out of scope (deferred / dropped per roadmap)"
     },
@@ -25609,9 +25609,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L207",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes",
-      "target": "api_routes_blast_radius_endpoint",
-      "confidence_score": 1.0
+      "target": "api_routes_blast_radius_endpoint"
     },
     {
       "relation": "contains",
@@ -25639,9 +25639,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L235",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes",
-      "target": "api_routes_diagram_endpoint",
-      "confidence_score": 1.0
+      "target": "api_routes_diagram_endpoint"
     },
     {
       "relation": "contains",
@@ -25871,9 +25871,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L214",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes",
-      "target": "core_graph_blast_radius",
-      "confidence_score": 1.0
+      "target": "core_graph_blast_radius"
     },
     {
       "relation": "imports",
@@ -25882,9 +25882,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L241",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes",
-      "target": "core_graph_to_mermaid",
-      "confidence_score": 1.0
+      "target": "core_graph_to_mermaid"
     },
     {
       "relation": "imports",
@@ -26320,9 +26320,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L208",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes_rationale_208",
-      "target": "api_routes_blast_radius_endpoint",
-      "confidence_score": 1.0
+      "target": "api_routes_blast_radius_endpoint"
     },
     {
       "relation": "calls",
@@ -26352,9 +26352,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L236",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes_rationale_236",
-      "target": "api_routes_diagram_endpoint",
-      "confidence_score": 1.0
+      "target": "api_routes_diagram_endpoint"
     },
     {
       "relation": "calls",
@@ -26383,9 +26383,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L260",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes_rationale_260",
-      "target": "api_routes_list_reports_endpoint",
-      "confidence_score": 1.0
+      "target": "api_routes_list_reports_endpoint"
     },
     {
       "relation": "calls",
@@ -26404,9 +26404,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L266",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes_rationale_266",
-      "target": "api_routes_compare_reports_endpoint",
-      "confidence_score": 1.0
+      "target": "api_routes_compare_reports_endpoint"
     },
     {
       "relation": "calls",
@@ -26425,9 +26425,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L275",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes_rationale_275",
-      "target": "api_routes_delete_report_endpoint",
-      "confidence_score": 1.0
+      "target": "api_routes_delete_report_endpoint"
     },
     {
       "relation": "rationale_for",
@@ -26435,9 +26435,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L286",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes_rationale_286",
-      "target": "api_routes_similar_reports_endpoint",
-      "confidence_score": 1.0
+      "target": "api_routes_similar_reports_endpoint"
     },
     {
       "relation": "calls",
@@ -26500,9 +26500,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L300",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes_rationale_300",
-      "target": "api_routes_drift_endpoint",
-      "confidence_score": 1.0
+      "target": "api_routes_drift_endpoint"
     },
     {
       "relation": "calls",
@@ -26532,9 +26532,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L323",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes_rationale_323",
-      "target": "api_routes_export_report_pdf",
-      "confidence_score": 1.0
+      "target": "api_routes_export_report_pdf"
     },
     {
       "relation": "rationale_for",
@@ -26542,9 +26542,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L349",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes_rationale_349",
-      "target": "api_routes_remediationrequest",
-      "confidence_score": 1.0
+      "target": "api_routes_remediationrequest"
     },
     {
       "relation": "references",
@@ -26794,9 +26794,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L359",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes_rationale_359",
-      "target": "api_routes_flat_findings",
-      "confidence_score": 1.0
+      "target": "api_routes_flat_findings"
     },
     {
       "relation": "calls",
@@ -26855,9 +26855,9 @@
       "source_file": "app/api/routes.py",
       "source_location": "L371",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_routes_rationale_371",
-      "target": "api_routes_remediate_finding",
-      "confidence_score": 1.0
+      "target": "api_routes_remediate_finding"
     },
     {
       "relation": "calls",
@@ -29950,9 +29950,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L502",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph",
-      "target": "core_graph_blast_radius",
-      "confidence_score": 1.0
+      "target": "core_graph_blast_radius"
     },
     {
       "relation": "contains",
@@ -30030,9 +30030,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L487",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph",
-      "target": "core_graph_graph_from_model",
-      "confidence_score": 1.0
+      "target": "core_graph_graph_from_model"
     },
     {
       "relation": "contains",
@@ -30070,9 +30070,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L558",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph",
-      "target": "core_graph_mermaid_escape_label",
-      "confidence_score": 1.0
+      "target": "core_graph_mermaid_escape_label"
     },
     {
       "relation": "contains",
@@ -30130,9 +30130,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L568",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph",
-      "target": "core_graph_to_mermaid",
-      "confidence_score": 1.0
+      "target": "core_graph_to_mermaid"
     },
     {
       "relation": "imports",
@@ -30276,9 +30276,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L502",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_blast_radius",
-      "target": "app_core_graph_py_any",
-      "confidence_score": 1.0
+      "target": "app_core_graph_py_any"
     },
     {
       "relation": "references",
@@ -30831,9 +30831,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L487",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_graph_from_model",
-      "target": "digraph",
-      "confidence_score": 1.0
+      "target": "digraph"
     },
     {
       "relation": "references",
@@ -30997,11 +30997,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L325",
+      "source_location": "L328",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_325",
-      "target": "core_graph_dependents_of"
+      "source": "core_graph_rationale_328",
+      "target": "core_graph_dependents_of",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -31029,11 +31029,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L337",
+      "source_location": "L340",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_337",
-      "target": "core_graph_find_spofs"
+      "source": "core_graph_rationale_340",
+      "target": "core_graph_find_spofs",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -31187,11 +31187,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L398",
+      "source_location": "L401",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_398",
-      "target": "core_graph_spof_findings"
+      "source": "core_graph_rationale_401",
+      "target": "core_graph_spof_findings",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -31334,11 +31334,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L437",
+      "source_location": "L442",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_437",
-      "target": "core_graph_to_dependency_graph_model"
+      "source": "core_graph_rationale_442",
+      "target": "core_graph_to_dependency_graph_model",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -31413,9 +31413,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L502",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_blast_radius",
-      "target": "dependencygraph",
-      "confidence_score": 1.0
+      "target": "dependencygraph"
     },
     {
       "relation": "references",
@@ -31435,9 +31435,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L487",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_graph_from_model",
-      "target": "dependencygraph",
-      "confidence_score": 1.0
+      "target": "dependencygraph"
     },
     {
       "relation": "references",
@@ -31446,9 +31446,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L568",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_to_mermaid",
-      "target": "dependencygraph",
-      "confidence_score": 1.0
+      "target": "dependencygraph"
     },
     {
       "relation": "uses",
@@ -31514,11 +31514,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L474",
+      "source_location": "L479",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "core_graph_rationale_474",
-      "target": "core_graph_build_dependency_graph_model"
+      "source": "core_graph_rationale_479",
+      "target": "core_graph_build_dependency_graph_model",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -31538,9 +31538,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "core_graph_build_dependency_graph_model",
-      "confidence_score": 1.0
+      "target": "core_graph_build_dependency_graph_model"
     },
     {
       "relation": "calls",
@@ -31681,17 +31681,17 @@
       "source_file": "app/core/graph.py",
       "source_location": "L511",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_blast_radius",
-      "target": "core_graph_graph_from_model",
-      "confidence_score": 1.0
+      "target": "core_graph_graph_from_model"
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L488",
+      "source_location": "L493",
       "weight": 1.0,
-      "source": "core_graph_rationale_488",
+      "source": "core_graph_rationale_493",
       "target": "core_graph_graph_from_model",
       "confidence_score": 1.0
     },
@@ -31702,9 +31702,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph",
-      "target": "core_graph_graph_from_model",
-      "confidence_score": 1.0
+      "target": "core_graph_graph_from_model"
     },
     {
       "relation": "calls",
@@ -31721,9 +31721,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L503",
+      "source_location": "L508",
       "weight": 1.0,
-      "source": "core_graph_rationale_503",
+      "source": "core_graph_rationale_508",
       "target": "core_graph_blast_radius",
       "confidence_score": 1.0
     },
@@ -31734,9 +31734,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph",
-      "target": "core_graph_blast_radius",
-      "confidence_score": 1.0
+      "target": "core_graph_blast_radius"
     },
     {
       "relation": "calls",
@@ -31808,9 +31808,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L559",
+      "source_location": "L564",
       "weight": 1.0,
-      "source": "core_graph_rationale_559",
+      "source": "core_graph_rationale_564",
       "target": "core_graph_mermaid_escape_label",
       "confidence_score": 1.0
     },
@@ -31821,17 +31821,17 @@
       "source_file": "app/core/graph.py",
       "source_location": "L615",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_to_mermaid",
-      "target": "core_graph_mermaid_escape_label",
-      "confidence_score": 1.0
+      "target": "core_graph_mermaid_escape_label"
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "app/core/graph.py",
-      "source_location": "L569",
+      "source_location": "L574",
       "weight": 1.0,
-      "source": "core_graph_rationale_569",
+      "source": "core_graph_rationale_574",
       "target": "core_graph_to_mermaid",
       "confidence_score": 1.0
     },
@@ -31842,9 +31842,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph",
-      "target": "core_graph_to_mermaid",
-      "confidence_score": 1.0
+      "target": "core_graph_to_mermaid"
     },
     {
       "relation": "calls",
@@ -34642,9 +34642,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "core_store_save_report",
-      "confidence_score": 1.0
+      "target": "core_store_save_report"
     },
     {
       "relation": "calls",
@@ -34879,9 +34879,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "core_store_delete_report",
-      "confidence_score": 1.0
+      "target": "core_store_delete_report"
     },
     {
       "relation": "calls",
@@ -34953,9 +34953,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "app_main",
-      "confidence_score": 1.0
+      "target": "app_main"
     },
     {
       "relation": "contains",
@@ -35244,9 +35244,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "app_models",
-      "confidence_score": 1.0
+      "target": "app_models"
     },
     {
       "relation": "imports_from",
@@ -35698,9 +35698,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L36",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_graph_testblastradius",
-      "target": "app_models_severity",
-      "confidence_score": 0.5
+      "target": "app_models_severity"
     },
     {
       "relation": "uses",
@@ -35718,9 +35718,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L36",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_graph_testmermaid",
-      "target": "app_models_severity",
-      "confidence_score": 0.5
+      "target": "app_models_severity"
     },
     {
       "relation": "uses",
@@ -37889,9 +37889,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L36",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_graph_testblastradius",
-      "target": "app_models_dependencygraph",
-      "confidence_score": 0.5
+      "target": "app_models_dependencygraph"
     },
     {
       "relation": "calls",
@@ -37920,9 +37920,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L36",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_graph_testmermaid",
-      "target": "app_models_dependencygraph",
-      "confidence_score": 0.5
+      "target": "app_models_dependencygraph"
     },
     {
       "relation": "calls",
@@ -38330,9 +38330,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "app_models_analysisreport",
-      "confidence_score": 1.0
+      "target": "app_models_analysisreport"
     },
     {
       "relation": "calls",
@@ -38362,9 +38362,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L14",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_graph_endpoints_testblastradiusendpoint",
-      "target": "app_models_analysisreport",
-      "confidence_score": 0.5
+      "target": "app_models_analysisreport"
     },
     {
       "relation": "uses",
@@ -38372,9 +38372,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L14",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_graph_endpoints_testdiagramendpoint",
-      "target": "app_models_analysisreport",
-      "confidence_score": 0.5
+      "target": "app_models_analysisreport"
     },
     {
       "relation": "rationale_for",
@@ -39058,9 +39058,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "parsers_terraform_parse_terraform",
-      "confidence_score": 1.0
+      "target": "parsers_terraform_parse_terraform"
     },
     {
       "relation": "calls",
@@ -39299,9 +39299,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "parsers_terraform_extract_tf_resources",
-      "confidence_score": 1.0
+      "target": "parsers_terraform_extract_tf_resources"
     },
     {
       "relation": "calls",
@@ -39536,9 +39536,9 @@
       "source_file": "frontend/app.py",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_app",
-      "target": "frontend_app_mermaid_html",
-      "confidence_score": 1.0
+      "target": "frontend_app_mermaid_html"
     },
     {
       "relation": "contains",
@@ -39546,9 +39546,9 @@
       "source_file": "frontend/app.py",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_app",
-      "target": "frontend_app_render_architecture_panel",
-      "confidence_score": 1.0
+      "target": "frontend_app_render_architecture_panel"
     },
     {
       "relation": "contains",
@@ -39566,9 +39566,9 @@
       "source_file": "frontend/app.py",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_app_rationale_11",
-      "target": "frontend_app_mermaid_html",
-      "confidence_score": 1.0
+      "target": "frontend_app_mermaid_html"
     },
     {
       "relation": "calls",
@@ -39577,9 +39577,9 @@
       "source_file": "frontend/app.py",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_app_render_architecture_panel",
-      "target": "frontend_app_mermaid_html",
-      "confidence_score": 1.0
+      "target": "frontend_app_mermaid_html"
     },
     {
       "relation": "rationale_for",
@@ -39587,9 +39587,9 @@
       "source_file": "frontend/app.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_app_rationale_36",
-      "target": "frontend_app_render_architecture_panel",
-      "confidence_score": 1.0
+      "target": "frontend_app_render_architecture_panel"
     },
     {
       "relation": "contains",
@@ -46210,9 +46210,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L339",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph",
-      "target": "tests_test_graph_testblastradius",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius"
     },
     {
       "relation": "contains",
@@ -46230,9 +46230,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L387",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph",
-      "target": "tests_test_graph_testmermaid",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testmermaid"
     },
     {
       "relation": "contains",
@@ -46311,9 +46311,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L341",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius_model",
-      "target": "tests_test_graph_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_tf"
     },
     {
       "relation": "calls",
@@ -46322,9 +46322,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L375",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius_test_cycle_safe",
-      "target": "tests_test_graph_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_tf"
     },
     {
       "relation": "calls",
@@ -46333,9 +46333,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L393",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid_test_contains_nodes_and_edges",
-      "target": "tests_test_graph_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_tf"
     },
     {
       "relation": "calls",
@@ -46344,9 +46344,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L420",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid_test_highlight_applied",
-      "target": "tests_test_graph_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_tf"
     },
     {
       "relation": "calls",
@@ -46355,9 +46355,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L426",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid_test_large_graph_truncated",
-      "target": "tests_test_graph_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_tf"
     },
     {
       "relation": "calls",
@@ -46366,9 +46366,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L431",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid_test_roundtrip_model_to_networkx",
-      "target": "tests_test_graph_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_tf"
     },
     {
       "relation": "calls",
@@ -46377,9 +46377,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L415",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid_test_spof_styled",
-      "target": "tests_test_graph_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_tf"
     },
     {
       "relation": "calls",
@@ -46608,9 +46608,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L406",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid_test_node_ids_are_safe",
-      "target": "tests_test_graph_k8s",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_k8s"
     },
     {
       "relation": "calls",
@@ -46919,9 +46919,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L341",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius_model",
-      "target": "tests_test_graph_fanin_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_fanin_tf"
     },
     {
       "relation": "calls",
@@ -46930,9 +46930,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L420",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid_test_highlight_applied",
-      "target": "tests_test_graph_fanin_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_fanin_tf"
     },
     {
       "relation": "calls",
@@ -46941,9 +46941,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L426",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid_test_large_graph_truncated",
-      "target": "tests_test_graph_fanin_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_fanin_tf"
     },
     {
       "relation": "calls",
@@ -46952,9 +46952,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L431",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid_test_roundtrip_model_to_networkx",
-      "target": "tests_test_graph_fanin_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_fanin_tf"
     },
     {
       "relation": "calls",
@@ -46963,9 +46963,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L415",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid_test_spof_styled",
-      "target": "tests_test_graph_fanin_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_fanin_tf"
     },
     {
       "relation": "calls",
@@ -47119,9 +47119,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L340",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius",
-      "target": "tests_test_graph_testblastradius_model",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius_model"
     },
     {
       "relation": "method",
@@ -47129,9 +47129,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L369",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius",
-      "target": "tests_test_graph_testblastradius_test_criticality_bands",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius_test_criticality_bands"
     },
     {
       "relation": "method",
@@ -47139,9 +47139,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L373",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius",
-      "target": "tests_test_graph_testblastradius_test_cycle_safe",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius_test_cycle_safe"
     },
     {
       "relation": "method",
@@ -47149,9 +47149,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L365",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius",
-      "target": "tests_test_graph_testblastradius_test_empty_graph",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius_test_empty_graph"
     },
     {
       "relation": "method",
@@ -47159,9 +47159,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L343",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius",
-      "target": "tests_test_graph_testblastradius_test_hub_impact_and_criticality",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius_test_hub_impact_and_criticality"
     },
     {
       "relation": "method",
@@ -47169,9 +47169,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L352",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius",
-      "target": "tests_test_graph_testblastradius_test_leaf_has_no_dependents",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius_test_leaf_has_no_dependents"
     },
     {
       "relation": "method",
@@ -47179,9 +47179,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L359",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius",
-      "target": "tests_test_graph_testblastradius_test_unknown_resource_found_false",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius_test_unknown_resource_found_false"
     },
     {
       "relation": "calls",
@@ -47190,9 +47190,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L370",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius_test_criticality_bands",
-      "target": "tests_test_graph_testblastradius_model",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius_model"
     },
     {
       "relation": "calls",
@@ -47201,9 +47201,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L344",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius_test_hub_impact_and_criticality",
-      "target": "tests_test_graph_testblastradius_model",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius_model"
     },
     {
       "relation": "calls",
@@ -47212,9 +47212,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L353",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius_test_leaf_has_no_dependents",
-      "target": "tests_test_graph_testblastradius_model",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius_model"
     },
     {
       "relation": "calls",
@@ -47223,9 +47223,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L360",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testblastradius_test_unknown_resource_found_false",
-      "target": "tests_test_graph_testblastradius_model",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testblastradius_model"
     },
     {
       "relation": "method",
@@ -47233,9 +47233,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L392",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid",
-      "target": "tests_test_graph_testmermaid_test_contains_nodes_and_edges",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testmermaid_test_contains_nodes_and_edges"
     },
     {
       "relation": "method",
@@ -47243,9 +47243,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L388",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid",
-      "target": "tests_test_graph_testmermaid_test_empty_graph_valid",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testmermaid_test_empty_graph_valid"
     },
     {
       "relation": "method",
@@ -47253,9 +47253,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L419",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid",
-      "target": "tests_test_graph_testmermaid_test_highlight_applied",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testmermaid_test_highlight_applied"
     },
     {
       "relation": "method",
@@ -47263,9 +47263,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L424",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid",
-      "target": "tests_test_graph_testmermaid_test_large_graph_truncated",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testmermaid_test_large_graph_truncated"
     },
     {
       "relation": "method",
@@ -47273,9 +47273,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L403",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid",
-      "target": "tests_test_graph_testmermaid_test_node_ids_are_safe",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testmermaid_test_node_ids_are_safe"
     },
     {
       "relation": "method",
@@ -47283,9 +47283,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L430",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid",
-      "target": "tests_test_graph_testmermaid_test_roundtrip_model_to_networkx",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testmermaid_test_roundtrip_model_to_networkx"
     },
     {
       "relation": "method",
@@ -47293,9 +47293,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L414",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_testmermaid",
-      "target": "tests_test_graph_testmermaid_test_spof_styled",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testmermaid_test_spof_styled"
     },
     {
       "relation": "rationale_for",
@@ -47303,9 +47303,9 @@
       "source_file": "tests/test_graph.py",
       "source_location": "L404",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_rationale_404",
-      "target": "tests_test_graph_testmermaid_test_node_ids_are_safe",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_testmermaid_test_node_ids_are_safe"
     },
     {
       "relation": "contains",
@@ -47313,9 +47313,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "tests_test_graph_endpoints_fanin_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_fanin_tf"
     },
     {
       "relation": "contains",
@@ -47323,9 +47323,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "tests_test_graph_endpoints_report_with_graph",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_report_with_graph"
     },
     {
       "relation": "contains",
@@ -47333,9 +47333,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "tests_test_graph_endpoints_report_without_graph",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_report_without_graph"
     },
     {
       "relation": "contains",
@@ -47343,9 +47343,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L59",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "tests_test_graph_endpoints_testblastradiusendpoint",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testblastradiusendpoint"
     },
     {
       "relation": "contains",
@@ -47353,9 +47353,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints",
-      "target": "tests_test_graph_endpoints_testdiagramendpoint",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testdiagramendpoint"
     },
     {
       "relation": "rationale_for",
@@ -47363,9 +47363,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_rationale_1",
-      "target": "tests_test_graph_endpoints",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints"
     },
     {
       "relation": "calls",
@@ -47374,9 +47374,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_report_with_graph",
-      "target": "tests_test_graph_endpoints_fanin_tf",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_fanin_tf"
     },
     {
       "relation": "method",
@@ -47384,9 +47384,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_testblastradiusendpoint",
-      "target": "tests_test_graph_endpoints_testblastradiusendpoint_test_known_resource",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testblastradiusendpoint_test_known_resource"
     },
     {
       "relation": "method",
@@ -47394,9 +47394,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L84",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_testblastradiusendpoint",
-      "target": "tests_test_graph_endpoints_testblastradiusendpoint_test_missing_resource_param_422",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testblastradiusendpoint_test_missing_resource_param_422"
     },
     {
       "relation": "method",
@@ -47404,9 +47404,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_testblastradiusendpoint",
-      "target": "tests_test_graph_endpoints_testblastradiusendpoint_test_report_not_found_404",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testblastradiusendpoint_test_report_not_found_404"
     },
     {
       "relation": "method",
@@ -47414,9 +47414,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_testblastradiusendpoint",
-      "target": "tests_test_graph_endpoints_testblastradiusendpoint_test_report_without_graph_404",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testblastradiusendpoint_test_report_without_graph_404"
     },
     {
       "relation": "method",
@@ -47424,9 +47424,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_testblastradiusendpoint",
-      "target": "tests_test_graph_endpoints_testblastradiusendpoint_test_unknown_resource_404",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testblastradiusendpoint_test_unknown_resource_404"
     },
     {
       "relation": "method",
@@ -47434,9 +47434,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_testdiagramendpoint",
-      "target": "tests_test_graph_endpoints_testdiagramendpoint_test_highlight_param",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testdiagramendpoint_test_highlight_param"
     },
     {
       "relation": "method",
@@ -47444,9 +47444,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L109",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_testdiagramendpoint",
-      "target": "tests_test_graph_endpoints_testdiagramendpoint_test_report_not_found_404",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testdiagramendpoint_test_report_not_found_404"
     },
     {
       "relation": "method",
@@ -47454,9 +47454,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L113",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_testdiagramendpoint",
-      "target": "tests_test_graph_endpoints_testdiagramendpoint_test_report_without_graph_404",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testdiagramendpoint_test_report_without_graph_404"
     },
     {
       "relation": "method",
@@ -47464,9 +47464,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L91",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_testdiagramendpoint",
-      "target": "tests_test_graph_endpoints_testdiagramendpoint_test_returns_mermaid",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testdiagramendpoint_test_returns_mermaid"
     },
     {
       "relation": "method",
@@ -47474,9 +47474,9 @@
       "source_file": "tests/test_graph_endpoints.py",
       "source_location": "L104",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_graph_endpoints_testdiagramendpoint",
-      "target": "tests_test_graph_endpoints_testdiagramendpoint_test_unsupported_format_400",
-      "confidence_score": 1.0
+      "target": "tests_test_graph_endpoints_testdiagramendpoint_test_unsupported_format_400"
     },
     {
       "relation": "contains",
@@ -55756,9 +55756,9 @@
       "source_file": "DEVELOPMENT_PHASES.md",
       "source_location": "L869",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "development_phases_development_phases",
-      "target": "development_phases_phase_4_2_4_4_blast_radius_architecture_diagram_ui_panel",
-      "confidence_score": 1.0
+      "target": "development_phases_phase_4_2_4_4_blast_radius_architecture_diagram_ui_panel"
     },
     {
       "relation": "contains",
@@ -56406,9 +56406,9 @@
       "source_file": "DEVELOPMENT_PHASES.md",
       "source_location": "L884",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "development_phases_phase_4_2_4_4_blast_radius_architecture_diagram_ui_panel",
-      "target": "development_phases_architecture_decisions_884",
-      "confidence_score": 1.0
+      "target": "development_phases_architecture_decisions_884"
     },
     {
       "relation": "contains",
@@ -56416,9 +56416,9 @@
       "source_file": "DEVELOPMENT_PHASES.md",
       "source_location": "L900",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "development_phases_phase_4_2_4_4_blast_radius_architecture_diagram_ui_panel",
-      "target": "development_phases_challenges_addressed_900",
-      "confidence_score": 1.0
+      "target": "development_phases_challenges_addressed_900"
     },
     {
       "relation": "contains",
@@ -56426,9 +56426,9 @@
       "source_file": "DEVELOPMENT_PHASES.md",
       "source_location": "L891",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "development_phases_phase_4_2_4_4_blast_radius_architecture_diagram_ui_panel",
-      "target": "development_phases_verification_891",
-      "confidence_score": 1.0
+      "target": "development_phases_verification_891"
     },
     {
       "relation": "contains",
@@ -56436,9 +56436,9 @@
       "source_file": "DEVELOPMENT_PHASES.md",
       "source_location": "L873",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "development_phases_phase_4_2_4_4_blast_radius_architecture_diagram_ui_panel",
-      "target": "development_phases_what_was_built_873",
-      "confidence_score": 1.0
+      "target": "development_phases_what_was_built_873"
     },
     {
       "relation": "contains",
@@ -56603,152 +56603,152 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L1",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration"
+      "source": "specs_plugin_harness_design",
+      "target": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L29",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_architecture"
+      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "target": "specs_plugin_harness_design_architecture",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L107",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_data_flow"
+      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "target": "specs_plugin_harness_design_data_flow",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L114",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_error_handling"
+      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "target": "specs_plugin_harness_design_error_handling",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L7",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_goal"
+      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "target": "specs_plugin_harness_design_goal",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L13",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_hard_constraints_non_negotiable_acceptance_gates"
+      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "target": "specs_plugin_harness_design_hard_constraints_non_negotiable_acceptance_gates",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L136",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_out_of_scope_deferred_dropped_per_roadmap"
+      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "target": "specs_plugin_harness_design_out_of_scope_deferred_dropped_per_roadmap",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L122",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_testing_tests_test_plugin_harness_py"
+      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "target": "specs_plugin_harness_design_testing_tests_test_plugin_harness_py",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L95",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_architecture",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_existing_skill_migration_discoverability_not_behavior"
+      "source": "specs_plugin_harness_design_architecture",
+      "target": "specs_plugin_harness_design_existing_skill_migration_discoverability_not_behavior",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L83",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_architecture",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_first_plugin_compliance"
+      "source": "specs_plugin_harness_design_architecture",
+      "target": "specs_plugin_harness_design_first_plugin_compliance",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L43",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_architecture",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_new_module_app_core_plugin_loader_py_execution_layer"
+      "source": "specs_plugin_harness_design_architecture",
+      "target": "specs_plugin_harness_design_new_module_app_core_plugin_loader_py_execution_layer",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L31",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_architecture",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_new_module_app_core_plugin_registry_py_descriptor_layer"
+      "source": "specs_plugin_harness_design_architecture",
+      "target": "specs_plugin_harness_design_new_module_app_core_plugin_registry_py_descriptor_layer",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L73",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_architecture",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_pipeline_change_app_agents_supervisor_py"
+      "source": "specs_plugin_harness_design_architecture",
+      "target": "specs_plugin_harness_design_pipeline_change_app_agents_supervisor_py",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L55",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_architecture",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_refactor_de_duplication_app_core_llm_agent_py"
+      "source": "specs_plugin_harness_design_architecture",
+      "target": "specs_plugin_harness_design_refactor_de_duplication_app_core_llm_agent_py",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/specs/2026-07-15-phase-3-5-plugin-harness-design.md",
+      "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L65",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "specs_2026_07_15_phase_3_5_plugin_harness_design_architecture",
-      "target": "specs_2026_07_15_phase_3_5_plugin_harness_design_scoring_change_app_core_report_py"
+      "source": "specs_plugin_harness_design_architecture",
+      "target": "specs_plugin_harness_design_scoring_change_app_core_report_py",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -56982,5 +56982,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "68d717f68f24451a2d89d72b000c7e7b1a8993c5"
+  "built_at_commit": "9212cbd25ac92748feca30229816b8cc655c37c0"
 }
