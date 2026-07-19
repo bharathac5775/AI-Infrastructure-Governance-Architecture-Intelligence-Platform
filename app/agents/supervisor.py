@@ -209,6 +209,35 @@ async def supervisor_node(state: AnalysisState) -> dict:
     plugin_reports = [r for (r, _w) in (state.get("plugin_reports") or [])]
     all_agent_reports = agent_reports + plugin_reports
 
+    # Phase 4.1/4.5 — build the dependency graph from the parsed resources still
+    # live in state, and surface SPOFs. Computed AFTER overall_score so the SPOF
+    # findings never perturb the locked scoring weights (they are architectural
+    # observations, surfaced like the architecture review, not a scored agent).
+    dependency_graph = None
+    try:
+        from app.core.graph import (
+            build_dependency_graph,
+            spof_findings,
+            to_dependency_graph_model,
+            SPOF_AGENT_NAME,
+        )
+        g = build_dependency_graph(
+            k8s_resources=state.get("k8s_resources", {}),
+            tf_resources=state.get("tf_resources", []),
+        )
+        if g.number_of_nodes() > 0:
+            dependency_graph = to_dependency_graph_model(g)
+            spof_finds = spof_findings(g)
+            if spof_finds:
+                all_agent_reports = all_agent_reports + [AgentReport(
+                    agent_name=SPOF_AGENT_NAME,
+                    findings=spof_finds,
+                    summary=f"Detected {len(spof_finds)} single point(s) of failure.",
+                    score=100.0,  # informational; excluded from overall_score
+                )]
+    except Exception as e:  # noqa: BLE001 — never let graph analysis break a run
+        logger.warning("Dependency graph analysis failed, skipping: %s", e)
+
     final_report = AnalysisReport(
         files_analyzed=list(state["file_contents"].keys()),
         agent_reports=all_agent_reports,
@@ -217,6 +246,7 @@ async def supervisor_node(state: AnalysisState) -> dict:
         executive_summary=executive_summary,
         risk_summary=risk_summary,
         recommendations=recommendations,
+        dependency_graph=dependency_graph,
     )
 
     return {"final_report": final_report}

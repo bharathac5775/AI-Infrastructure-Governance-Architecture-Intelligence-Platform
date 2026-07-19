@@ -76,6 +76,38 @@ class ComplianceScorecard(BaseModel):
     frameworks: list[ComplianceFrameworkScore] = []
 
 
+# Phase 4.1 / 4.5 — dependency graph + SPOF models. Serializable snapshot of the
+# NetworkX graph so it can be persisted on the report and served by the
+# blast-radius / diagram endpoints without re-parsing the original files.
+class GraphNode(BaseModel):
+    id: str                                   # e.g. "Deployment/prod/api" or "aws_db_instance.db"
+    kind: str                                 # K8s kind or TF resource type
+    platform: str                             # "kubernetes" | "terraform"
+    present: bool = True                      # False if only referenced, not uploaded
+
+
+class GraphEdge(BaseModel):
+    source: str                               # dependent
+    target: str                               # dependency (source depends on target)
+    relation: str                             # "reference" | "selects" | "secretKeyRef" | ...
+
+
+class Spof(BaseModel):
+    node: str
+    kind: str
+    platform: str
+    dependent_count: int
+    dependents: list[str] = []
+    reasons: list[str] = []                   # "high-fan-in" | "articulation-point"
+    is_articulation: bool = False
+
+
+class DependencyGraph(BaseModel):
+    nodes: list[GraphNode] = []
+    edges: list[GraphEdge] = []
+    spofs: list[Spof] = []
+
+
 class AnalysisReport(BaseModel):
     report_id: str = ""
     timestamp: str = ""
@@ -92,6 +124,9 @@ class AnalysisReport(BaseModel):
     bundle_fingerprint: str = ""              # sha256 over sorted (filename, hash) pairs
     # Phase 3.3 — compliance scorecard. None default so old reports deserialize.
     compliance: Optional[ComplianceScorecard] = None
+    # Phase 4.1/4.5 — dependency graph + SPOFs. None default so old persisted
+    # reports (and non-infra uploads with no resources) deserialize cleanly.
+    dependency_graph: Optional[DependencyGraph] = None
     # Phase 3.4 — file contents echoed back from /analyze ONLY (never persisted).
     # Lets the frontend cache the post-render YAML for .tgz uploads (where the
     # text is created server-side) and pasted-content uploads. Stripped before
