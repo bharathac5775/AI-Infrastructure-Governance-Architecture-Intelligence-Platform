@@ -175,6 +175,40 @@ class TestKubernetesGraph:
         g = build_dependency_graph(k8s_resources=_k8s(_K8S_BUNDLE))
         assert ("Deployment/prod/api", "Secret/prod/tls-secret", "volumeSecret") in _edge_set(g)
 
+    def test_ingress_routes_to_service_v1(self):
+        """Ingress backend.service.name (networking.k8s.io/v1) must create an
+        Ingress -> Service edge, so the Ingress is not isolated in the graph."""
+        bundle = """
+apiVersion: v1
+kind: Service
+metadata: {name: web, namespace: default}
+spec: {selector: {app: web}}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: {name: web, namespace: default}
+spec:
+  rules:
+  - host: api.example.com
+    http:
+      paths:
+      - path: /
+        backend: {service: {name: web, port: {number: 80}}}
+"""
+        g = build_dependency_graph(k8s_resources=_k8s(bundle))
+        assert ("Ingress/default/web", "Service/default/web", "routes") in _edge_set(g)
+
+    def test_ingress_default_backend_and_legacy_shape(self):
+        bundle = """
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata: {name: legacy, namespace: default}
+spec:
+  backend: {serviceName: fallback, servicePort: 80}
+"""
+        g = build_dependency_graph(k8s_resources=_k8s(bundle))
+        assert ("Ingress/default/legacy", "Service/default/fallback", "routes") in _edge_set(g)
+
     def test_selector_respects_namespace(self):
         # A Service in a different namespace must NOT match the workload.
         bundle = """
