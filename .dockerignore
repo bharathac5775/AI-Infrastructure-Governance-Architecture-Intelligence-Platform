@@ -3,3 +3,11 @@ data/
 __pycache__/
 *.pyc
 .git/
+# Frontend build artifacts — rebuilt inside the image (stage 1).
+web/node_modules/
+web/dist/
+web/.tsbuild/
+# Not needed in the runtime image.
+graphify-out/
+tests/
+frontend/

@@ -2,6 +2,11 @@
 
 This document tracks the development history, technical decisions, and progress of the AI Infrastructure Governance Platform.
 
+> **Current frontend:** the platform ships a React + TypeScript + Vite web UI
+> (in `web/`), served by the FastAPI backend from the same origin. Some entries
+> below reference an earlier UI implementation — those describe what existed at
+> that phase and are kept as-is for an accurate history.
+
 ---
 
 ## Phase 1 — MVP: Intelligent Infrastructure Analysis

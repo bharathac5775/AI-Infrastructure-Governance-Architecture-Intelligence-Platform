@@ -1,26 +1,17 @@
 services:
-  api:
+  # Single service: the FastAPI backend serves both the JSON API (/api/v1/...)
+  # and the built React frontend (everything else) on one port. The multi-stage
+  # Dockerfile builds web/dist and bakes it into the image.
+  app:
     build: .
     ports:
       - "8000:8000"
     env_file:
       - .env
     environment:
+      # Ollama runs on the host; reach it from inside the container.
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
     volumes:
+      # Persist the ChromaDB report store across restarts.
       - ./data/chromadb:/app/data/chromadb
-    restart: unless-stopped
-
-  frontend:
-    build: .
-    command: streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0
-    ports:
-      - "8501:8501"
-    env_file:
-      - .env
-    environment:
-      - API_URL=http://api:8000/api/v1
-      - OLLAMA_BASE_URL=http://host.docker.internal:11434
-    depends_on:
-      - api
     restart: unless-stopped
