@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { FileText, Download, ArrowLeft } from "lucide-react";
+import { FileText, Download, ArrowLeft, FileJson } from "lucide-react";
+import type { AnalysisReport } from "@/types/api";
 import { api } from "@/lib/api";
 import { PageHeader } from "@/components/layout/page-header";
 import { LoadingState, EmptyState } from "@/components/ui/states";
@@ -12,6 +13,22 @@ import { ArchitecturePanel } from "@/components/architecture-panel";
 import { CompliancePanel } from "@/components/compliance-panel";
 import { DriftPanel } from "@/components/drift-panel";
 import { formatTimestamp } from "@/lib/report-utils";
+
+// Client-side JSON export: serialize the report the API already returned and
+// trigger a browser download. No backend round-trip needed. file_contents is
+// stripped so the download matches what the backend persists.
+function downloadJson(report: AnalysisReport) {
+  const { file_contents: _drop, ...rest } = report;
+  const blob = new Blob([JSON.stringify(rest, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `governance-report-${report.report_id}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
 export function ReportPage() {
   const { id = "" } = useParams();
@@ -57,11 +74,16 @@ export function ReportPage() {
         crumbs={[{ label: "Reports", to: "/reports" }, { label: r.report_id }]}
         description={`${r.files_analyzed.length} file${r.files_analyzed.length === 1 ? "" : "s"} · ${formatTimestamp(r.timestamp)}`}
         actions={
-          <Button variant="secondary" asChild>
-            <a href={api.pdfUrl(r.report_id)} target="_blank" rel="noreferrer">
-              <Download /> Export PDF
-            </a>
-          </Button>
+          <>
+            <Button variant="secondary" onClick={() => downloadJson(r)}>
+              <FileJson /> Download JSON
+            </Button>
+            <Button variant="secondary" asChild>
+              <a href={api.pdfUrl(r.report_id)} target="_blank" rel="noreferrer">
+                <Download /> Export PDF
+              </a>
+            </Button>
+          </>
         }
       />
 
