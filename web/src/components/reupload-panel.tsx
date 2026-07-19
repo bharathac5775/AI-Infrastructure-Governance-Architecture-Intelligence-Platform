@@ -125,8 +125,15 @@ export function ReuploadPanel({
               <p className="text-2xs text-muted-foreground">YAML · YML · TF · JSON · HCL · TGZ</p>
             </div>
           </div>
-          <Button variant="secondary" size="sm" onClick={(e) => e.stopPropagation()} asChild>
-            <span>Browse files</span>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              inputRef.current?.click();
+            }}
+          >
+            Browse files
           </Button>
           <input
             ref={inputRef}
