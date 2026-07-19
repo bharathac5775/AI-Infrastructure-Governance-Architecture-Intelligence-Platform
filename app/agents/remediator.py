@@ -105,11 +105,15 @@ _COMPANION_RESOURCE_CATEGORIES: set[str] = {"autoscaling", "pdb", "network-polic
 
 # Phase 3.5 — roll-up / meta findings emitted by plugin agents (e.g. the
 # Compliance Agent) summarize OTHER findings against a framework and point at a
-# framework id (e.g. "cis_aws") rather than a runtime resource. They are never
-# individually patchable; the fix is to remediate the underlying findings mapped
-# to the failing controls. Detected up-front so the remediator returns a clean,
-# meaningful refusal instead of a confusing "could not locate resource" error.
-_NON_PATCHABLE_CATEGORIES: set[str] = {"compliance-gap"}
+# Categories that are NEVER individually patchable by a code diff:
+# - "compliance-gap": roll-up meta-findings pointing at a framework id, not a
+#   runtime resource. Fix by remediating the underlying findings.
+# - "resilience": SPOF/architecture observations (this resource is structurally
+#   central). The fix is a human design decision (add redundancy / decouple),
+#   not a mechanical single-attribute edit.
+# Detected up-front so the remediator returns a clean, meaningful refusal
+# instead of falling through to the LLM (which mangles/drops resources).
+_NON_PATCHABLE_CATEGORIES: set[str] = {"compliance-gap", "resilience"}
 
 
 def _companion_template(category: str, finding: Finding) -> tuple[str, str]:
@@ -2759,6 +2763,14 @@ async def remediate(
     # not tied to a single resource and cannot be patched. Refuse cleanly before
     # attempting to locate a file (which would fail with a misleading error).
     if finding.category in _NON_PATCHABLE_CATEGORIES:
+        if finding.category == "resilience":
+            raise NonPatchableFinding(
+                f"'{finding.title}' is an architectural observation (a single point "
+                "of failure), not a config defect — there is no single attribute to "
+                "patch. Address it by a design change: add redundancy (replicas / "
+                "Multi-AZ / a standby or read replica) or decouple the dependents so "
+                "this resource's loss does not cascade."
+            )
         raise NonPatchableFinding(
             f"'{finding.title}' is a compliance roll-up that summarizes other "
             "findings against a framework — there is no single resource to patch. "
