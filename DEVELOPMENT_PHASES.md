@@ -865,3 +865,40 @@ A two-layer plugin harness, additive-only so the existing hardcoded pipeline and
 - **Spurious edges from `data.`/`module.` paths** — the reference regex initially matched the middle of `${data.aws_ami.ubuntu.id}`, yielding a bogus `aws_ami.ubuntu` resource edge. Caught by `test_data_source_excluded`. Fixed by also inspecting the token immediately preceding a match and rejecting non-resource prefixes there.
 - **HCL single-value list-wrapping** — references appear as both `"${...}"` and `["${...}"]`; the recursive `_iter_strings` walk handles both.
 - **Drift determinism preserved** — SPOF findings are `architecture`-category (deterministic), so they enter drift's `persisting` bucket for identical uploads and contribute zero to introduced/resolved, keeping the "identical bundle -> all-zero deltas" invariant intact.
+
+## Phase 4.2 + 4.4 — Blast Radius, Architecture Diagram & UI Panel
+
+**Theme:** Make the Phase 4.1/4.5 dependency graph *usable*. The graph was computed and persisted but only visible in the raw report JSON; this increment surfaces it as an interactive Architecture view and adds the query endpoints — served entirely from the stored graph (no re-parse, since original files aren't persisted).
+
+### What Was Built
+
+- **`app/core/graph.py`**:
+  - `graph_from_model()` — rebuild a NetworkX DiGraph from the persisted `DependencyGraph`.
+  - `blast_radius(model, resource)` (4.2) — reverse-graph traversal returning direct + transitive dependents, an impact count, a criticality band (none/medium/high/critical), and whether the resource is a known SPOF. Cycle-safe (`nx.descendants` on the reversed graph). Returns `found=False` for unknown resources rather than raising.
+  - `to_mermaid(model, highlight)` (4.4) — a valid Mermaid `flowchart LR`. Real ids (which contain dots/slashes/colons) map to synthetic `nN` node identifiers with the real id in a quoted label, so Mermaid never mis-parses. SPOF nodes styled red, referenced-but-absent nodes dashed, an optional highlight node emphasized. Large graphs truncate to 60 nodes (SPOF neighborhood prioritized) with a note.
+- **`app/api/routes.py`**:
+  - `GET /reports/{id}/blast-radius?resource=...` — `resource` is a query param so K8s `Kind/ns/name` ids (with slashes) and TF `type.name` ids work without path-encoding. 404 for missing report / missing graph / unknown resource.
+  - `GET /reports/{id}/diagram?format=mermaid&highlight=...` — returns the Mermaid text (`text/plain`). 400 for unsupported format, 404 for missing report/graph.
+- **`frontend/app.py`** — **🏛️ Architecture & Dependencies** panel in the report view: resource/dependency/SPOF metric row, a prominent SPOF list, the Mermaid dependency diagram (rendered client-side via mermaid.js from CDN inside `components.html` — version-agnostic, no dependency on a native `st.mermaid`), and an interactive blast-radius resource picker that highlights the selected node in the diagram and lists affected resources. Hidden when the report has no `dependency_graph` (pre-Phase-4 or history reloads).
+
+### Architecture Decisions
+
+- **Served from the persisted graph, never re-parsed.** Endpoints read `report.dependency_graph` (Option A from 4.1). This is why the graph had to be stored on the report — original files aren't persisted.
+- **Synthetic Mermaid node ids.** Resource ids are not valid Mermaid identifiers; mapping to `nN` + quoted labels is the robust fix (locked by `test_node_ids_are_safe`).
+- **Mermaid over Graphviz.** No system binary, renders client-side, zero new Python dependency.
+- **4.3 (failure-mode LLM narrative) deferred** — LLM-dependent and fragile on the local model; the deterministic blast radius already answers "what breaks if X fails."
+
+### Verification
+
+| Check | Result |
+|---|---|
+| `pytest tests/test_graph.py` | 40 passed (13 new blast/mermaid) |
+| `pytest tests/test_graph_endpoints.py` | 10 passed (TestClient: 404/400/422 edge cases) |
+| Full suite | **601 passed, 38 skipped** (venv incl. networkx) |
+| Live E2E | `terraform-production-grade.json` → report with 26 nodes/37 edges/4 SPOFs; diagram endpoint returns valid Mermaid; blast-radius on `aws_kms_key.main` returns its dependents; unknown resource + bad report both 404 |
+
+### Challenges Addressed
+
+- **networkx missing in the venv** — the backend server crashed silently in the graph node (`try/except` swallowed `ModuleNotFoundError`), so `dependency_graph` came back NULL in live reports even though tests passed (they ran in system Python). Fixed by installing `networkx==3.4.2` into the venv; `requirements.txt` already declared it.
+- **Mermaid `\n` label break** — `_mermaid_escape_label` stripped backslashes, so `\n` became a literal `n`. Switched to Mermaid's `<br/>`.
+- **Node-id path routing** — K8s ids contain `/`; used a query param for `resource` instead of a path segment.
