@@ -374,6 +374,16 @@ _AI_CATEGORY_INFERENCE: tuple[tuple[tuple[str, ...], tuple[str, ...], str], ...]
     (("open", "internet"),         ("aws_security_group", "azurerm_network_security"), "network"),
     (("permissive", "ingress"),    ("aws_security_group",), "network"),
     (("permissive", "egress"),     ("aws_security_group",), "network"),
+    # ----- High availability (zone redundancy / Multi-AZ) -----
+    (("zone", "redundan"),         ("azurerm_mssql_database", "azurerm_sql"), "high-availability"),
+    (("zone-redundant",),          ("azurerm_mssql_database", "azurerm_sql"), "high-availability"),
+    (("multi-az",),                ("aws_db_instance", "aws_rds"), "high-availability"),
+    (("availability", "zone"),     ("azurerm_linux_virtual_machine", "azurerm_windows_virtual_machine", "azurerm_virtual_machine"), "high-availability"),
+    # ----- Backup / recoverability (Azure Key Vault deletion protection) -----
+    (("purge", "protection"),      ("azurerm_key_vault",), "backup"),
+    (("deletion", "protection"),   ("azurerm_key_vault",), "backup"),
+    (("soft", "delete"),           ("azurerm_key_vault",), "backup"),
+    (("deletion", "protection"),   ("aws_db_instance", "aws_rds"), "backup"),
 )
 
 
@@ -1866,6 +1876,35 @@ def _fix_tf(finding: Finding, content: str) -> tuple[str, str, list[str]]:
             )
             return patched, f"Added Azure AD RBAC on {rtype}.{rname}.", warnings
 
+    # ----- High availability / resilience (deterministic single-attribute flips) -----
+    if cat == "high-availability":
+        # Azure SQL database zone redundancy
+        if rtype == "azurerm_mssql_database" and "zone" in title.lower():
+            patched = _tf_set_argument_in_block(content, rtype, rname, "zone_redundant", "true")
+            return patched, f"Set zone_redundant=true on {rtype}.{rname}.", warnings
+        # AWS RDS Multi-AZ
+        if rtype in ("aws_db_instance", "aws_rds_cluster") and "multi-az" in title.lower():
+            patched = _tf_set_argument_in_block(content, rtype, rname, "multi_az", "true")
+            return patched, f"Enabled multi_az on {rtype}.{rname}.", warnings
+        # Azure VM without an availability zone — needs a value the user must
+        # choose; use a CHANGE_ME placeholder so the file still parses.
+        if rtype in ("azurerm_linux_virtual_machine", "azurerm_windows_virtual_machine", "azurerm_virtual_machine"):
+            warnings.append('zone must be one of "1"/"2"/"3" for your region — CHANGE_ME.')
+            patched = _tf_set_argument_in_block(content, rtype, rname, "zone", '"1"')
+            return patched, f"Set availability zone on {rtype}.{rname}.", warnings
+
+    # ----- Backup / recoverability -----
+    if cat in ("backup", "recoverability"):
+        if rtype == "azurerm_key_vault" and ("purge" in title.lower() or "deletion protection" in title.lower()):
+            patched = _tf_set_argument_in_block(content, rtype, rname, "purge_protection_enabled", "true")
+            return patched, f"Enabled purge_protection on {rtype}.{rname}.", warnings
+        if rtype == "azurerm_key_vault" and "soft delete" in title.lower():
+            patched = _tf_set_argument_in_block(content, rtype, rname, "soft_delete_retention_days", "90")
+            return patched, f"Set soft_delete_retention_days=90 on {rtype}.{rname}.", warnings
+        if rtype in ("aws_db_instance", "aws_rds_cluster") and ("deletion protection" in title.lower()):
+            patched = _tf_set_argument_in_block(content, rtype, rname, "deletion_protection", "true")
+            return patched, f"Enabled deletion_protection on {rtype}.{rname}.", warnings
+
     raise RemediationError(f"No deterministic Terraform fixer for category='{cat}', resource='{resource}'.")
 
 
@@ -2108,6 +2147,21 @@ def _fix_tf_json(finding: Finding, content: str) -> tuple[str, str, list[str]]:
         config = _tfjson_get_resource_block(parsed, rtype, rname)
         config["multi_az"] = True
         return _tfjson_dump(parsed, content), f"Enabled Multi-AZ on {rtype}.{rname}.", warnings
+    if cat == "high-availability" and rtype == "azurerm_mssql_database" and "zone" in title.lower():
+        config = _tfjson_get_resource_block(parsed, rtype, rname)
+        config["zone_redundant"] = True
+        return _tfjson_dump(parsed, content), f"Set zone_redundant=true on {rtype}.{rname}.", warnings
+    if cat == "high-availability" and rtype in ("aws_db_instance", "aws_rds_cluster") and "multi-az" in title.lower():
+        config = _tfjson_get_resource_block(parsed, rtype, rname)
+        config["multi_az"] = True
+        return _tfjson_dump(parsed, content), f"Enabled multi_az on {rtype}.{rname}.", warnings
+    if cat == "backup" and rtype == "azurerm_key_vault":
+        config = _tfjson_get_resource_block(parsed, rtype, rname)
+        if "soft delete" in title.lower():
+            config["soft_delete_retention_days"] = 90
+            return _tfjson_dump(parsed, content), f"Set soft_delete_retention_days=90 on {rtype}.{rname}.", warnings
+        config["purge_protection_enabled"] = True
+        return _tfjson_dump(parsed, content), f"Enabled purge_protection on {rtype}.{rname}.", warnings
     if cat == "protection" and rtype == "aws_db_instance":
         config = _tfjson_get_resource_block(parsed, rtype, rname)
         config["deletion_protection"] = True
