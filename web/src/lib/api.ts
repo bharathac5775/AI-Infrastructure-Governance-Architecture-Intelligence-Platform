@@ -1,6 +1,7 @@
 import type {
   AnalysisReport,
   BlastRadius,
+  CompareResult,
   DriftResponse,
   HealthResponse,
   Patch,
@@ -77,7 +78,7 @@ export const api = {
     request<{ status: string; report_id: string }>(`/reports/${id}`, { method: "DELETE" }),
 
   compareReports: (a: string, b: string) =>
-    request<Record<string, unknown>>(`/reports/compare/${a}/${b}`),
+    request<CompareResult>(`/reports/compare/${a}/${b}`),
 
   similarReports: (id: string, n = 3) =>
     request<Record<string, unknown>>(`/reports/${id}/similar?n=${n}`),

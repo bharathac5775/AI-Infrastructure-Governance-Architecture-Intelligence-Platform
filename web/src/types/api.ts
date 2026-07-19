@@ -126,8 +126,26 @@ export interface ReportListItem {
   report_id: string;
   timestamp: string;
   overall_score: number;
-  files_analyzed: string[];
-  [k: string]: unknown;
+  files_analyzed: string; // NOTE: comma-joined string in the list (not array)
+  file_count: number;
+  security_agent_score?: number;
+  reliability_agent_score?: number;
+  cost_agent_score?: number;
+  architecture_score?: number;
+}
+
+export interface CompareResult {
+  report_a: { id: string; timestamp: string };
+  report_b: { id: string; timestamp: string };
+  overall_delta: number;
+  security_delta: number;
+  reliability_delta: number;
+  cost_delta: number;
+  findings_delta: number;
+  scores: {
+    before: Record<string, number>;
+    after: Record<string, number>;
+  };
 }
 
 export interface BlastRadius {
