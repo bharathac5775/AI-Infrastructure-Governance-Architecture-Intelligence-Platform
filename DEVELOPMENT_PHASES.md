@@ -939,3 +939,38 @@ those risks drawing wrong edges — a wrong dependency is worse than a missing
 one for blast-radius analysis. Resources with no explicit reference appear as
 isolated nodes, which is itself a useful signal (standalone, implicitly linked,
 or possibly missing a wiring resource).
+
+## Phase 5 — Autonomous Governance (GitHub PR Integration) — NOT PURSUED
+
+Phase 5 was scoped as GitHub PR integration: a GitHub Action that runs on every
+PR, posts inline comments, gates merges on a score delta, plus a self-hosted
+webhook server. After an architectural review it was **intentionally not
+pursued**, because it assumes a *hosted service* — which conflicts with what
+this product actually is: a **local-first, single-user tool** (Streamlit + local
+FastAPI + local Ollama + local ChromaDB, "no data leaves the box").
+
+The concrete mismatches:
+
+- **No LLM in CI.** A GitHub-hosted runner has no Ollama, and the project's
+  open-source constraint forbids cloud LLM keys — so the full analysis can't run
+  in a stock Action. (Rules-only analysis *can*, and is fully supported, but that
+  is a narrower feature than the original spec.)
+- **Inline PR comments need line numbers the model doesn't have.** `Finding`
+  carries only a free-text `resource` — no filename or source line — so true
+  file:line PR comments would require line-tracking in every parser + model and
+  agent changes: substantial core rework, not wiring.
+- **Score-gating "PR vs main" needs branch-aware storage that doesn't exist.**
+  Stored reports carry no git branch/commit; drift matches only byte-identical
+  bundles, so a changed PR never matches its main baseline.
+- **Webhook mode needs a public, authenticated, hardened server.** The product
+  today is dev-server-only with no auth, no TLS, CORS `*`, and a single-process
+  in-memory cache — deliberately local. Exposing it publicly is a new security
+  posture, not a feature toggle.
+
+**Decision:** the product is treated as **feature-complete after Phase 4**. It is
+a polished local-first infrastructure-governance analyzer (multi-agent analysis,
+compliance mapping, drift, remediation, dependency graph, SPOF/blast-radius). The
+few Phase 5 ideas that *would* fit a local tool without hosting (a local CLI
+wrapper around the rules-only path, an SVG compliance badge, optional Slack/
+Discord notifications) are noted here as possible future enhancements, not
+committed scope. Phase 5 as originally specified is closed.
