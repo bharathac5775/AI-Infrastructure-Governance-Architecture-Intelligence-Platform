@@ -19,7 +19,7 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 | **LLM** | Gemma4 via Ollama (local, privacy-first) |
 | **Agent Orchestration** | LangGraph + LangChain |
 | **Backend** | FastAPI + Uvicorn |
-| **Frontend** | Streamlit |
+| **Frontend** | React + TypeScript + Vite + Tailwind CSS |
 | **Parsers** | PyYAML (Kubernetes), python-hcl2 (Terraform), Helm CLI (Charts) |
 | **Report Storage** | ChromaDB (persistent, vector search) |
 | **Data Models** | Pydantic |
@@ -30,16 +30,16 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 
 ```
 ┌──────────────────────┐
-│   Streamlit UI       │  port 8501
-│   Upload / Paste     │
+│   React Web UI       │  served by the API (one port)
+│   Analyze / Paste    │
 │   Report Dashboard   │
 │   Report History     │
 └──────────┬───────────┘
-           │  HTTP (multipart)
+           │  HTTP (multipart / JSON)
            ▼
 ┌──────────────────────┐
 │   FastAPI Backend    │  port 8000
-│   /api/v1/analyze    │
+│   /api/v1/analyze    │  + serves the built web UI
 │   .tgz → helm template → YAML
 └──────────┬───────────┘
            │
@@ -104,6 +104,7 @@ Traditional IaC linting tools (tfsec, checkov, kube-score) rely purely on static
 ## Prerequisites
 
 - **Python 3.11+**
+- **Node.js 18+** — to build/run the web frontend
 - **Ollama** — [install here](https://ollama.com/download)
 - **Helm CLI** — required for `.tgz` chart analysis ([install here](https://helm.sh/docs/intro/install/))
 
@@ -129,27 +130,31 @@ pip install -r requirements.txt
 cp .env.example .env
 
 # 5. Start the backend (Terminal 1)
-uvicorn app.main:app --reload --port 8000 --timeout-keep-alive 600
+uvicorn app.main:app --reload --port 8001 --timeout-keep-alive 600
 
-# 6. Start the frontend (Terminal 2)
-source venv/bin/activate
-streamlit run frontend/app.py
+# 6. Start the web frontend (Terminal 2)
+cd web
+npm install
+npm run dev
 ```
 
-Open **http://localhost:8501** to access the platform.
+Open **http://localhost:5173** — the Vite dev server proxies `/api` to the
+backend on port 8001, so the UI and API just work together. See
+[web/README.md](web/README.md) for frontend details.
 
 ### Docker
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
-The Docker image automatically installs the Helm CLI.
+A single image builds the React frontend and serves it from the FastAPI backend,
+so the whole product runs on one port. The image also installs the Helm CLI.
 
 | Service | URL |
 |---------|-----|
-| Frontend | http://localhost:8501 |
-| Backend | http://localhost:8000 |
+| Web UI | http://localhost:8000 |
+| Backend API | http://localhost:8000/api/v1 |
 | API Docs | http://localhost:8000/docs |
 
 ## Environment Variables
@@ -158,7 +163,6 @@ The Docker image automatically installs the Helm CLI.
 |----------|---------|-------------|
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server URL |
 | `OLLAMA_MODEL` | `gemma4:E2B` | LLM model to use |
-| `API_URL` | `http://localhost:8000/api/v1` | Backend URL (used by frontend in Docker) |
 
 ## API Endpoints
 
@@ -171,6 +175,11 @@ The Docker image automatically installs the Helm CLI.
 | `DELETE` | `/api/v1/reports/{id}` | Delete a report |
 | `GET` | `/api/v1/reports/compare/{a}/{b}` | Compare two reports (score deltas) |
 | `GET` | `/api/v1/reports/{id}/similar` | Find past reports with similar risk profiles |
+| `GET` | `/api/v1/reports/{id}/drift` | Drift vs. the previous scan of the same bundle |
+| `GET` | `/api/v1/reports/{id}/blast-radius?resource=` | What breaks if a resource fails |
+| `GET` | `/api/v1/reports/{id}/diagram?format=mermaid` | Dependency diagram (Mermaid) |
+| `GET` | `/api/v1/reports/{id}/export/pdf` | Auditor-ready PDF export |
+| `POST` | `/api/v1/reports/{id}/remediate/{i}` | Generate a code fix for a finding |
 | `GET` | `/api/v1/health` | Health check |
 
 ## Project Structure
@@ -199,8 +208,9 @@ The Docker image automatically installs the Helm CLI.
 │       ├── store.py           # ChromaDB report persistence
 │       └── report.py          # Score calculation & formatting
 ├── skills/                    # Agent prompt skill files (.md)
-├── frontend/
-│   └── app.py                 # Streamlit UI
+├── web/                       # React + TypeScript web frontend (Vite)
+│   ├── src/                   # Components, pages, API client
+│   └── README.md              # Frontend setup & architecture
 ├── samples/                   # Sample infrastructure files for testing
 ├── docker-compose.yml
 ├── Dockerfile

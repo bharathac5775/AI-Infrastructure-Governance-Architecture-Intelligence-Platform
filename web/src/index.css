@@ -1,0 +1,174 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Inter, self-hosted (no CDN call — respects local-first). Files live in
+   /public/fonts; variable font covers all weights we use. */
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/InterVariable.woff2") format("woff2");
+}
+
+@layer base {
+  :root {
+    /* Light — layered zinc neutrals. Note the deliberate 3-step elevation:
+       background (page) is faintly cool, card is pure white, so cards read as
+       lifted without a shadow. This is the Linear/Vercel trick. */
+    --background: 240 20% 99%;
+    --foreground: 240 10% 4%;
+    --surface: 240 24% 97%; /* subtle inset panels (editor gutter, headers) */
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 4%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 4%;
+
+    /* Accent: indigo, used with discipline (primary, active, links, ring). */
+    --primary: 243 75% 58%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 243 75% 52%;
+
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 10%;
+
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 44%;
+
+    --accent: 240 5% 95%;
+    --accent-foreground: 240 6% 10%;
+
+    /* Two border weights: hairline (dividers) and strong (inputs, focus edge). */
+    --border: 240 6% 91%;
+    --border-strong: 240 6% 84%;
+    --input: 240 6% 88%;
+    --ring: 243 75% 58%;
+
+    /* Restrained semantic colors — badges/dots only, never filled cards. */
+    --danger: 0 72% 50%;
+    --warning: 32 90% 44%;
+    --info: 217 85% 52%;
+    --success: 142 66% 38%;
+  }
+
+  .dark {
+    /* Dark — near-black graphite surfaces with genuine elevation steps and a
+       lifted indigo. background < card < popover in lightness so panels layer. */
+    --background: 240 12% 5%;
+    --foreground: 0 0% 95%;
+    --surface: 240 9% 8%;
+
+    --card: 240 9% 8%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 240 9% 10%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 243 82% 68%;
+    --primary-foreground: 240 12% 6%;
+    --primary-hover: 243 85% 74%;
+
+    --secondary: 240 5% 13%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 240 5% 13%;
+    --muted-foreground: 240 5% 58%;
+
+    --accent: 240 5% 15%;
+    --accent-foreground: 0 0% 95%;
+
+    --border: 240 5% 15%;
+    --border-strong: 240 5% 22%;
+    --input: 240 5% 20%;
+    --ring: 243 82% 68%;
+
+    --danger: 0 74% 60%;
+    --warning: 34 92% 56%;
+    --info: 217 91% 64%;
+    --success: 142 62% 48%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv11", "ss01", "calt";
+    letter-spacing: -0.006em;
+  }
+
+  /* Headings get slightly tighter tracking — a hallmark of handcrafted type. */
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+  }
+
+  /* Scores, counts, and metrics use tabular figures so digits don't jitter. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* Global focus ring — the one place indigo appears on non-primary elements. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.22);
+  }
+}
+
+@layer components {
+  /* Card with a 1px hairline top highlight — catches light like a real surface
+     without a shadow. The signature Linear/Vercel card treatment. */
+  .surface-raised {
+    box-shadow:
+      inset 0 1px 0 0 hsl(0 0% 100% / 0.04),
+      0 1px 2px -1px hsl(240 10% 4% / 0.08),
+      0 2px 8px -4px hsl(240 10% 4% / 0.06);
+  }
+
+  /* Subtle top highlight on filled buttons — reads as a tactile, pressable
+     surface. Very low opacity; invisible until you look for it. */
+  .btn-sheen {
+    box-shadow: inset 0 1px 0 0 hsl(0 0% 100% / 0.12);
+  }
+}
+
+@layer utilities {
+  /* Refined thin scrollbars. */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border-strong)) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--border-strong));
+    border-radius: 8px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+    background-clip: content-box;
+  }
+
+  /* Faint grid texture for the empty/hero surfaces — adds craft, not noise. */
+  .bg-dotted {
+    background-image: radial-gradient(hsl(var(--border-strong)) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+}

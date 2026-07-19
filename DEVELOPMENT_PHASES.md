@@ -32,14 +32,14 @@ Both rules and the LLM often find the same issue worded differently. A keyword +
 Initially a single prompt was used per agent. This caused **concept leakage** — the LLM applied Kubernetes concepts (resource requests/limits, probes) to Terraform resources (EC2 instances). Fixed by creating 6 separate prompts (2 per agent) with explicit guardrails like "EC2 instances do NOT have resource requests."
 
 **5. Content-First File Type Detection**  
-`_detect_infra_type()` checks file content for K8s/Terraform markers before falling back to file extension. This handles the case where users paste Terraform content with a `.yaml` filename in the Streamlit UI.
+`_detect_infra_type()` checks file content for K8s/Terraform markers before falling back to file extension. This handles the case where users paste Terraform content with a `.yaml` filename in the UI.
 
 ### Components Delivered
 
 | Component | Details |
 |-----------|---------|
 | **FastAPI Backend** | REST API with file upload + text analysis endpoints |
-| **Streamlit Frontend** | Upload files or paste content, view scored reports |
+| **Web Frontend** | Upload files or paste content, view scored reports |
 | **Security Agent** | ~10 K8s rules + ~21 Terraform rules + LLM analysis |
 | **Reliability Agent** | ~7 K8s rules + ~13 Terraform rules + LLM analysis |
 | **Cost Agent** | ~6 K8s rules + ~12 Terraform rules + LLM analysis |
@@ -439,7 +439,7 @@ Every Phase 2 fix has at least one positive + one negative test. Names like `tes
 End-to-end drift detection from API to UI:
 1. **SHA256 fingerprinting** of every uploaded bundle (filename-set hash + per-file content hashes)
 2. **`GET /api/v1/reports/{id}/drift` endpoint** that finds the prior scan with the same bundle fingerprint and returns a structured drift summary
-3. **Streamlit drift panel** that auto-appears when a re-upload is detected
+3. **Drift panel** that auto-appears when a re-upload is detected
 4. **Deterministic-only comparison** — drift sees through LLM noise to the rule-based substrate
 
 ### Architecture Decisions
@@ -567,7 +567,7 @@ The first cut had two layered bugs that surfaced when the user uploaded `azure-a
 Both fixed: framework-level filter via `requires_any_of`, control-level filter via `_is_control_assessable`. Documented in the JSON header and locked in by `test_unassessable_controls_not_inflated_into_passed`.
 
 **6. PDF via reportlab.platypus**
-`generate_pdf_report(report) -> bytes` builds a clean multi-page PDF: title page, score table, compliance scorecard table, per-framework PASS/FAIL control breakdown, findings appendix grouped by agent and severity. Streamlit fetches via the new `GET /reports/{id}/export/pdf` endpoint and serves it through `st.download_button`.
+`generate_pdf_report(report) -> bytes` builds a clean multi-page PDF: title page, score table, compliance scorecard table, per-framework PASS/FAIL control breakdown, findings appendix grouped by agent and severity. The frontend fetches via the new `GET /reports/{id}/export/pdf` endpoint and offers it as a download.
 
 **7. Pure-JSON Extensibility**
 Adding a new framework or new control attributions requires zero Python changes. The Python is data-driven via `framework_prefix_map`, `requires_any_of`, and `domain` tags. CIS Azure and CIS GCP were added in Phase 3.3's extension via JSON edits only.
@@ -917,7 +917,7 @@ cloud, no live state, no paid APIs.
 |---|---|
 | 4.1 Dependency Graph | Directed graph over every resource; works for all six input formats (YAML/YML/TF/JSON/HCL/TGZ), which all normalize into `k8s_resources` + `tf_resources`. Persisted on `AnalysisReport.dependency_graph`. |
 | 4.2 Blast Radius | `GET /reports/{id}/blast-radius?resource=...` — everything that transitively depends on a resource, with a criticality band. |
-| 4.4 Architecture Diagram + UI | `GET /reports/{id}/diagram` (Mermaid) + the "🏛️ Architecture & Dependencies" Streamlit panel (diagram, SPOF list, interactive blast-radius picker). |
+| 4.4 Architecture Diagram + UI | `GET /reports/{id}/diagram` (Mermaid) + the "Architecture & Dependencies" UI panel (diagram, SPOF list, interactive blast-radius picker). |
 | 4.5 SPOF Detector | High-fan-in + articulation-point detection → "Resilience Agent" findings (informational; excluded from the weighted score). |
 
 **4.3 Failure-Mode LLM narrative — DROPPED (deliberate).**
@@ -940,37 +940,3 @@ one for blast-radius analysis. Resources with no explicit reference appear as
 isolated nodes, which is itself a useful signal (standalone, implicitly linked,
 or possibly missing a wiring resource).
 
-## Phase 5 — Autonomous Governance (GitHub PR Integration) — NOT PURSUED
-
-Phase 5 was scoped as GitHub PR integration: a GitHub Action that runs on every
-PR, posts inline comments, gates merges on a score delta, plus a self-hosted
-webhook server. After an architectural review it was **intentionally not
-pursued**, because it assumes a *hosted service* — which conflicts with what
-this product actually is: a **local-first, single-user tool** (Streamlit + local
-FastAPI + local Ollama + local ChromaDB, "no data leaves the box").
-
-The concrete mismatches:
-
-- **No LLM in CI.** A GitHub-hosted runner has no Ollama, and the project's
-  open-source constraint forbids cloud LLM keys — so the full analysis can't run
-  in a stock Action. (Rules-only analysis *can*, and is fully supported, but that
-  is a narrower feature than the original spec.)
-- **Inline PR comments need line numbers the model doesn't have.** `Finding`
-  carries only a free-text `resource` — no filename or source line — so true
-  file:line PR comments would require line-tracking in every parser + model and
-  agent changes: substantial core rework, not wiring.
-- **Score-gating "PR vs main" needs branch-aware storage that doesn't exist.**
-  Stored reports carry no git branch/commit; drift matches only byte-identical
-  bundles, so a changed PR never matches its main baseline.
-- **Webhook mode needs a public, authenticated, hardened server.** The product
-  today is dev-server-only with no auth, no TLS, CORS `*`, and a single-process
-  in-memory cache — deliberately local. Exposing it publicly is a new security
-  posture, not a feature toggle.
-
-**Decision:** the product is treated as **feature-complete after Phase 4**. It is
-a polished local-first infrastructure-governance analyzer (multi-agent analysis,
-compliance mapping, drift, remediation, dependency graph, SPOF/blast-radius). The
-few Phase 5 ideas that *would* fit a local tool without hosting (a local CLI
-wrapper around the rules-only path, an SVG compliance badge, optional Slack/
-Discord notifications) are noted here as possible future enhancements, not
-committed scope. Phase 5 as originally specified is closed.
