@@ -345,12 +345,21 @@ if "report" in st.session_state:
             return "🏛️"
         if "Compliance" in agent_name:
             return "📋"
+        if "Resilience" in agent_name:
+            return "🛡️"
         return "🔌"
 
-    # Score overview — one column for the overall score plus one per agent, so
-    # plugin agents (e.g. Compliance) get their own tile instead of overwriting
-    # another agent's column.
-    cols = st.columns(1 + len(agent_reports))
+    # The Resilience Agent (SPOF detector) carries an informational score of
+    # 100.0 that is intentionally NOT part of the weighted overall score — it
+    # surfaces single-points-of-failure as findings, not as a graded dimension.
+    # Exclude it from the scored-tile row so it does not look like a real 100/100
+    # (and does not collide visually with the separate Architecture Review score).
+    scored_reports = [
+        a for a in agent_reports if a.get("agent_name") != "Resilience Agent"
+    ]
+
+    # Score overview — one column for the overall score plus one per scored agent.
+    cols = st.columns(1 + len(scored_reports))
 
     overall_score = report.get("overall_score", 0)
     score_color = "🟢" if overall_score >= 70 else "🟡" if overall_score >= 40 else "🔴"
@@ -359,7 +368,7 @@ if "report" in st.session_state:
         st.metric("Overall Score", f"{score_color} {overall_score}/100")
 
     # Agent scores
-    for i, agent_report in enumerate(agent_reports):
+    for i, agent_report in enumerate(scored_reports):
         with cols[i + 1]:
             name = agent_report["agent_name"].replace(" Agent", "")
             score = agent_report["score"]
