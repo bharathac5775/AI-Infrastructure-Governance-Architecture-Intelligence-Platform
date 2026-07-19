@@ -14984,20 +14984,20 @@
       "norm_label": "plugin-harness-design.md"
     },
     {
-      "label": "Phase 3.5 \u2014 Plugin Harness (Dynamic Agent Registration)",
+      "label": "Plugin Harness (Dynamic Agent Registration)",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "id": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
       "community": 33,
-      "norm_label": "phase 3.5 \u2014 plugin harness (dynamic agent registration)"
+      "norm_label": "plugin harness (dynamic agent registration)"
     },
     {
       "label": "Goal",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L7",
+      "source_location": "L6",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_goal",
       "community": 33,
@@ -15007,7 +15007,7 @@
       "label": "Hard constraints (non-negotiable acceptance gates)",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L13",
+      "source_location": "L12",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_hard_constraints_non_negotiable_acceptance_gates",
       "community": 33,
@@ -15017,7 +15017,7 @@
       "label": "Architecture",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L29",
+      "source_location": "L28",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_architecture",
       "community": 33,
@@ -15027,7 +15027,7 @@
       "label": "New module: `app/core/plugin_registry.py` (descriptor layer)",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L31",
+      "source_location": "L30",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_new_module_app_core_plugin_registry_py_descriptor_layer",
       "community": 33,
@@ -15037,7 +15037,7 @@
       "label": "New module: `app/core/plugin_loader.py` (execution layer)",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L43",
+      "source_location": "L42",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_new_module_app_core_plugin_loader_py_execution_layer",
       "community": 33,
@@ -15047,7 +15047,7 @@
       "label": "Refactor (de-duplication): `app/core/llm_agent.py`",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L55",
+      "source_location": "L54",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_refactor_de_duplication_app_core_llm_agent_py",
       "community": 33,
@@ -15057,7 +15057,7 @@
       "label": "Scoring change: `app/core/report.py`",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L65",
+      "source_location": "L64",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_scoring_change_app_core_report_py",
       "community": 33,
@@ -15067,7 +15067,7 @@
       "label": "Pipeline change: `app/agents/supervisor.py`",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L73",
+      "source_location": "L72",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_pipeline_change_app_agents_supervisor_py",
       "community": 33,
@@ -15077,7 +15077,7 @@
       "label": "First plugin: compliance",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L83",
+      "source_location": "L82",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_first_plugin_compliance",
       "community": 33,
@@ -15087,7 +15087,7 @@
       "label": "Existing skill migration (discoverability, not behavior)",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L95",
+      "source_location": "L94",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_existing_skill_migration_discoverability_not_behavior",
       "community": 33,
@@ -15097,7 +15097,7 @@
       "label": "Data flow",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L107",
+      "source_location": "L106",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_data_flow",
       "community": 33,
@@ -15107,7 +15107,7 @@
       "label": "Error handling",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L114",
+      "source_location": "L113",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_error_handling",
       "community": 33,
@@ -15117,7 +15117,7 @@
       "label": "Testing (`tests/test_plugin_harness.py`)",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L122",
+      "source_location": "L121",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_testing_tests_test_plugin_harness_py",
       "community": 33,
@@ -15127,7 +15127,7 @@
       "label": "Out of scope (deferred / dropped per roadmap)",
       "file_type": "document",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L136",
+      "source_location": "L135",
       "_origin": "ast",
       "id": "specs_plugin_harness_design_out_of_scope_deferred_dropped_per_roadmap",
       "community": 33,
@@ -30999,9 +30999,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L328",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_rationale_328",
-      "target": "core_graph_dependents_of",
-      "confidence_score": 1.0
+      "target": "core_graph_dependents_of"
     },
     {
       "relation": "imports",
@@ -31031,9 +31031,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L340",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_rationale_340",
-      "target": "core_graph_find_spofs",
-      "confidence_score": 1.0
+      "target": "core_graph_find_spofs"
     },
     {
       "relation": "calls",
@@ -31189,9 +31189,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L401",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_rationale_401",
-      "target": "core_graph_spof_findings",
-      "confidence_score": 1.0
+      "target": "core_graph_spof_findings"
     },
     {
       "relation": "references",
@@ -31336,9 +31336,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L442",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_rationale_442",
-      "target": "core_graph_to_dependency_graph_model",
-      "confidence_score": 1.0
+      "target": "core_graph_to_dependency_graph_model"
     },
     {
       "relation": "calls",
@@ -31516,9 +31516,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L479",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_rationale_479",
-      "target": "core_graph_build_dependency_graph_model",
-      "confidence_score": 1.0
+      "target": "core_graph_build_dependency_graph_model"
     },
     {
       "relation": "imports",
@@ -31691,9 +31691,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L493",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_rationale_493",
-      "target": "core_graph_graph_from_model",
-      "confidence_score": 1.0
+      "target": "core_graph_graph_from_model"
     },
     {
       "relation": "imports",
@@ -31723,9 +31723,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L508",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_rationale_508",
-      "target": "core_graph_blast_radius",
-      "confidence_score": 1.0
+      "target": "core_graph_blast_radius"
     },
     {
       "relation": "imports",
@@ -31810,9 +31810,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L564",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_rationale_564",
-      "target": "core_graph_mermaid_escape_label",
-      "confidence_score": 1.0
+      "target": "core_graph_mermaid_escape_label"
     },
     {
       "relation": "calls",
@@ -31831,9 +31831,9 @@
       "source_file": "app/core/graph.py",
       "source_location": "L574",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_graph_rationale_574",
-      "target": "core_graph_to_mermaid",
-      "confidence_score": 1.0
+      "target": "core_graph_to_mermaid"
     },
     {
       "relation": "imports",
@@ -56607,16 +56607,16 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "specs_plugin_harness_design",
-      "target": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "target": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L29",
+      "source_location": "L28",
       "weight": 1.0,
-      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
       "target": "specs_plugin_harness_design_architecture",
       "confidence_score": 1.0
     },
@@ -56624,9 +56624,9 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L107",
+      "source_location": "L106",
       "weight": 1.0,
-      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
       "target": "specs_plugin_harness_design_data_flow",
       "confidence_score": 1.0
     },
@@ -56634,9 +56634,9 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L114",
+      "source_location": "L113",
       "weight": 1.0,
-      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
       "target": "specs_plugin_harness_design_error_handling",
       "confidence_score": 1.0
     },
@@ -56644,9 +56644,9 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L7",
+      "source_location": "L6",
       "weight": 1.0,
-      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
       "target": "specs_plugin_harness_design_goal",
       "confidence_score": 1.0
     },
@@ -56654,9 +56654,9 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L13",
+      "source_location": "L12",
       "weight": 1.0,
-      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
       "target": "specs_plugin_harness_design_hard_constraints_non_negotiable_acceptance_gates",
       "confidence_score": 1.0
     },
@@ -56664,9 +56664,9 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L136",
+      "source_location": "L135",
       "weight": 1.0,
-      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
       "target": "specs_plugin_harness_design_out_of_scope_deferred_dropped_per_roadmap",
       "confidence_score": 1.0
     },
@@ -56674,9 +56674,9 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
-      "source_location": "L122",
+      "source_location": "L121",
       "weight": 1.0,
-      "source": "specs_plugin_harness_design_phase_3_5_plugin_harness_dynamic_agent_registration",
+      "source": "specs_plugin_harness_design_plugin_harness_dynamic_agent_registration",
       "target": "specs_plugin_harness_design_testing_tests_test_plugin_harness_py",
       "confidence_score": 1.0
     },
@@ -56686,9 +56686,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_architecture",
-      "target": "specs_plugin_harness_design_existing_skill_migration_discoverability_not_behavior",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_existing_skill_migration_discoverability_not_behavior"
     },
     {
       "relation": "contains",
@@ -56696,9 +56696,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_architecture",
-      "target": "specs_plugin_harness_design_first_plugin_compliance",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_first_plugin_compliance"
     },
     {
       "relation": "contains",
@@ -56706,9 +56706,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_architecture",
-      "target": "specs_plugin_harness_design_new_module_app_core_plugin_loader_py_execution_layer",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_new_module_app_core_plugin_loader_py_execution_layer"
     },
     {
       "relation": "contains",
@@ -56716,9 +56716,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_architecture",
-      "target": "specs_plugin_harness_design_new_module_app_core_plugin_registry_py_descriptor_layer",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_new_module_app_core_plugin_registry_py_descriptor_layer"
     },
     {
       "relation": "contains",
@@ -56726,9 +56726,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_architecture",
-      "target": "specs_plugin_harness_design_pipeline_change_app_agents_supervisor_py",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_pipeline_change_app_agents_supervisor_py"
     },
     {
       "relation": "contains",
@@ -56736,9 +56736,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_architecture",
-      "target": "specs_plugin_harness_design_refactor_de_duplication_app_core_llm_agent_py",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_refactor_de_duplication_app_core_llm_agent_py"
     },
     {
       "relation": "contains",
@@ -56746,9 +56746,9 @@
       "source_file": "docs/superpowers/specs/plugin-harness-design.md",
       "source_location": "L65",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "specs_plugin_harness_design_architecture",
-      "target": "specs_plugin_harness_design_scoring_change_app_core_report_py",
-      "confidence_score": 1.0
+      "target": "specs_plugin_harness_design_scoring_change_app_core_report_py"
     },
     {
       "relation": "contains",
@@ -56982,5 +56982,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "9212cbd25ac92748feca30229816b8cc655c37c0"
+  "built_at_commit": "2fc450e71a1ea244e55a1b21e066ba3cd6bd7982"
 }
