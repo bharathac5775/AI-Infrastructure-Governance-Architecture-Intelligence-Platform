@@ -67,24 +67,25 @@ export interface StepCopy {
 export const STEPS: StepCopy[] = [
   {
     title: "Upload or paste",
-    body: "Drop Terraform, Kubernetes, or Helm files — or paste config directly. Nothing leaves your machine.",
+    body: "Add Terraform, Kubernetes, or Helm files — or paste config directly. Every supported format normalizes into a single review pass.",
   },
   {
-    title: "Agents analyze locally",
-    body: "Six specialized agents review your infrastructure in one pass using a local model — no cloud, no API keys.",
+    title: "Six agents analyze",
+    body: "Specialized agents examine your infrastructure in one pass, each scoring its dimension and mapping issues to the resources that cause them.",
   },
   {
     title: "Review & remediate",
-    body: "Get a scored report with prioritized findings, a dependency map, compliance scorecards, and one-click fixes.",
+    body: "Get a scored report with prioritized findings, a dependency map, compliance scorecards, and code-level fixes you can apply.",
   },
 ];
 
 // Platform capability chips — each is a shipped feature.
 export const CAPABILITIES: string[] = [
-  "CIS compliance scoring",
+  "Weighted governance scoring",
+  "CIS compliance scorecards",
   "Dependency graph & SPOF detection",
+  "Blast-radius analysis",
   "Deterministic auto-remediation",
   "Drift detection between scans",
   "Auditor-ready PDF export",
-  "100% local — no data leaves the box",
 ];

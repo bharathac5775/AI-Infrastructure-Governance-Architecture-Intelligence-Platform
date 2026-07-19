@@ -1,6 +1,26 @@
-import { ArrowDown, ShieldCheck, Lock, Cpu } from "lucide-react";
+import { ArrowDown, ShieldCheck, Layers, Wrench, FileBarChart, GitBranch, Wand2 } from "lucide-react";
 import { AnalyzeWorkspace } from "@/components/analyze-workspace";
 import { AGENTS, STEPS, CAPABILITIES } from "@/lib/product-copy";
+
+// Concrete deliverables of a single analysis — describes what the product
+// produces, not how it runs. Each maps to a real report section.
+const OUTCOMES = [
+  {
+    icon: FileBarChart,
+    title: "A scored governance report",
+    body: "A weighted overall score with per-agent breakdowns and findings ranked by severity — so you know what to fix first, not just what's wrong.",
+  },
+  {
+    icon: GitBranch,
+    title: "A dependency & risk map",
+    body: "A graph of how your resources connect, with single points of failure flagged and the blast radius of each component made explicit.",
+  },
+  {
+    icon: Wand2,
+    title: "Fixes you can apply",
+    body: "Findings come with concrete remediation — deterministic patches where possible, plus compliance scorecards and an auditor-ready PDF.",
+  },
+] as const;
 
 // The home screen IS the analyze screen — but it opens by explaining the
 // product (hero → what the agents do → how it works) before presenting the
@@ -14,8 +34,8 @@ export function AnalyzePage() {
         <div className="pointer-events-none absolute inset-x-0 -top-8 h-56 bg-dotted opacity-[0.5] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
         <div className="relative max-w-2xl">
           <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground surface-raised">
-            <span className="flex size-1.5 rounded-full bg-success" />
-            Runs entirely on your machine
+            <span className="flex size-1.5 rounded-full bg-primary" />
+            Multi-agent infrastructure governance
           </div>
           <h1 className="text-balance text-4xl font-semibold leading-[1.1] tracking-tight sm:text-[2.75rem]">
             Govern your infrastructure
@@ -23,20 +43,22 @@ export function AnalyzePage() {
             <span className="text-muted-foreground">before it ships.</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
-            A local, multi-agent review for Terraform, Kubernetes, and Helm. Six
-            specialized agents score your config for security, reliability, cost,
-            architecture, compliance, and resilience — then hand you prioritized,
-            fixable findings. No cloud, no API keys, no data leaving the box.
+            Six specialized agents review your Terraform, Kubernetes, and Helm
+            configuration in a single pass — scoring it for security,
+            reliability, cost, architecture, compliance, and resilience. You get
+            a weighted governance score, findings ranked by severity, a
+            dependency map of what could break, and code-level fixes you can
+            apply directly.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1.5">
-              <Lock className="size-3.5 text-primary" /> Fully local
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Cpu className="size-3.5 text-primary" /> Open-source model
+              <Layers className="size-3.5 text-primary" /> 6 formats · one review
             </span>
             <span className="flex items-center gap-1.5">
               <ShieldCheck className="size-3.5 text-primary" /> CIS-aligned scoring
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Wrench className="size-3.5 text-primary" /> Actionable remediation
             </span>
           </div>
           <a
@@ -99,6 +121,25 @@ export function AnalyzePage() {
             >
               {c}
             </span>
+          ))}
+        </div>
+      </section>
+
+      {/* ---- What you get -------------------------------------------------- */}
+      <section>
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold tracking-tight">What every report gives you</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            One analysis produces a complete governance picture, not just a list of warnings.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {OUTCOMES.map(({ icon: Icon, title, body }) => (
+            <div key={title} className="surface-raised rounded-lg border border-border bg-card p-5">
+              <Icon className="size-5 text-primary" />
+              <h3 className="mt-3 text-sm font-semibold">{title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{body}</p>
+            </div>
           ))}
         </div>
       </section>
