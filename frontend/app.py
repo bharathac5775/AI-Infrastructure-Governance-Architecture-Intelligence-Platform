@@ -6,6 +6,116 @@ import time
 
 API_URL = os.getenv("API_URL", "http://localhost:8000/api/v1")
 
+
+def _mermaid_html(diagram: str, height: int = 460) -> str:
+    """Wrap a Mermaid diagram string in a self-contained HTML doc that renders
+    it client-side via mermaid.js from CDN. Works across Streamlit versions
+    (older ones have no native st.mermaid)."""
+    # The diagram text is embedded in a <pre class="mermaid"> block. Escape the
+    # closing tag defensively; Mermaid syntax itself needs no HTML escaping here.
+    safe = diagram.replace("</pre>", "&lt;/pre&gt;")
+    return f"""
+<!DOCTYPE html><html><head><meta charset="utf-8">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  body {{ margin:0; background:transparent; }}
+  .mermaid {{ font-size: 13px; }}
+  #wrap {{ overflow:auto; max-height:{height - 20}px; }}
+</style></head>
+<body>
+  <div id="wrap"><pre class="mermaid">{safe}</pre></div>
+  <script>
+    mermaid.initialize({{ startOnLoad: true, securityLevel: 'loose',
+                          flowchart: {{ useMaxWidth: false }} }});
+  </script>
+</body></html>
+"""
+
+
+def _render_architecture_panel(report: dict, dep_graph: dict) -> None:
+    """Phase 4 Architecture panel: SPOFs, dependency diagram, blast radius."""
+    import streamlit.components.v1 as components
+
+    nodes = dep_graph.get("nodes", [])
+    edges = dep_graph.get("edges", [])
+    spofs = dep_graph.get("spofs", [])
+    report_id = report.get("report_id", "")
+
+    st.subheader("🏛️ Architecture & Dependencies")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Resources", len(nodes))
+    c2.metric("Dependencies", len(edges))
+    c3.metric("⚠️ Single Points of Failure", len(spofs))
+
+    # --- SPOF list (surfaces Phase 4.5 prominently) ---
+    if spofs:
+        st.markdown("**⚠️ Single points of failure** — resources many others depend on:")
+        for s in sorted(spofs, key=lambda x: -x.get("dependent_count", 0)):
+            reasons = ", ".join(s.get("reasons", [])) or "—"
+            st.markdown(
+                f"- 🔴 `{s['node']}` ({s.get('kind','?')}) — "
+                f"**{s.get('dependent_count', 0)} dependent(s)** · {reasons}"
+            )
+    else:
+        st.caption("✅ No single points of failure detected in the dependency graph.")
+
+    # --- Dependency diagram (Phase 4.4, Mermaid) ---
+    highlight = st.session_state.get(f"arch_highlight_{report_id}")
+    diagram = None
+    if report_id:
+        try:
+            params = {"format": "mermaid"}
+            if highlight:
+                params["highlight"] = highlight
+            resp = httpx.get(f"{API_URL}/reports/{report_id}/diagram", params=params, timeout=15.0)
+            if resp.status_code == 200:
+                diagram = resp.text
+        except Exception:
+            diagram = None
+    if diagram:
+        with st.expander("📈 Dependency diagram", expanded=True):
+            components.html(_mermaid_html(diagram), height=480, scrolling=True)
+            st.caption("🔴 red = single point of failure · dashed = referenced but not in upload")
+    else:
+        st.caption("Diagram unavailable (re-analyze the file to view the dependency diagram).")
+
+    # --- Blast radius (Phase 4.2, interactive) ---
+    node_ids = sorted(n["id"] for n in nodes)
+    if node_ids and report_id:
+        st.markdown("**💥 Blast radius** — pick a resource to see what breaks if it fails:")
+        picked = st.selectbox(
+            "Resource", options=["— select —", *node_ids],
+            key=f"arch_blast_pick_{report_id}", label_visibility="collapsed",
+        )
+        if picked and picked != "— select —":
+            st.session_state[f"arch_highlight_{report_id}"] = picked
+            try:
+                br = httpx.get(
+                    f"{API_URL}/reports/{report_id}/blast-radius",
+                    params={"resource": picked}, timeout=15.0,
+                )
+                if br.status_code == 200:
+                    data = br.json()
+                    crit = data.get("criticality", "none")
+                    crit_icon = {"critical": "🔴", "high": "🟠", "medium": "🟡", "none": "🟢"}.get(crit, "⚪")
+                    st.markdown(
+                        f"{crit_icon} **{picked}** — impact: **{data.get('impact_count', 0)} resource(s)** "
+                        f"(criticality: {crit}{' · SPOF' if data.get('is_spof') else ''})"
+                    )
+                    deps = data.get("transitive_dependents", [])
+                    if deps:
+                        st.markdown("Resources that depend on it (would be affected):")
+                        for d in deps:
+                            st.markdown(f"  - `{d}`")
+                    else:
+                        st.caption("Nothing depends on this resource — safe to change in isolation.")
+                elif br.status_code == 404:
+                    st.info(br.json().get("detail", "Resource not found in graph."))
+            except Exception as e:
+                st.warning(f"Could not compute blast radius: {e}")
+
+
+
 st.set_page_config(
     page_title="AI Infrastructure Governance Platform",
     page_icon="🏗️",
@@ -294,6 +404,14 @@ if "report" in st.session_state:
                         + ", ".join(f"`{c}`" for c in failed_ids)
                     )
                 st.markdown("---")
+        st.divider()
+
+    # Phase 4.1/4.2/4.4/4.5 — Architecture / Dependency Graph panel.
+    # Hidden when the report has no dependency graph (analyzed before Phase 4,
+    # or non-infrastructure content, or a report reloaded from history).
+    dep_graph = report.get("dependency_graph")
+    if dep_graph and dep_graph.get("nodes"):
+        _render_architecture_panel(report, dep_graph)
         st.divider()
 
     # Phase 3.2 — Drift detection panel. Hidden silently when no prior scan exists.
