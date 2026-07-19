@@ -16,7 +16,10 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: process.env.API_TARGET || "http://localhost:8001",
+        // 127.0.0.1 (IPv4) not "localhost" — on macOS "localhost" can resolve
+        // to IPv6 (::1) first, which uvicorn's default IPv4 bind won't answer,
+        // causing ECONNREFUSED ::1:8001.
+        target: process.env.API_TARGET || "http://127.0.0.1:8001",
         changeOrigin: true,
       },
     },

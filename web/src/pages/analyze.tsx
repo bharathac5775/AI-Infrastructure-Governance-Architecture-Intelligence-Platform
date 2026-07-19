@@ -1,230 +1,118 @@
-import { useCallback, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
-import { UploadCloud, FileCode2, X, ClipboardType, AlertCircle } from "lucide-react";
-import { api, ApiError } from "@/lib/api";
-import { PageHeader } from "@/components/layout/page-header";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Spinner } from "@/components/ui/states";
-import { cn } from "@/lib/utils";
+import { ArrowDown, ShieldCheck, Lock, Cpu } from "lucide-react";
+import { AnalyzeWorkspace } from "@/components/analyze-workspace";
+import { AGENTS, STEPS, CAPABILITIES } from "@/lib/product-copy";
 
-const ACCEPT = ".yaml,.yml,.tf,.json,.hcl,.tgz";
-const ACCEPT_LABEL = "YAML · TF · JSON · HCL · TGZ";
-
+// The home screen IS the analyze screen — but it opens by explaining the
+// product (hero → what the agents do → how it works) before presenting the
+// upload workspace. First-time visitors understand it; returning users scroll
+// to the tool. Every claim maps to a shipped backend capability.
 export function AnalyzePage() {
-  const navigate = useNavigate();
-  const [files, setFiles] = useState<File[]>([]);
-  const [dragging, setDragging] = useState(false);
-  const [pasteName, setPasteName] = useState("main.tf");
-  const [pasteBody, setPasteBody] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const analyze = useMutation({
-    mutationFn: (payload: { files?: File[]; text?: { name: string; body: string } }) =>
-      payload.files
-        ? api.analyzeFiles(payload.files)
-        : api.analyzeText({ [payload.text!.name]: payload.text!.body }),
-    onSuccess: (report) => navigate(`/reports/${report.report_id}`),
-  });
-
-  const addFiles = useCallback((incoming: FileList | File[]) => {
-    const arr = Array.from(incoming);
-    setFiles((prev) => {
-      const seen = new Set(prev.map((f) => f.name));
-      return [...prev, ...arr.filter((f) => !seen.has(f.name))];
-    });
-  }, []);
-
-  const onDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      setDragging(false);
-      if (e.dataTransfer.files?.length) addFiles(e.dataTransfer.files);
-    },
-    [addFiles]
-  );
-
-  const errMsg =
-    analyze.error instanceof ApiError
-      ? analyze.error.message
-      : analyze.error
-        ? "Analysis failed. Is the API running?"
-        : null;
-
   return (
-    <div>
-      <PageHeader
-        title="Analyze infrastructure"
-        description="Upload Terraform, Kubernetes, or Helm files — or paste content — to run a multi-agent governance review."
-      />
-
-      <Tabs defaultValue="upload">
-        <TabsList>
-          <TabsTrigger value="upload">
-            <UploadCloud className="size-4" /> Upload files
-          </TabsTrigger>
-          <TabsTrigger value="paste">
-            <ClipboardType className="size-4" /> Paste content
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="upload">
-          <div
-            onDragOver={(e) => {
-              e.preventDefault();
-              setDragging(true);
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={onDrop}
-            onClick={() => inputRef.current?.click()}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && inputRef.current?.click()}
-            className={cn(
-              "group relative flex cursor-pointer flex-col items-center justify-center gap-4 overflow-hidden rounded-xl border border-dashed px-6 py-16 text-center transition-all duration-200 ease-smooth",
-              dragging
-                ? "border-primary bg-primary/[0.04] ring-4 ring-primary/10"
-                : "border-border-strong hover:border-primary/50 hover:bg-accent/40"
-            )}
+    <div className="space-y-16 pb-8">
+      {/* ---- Hero ---------------------------------------------------------- */}
+      <section className="relative overflow-hidden pt-6">
+        <div className="pointer-events-none absolute inset-x-0 -top-8 h-56 bg-dotted opacity-[0.5] [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
+        <div className="relative max-w-2xl">
+          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground surface-raised">
+            <span className="flex size-1.5 rounded-full bg-success" />
+            Runs entirely on your machine
+          </div>
+          <h1 className="text-balance text-4xl font-semibold leading-[1.1] tracking-tight sm:text-[2.75rem]">
+            Govern your infrastructure
+            <br />
+            <span className="text-muted-foreground">before it ships.</span>
+          </h1>
+          <p className="mt-5 max-w-xl text-base leading-relaxed text-muted-foreground">
+            A local, multi-agent review for Terraform, Kubernetes, and Helm. Six
+            specialized agents score your config for security, reliability, cost,
+            architecture, compliance, and resilience — then hand you prioritized,
+            fixable findings. No cloud, no API keys, no data leaving the box.
+          </p>
+          <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Lock className="size-3.5 text-primary" /> Fully local
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Cpu className="size-3.5 text-primary" /> Open-source model
+            </span>
+            <span className="flex items-center gap-1.5">
+              <ShieldCheck className="size-3.5 text-primary" /> CIS-aligned scoring
+            </span>
+          </div>
+          <a
+            href="#analyze"
+            className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-primary-hover"
           >
-            <div className="pointer-events-none absolute inset-0 bg-dotted opacity-40" />
-            <div
-              className={cn(
-                "relative flex size-12 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition-all duration-200 ease-smooth",
-                dragging
-                  ? "scale-110 border-primary/40 text-primary"
-                  : "group-hover:border-primary/30 group-hover:text-primary"
-              )}
-            >
-              <UploadCloud className="size-5" />
-            </div>
-            <div className="relative space-y-1">
-              <p className="text-sm font-medium">
-                {dragging ? "Drop to upload" : "Drop files here, or click to browse"}
-              </p>
-              <p className="text-xs text-muted-foreground">{ACCEPT_LABEL}</p>
-            </div>
-            <input
-              ref={inputRef}
-              type="file"
-              multiple
-              accept={ACCEPT}
-              className="hidden"
-              onChange={(e) => e.target.files && addFiles(e.target.files)}
-            />
-          </div>
-
-          {files.length > 0 && (
-            <div className="mt-4 space-y-2 animate-fade-in-up">
-              <p className="text-2xs font-medium uppercase tracking-wider text-muted-foreground">
-                {files.length} file{files.length > 1 ? "s" : ""} queued
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {files.map((f) => (
-                  <span
-                    key={f.name}
-                    className="group inline-flex items-center gap-2 rounded-md border border-border bg-card px-2.5 py-1.5 text-xs transition-colors hover:border-border-strong"
-                  >
-                    <FileCode2 className="size-3.5 text-muted-foreground" />
-                    <span className="font-medium">{f.name}</span>
-                    <span className="text-2xs tabular text-muted-foreground">
-                      {(f.size / 1024).toFixed(1)} KB
-                    </span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setFiles((prev) => prev.filter((x) => x.name !== f.name));
-                      }}
-                      className="text-muted-foreground transition-colors hover:text-danger"
-                      aria-label={`Remove ${f.name}`}
-                    >
-                      <X className="size-3.5" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div className="mt-6 flex items-center gap-3">
-            <Button
-              variant="primary"
-              disabled={files.length === 0 || analyze.isPending}
-              onClick={() => analyze.mutate({ files })}
-            >
-              {analyze.isPending && <Spinner />}
-              {analyze.isPending ? "Analyzing…" : "Run analysis"}
-            </Button>
-            {files.length > 0 && (
-              <Button variant="ghost" onClick={() => setFiles([])} disabled={analyze.isPending}>
-                Clear
-              </Button>
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="paste">
-          {/* VS Code–style editor chrome: window dots, filename tab, gutter. */}
-          <div className="overflow-hidden rounded-lg border border-border-strong bg-card surface-raised">
-            <div className="flex items-center gap-3 border-b border-border bg-surface px-3 py-2">
-              <div className="flex items-center gap-1.5">
-                <span className="size-2.5 rounded-full bg-danger/70" />
-                <span className="size-2.5 rounded-full bg-warning/70" />
-                <span className="size-2.5 rounded-full bg-success/70" />
-              </div>
-              <div className="flex items-center gap-2 rounded-t-md border border-b-0 border-border bg-card px-2.5 py-1 text-xs">
-                <FileCode2 className="size-3.5 text-primary" />
-                <input
-                  value={pasteName}
-                  onChange={(e) => setPasteName(e.target.value)}
-                  className="w-32 bg-transparent font-medium outline-none placeholder:text-muted-foreground"
-                  placeholder="main.tf"
-                  spellCheck={false}
-                />
-              </div>
-              <span className="ml-auto text-2xs text-muted-foreground">
-                Extension sets the parser
-              </span>
-            </div>
-            <div className="flex max-h-[420px] min-h-[320px]">
-              {/* Static line-number gutter tracking the textarea line count. */}
-              <div
-                aria-hidden
-                className="scrollbar-thin shrink-0 select-none overflow-hidden bg-surface/60 px-3 py-3 text-right font-mono text-xs leading-relaxed text-muted-foreground/50"
-              >
-                {Array.from({ length: Math.max(18, pasteBody.split("\n").length) }).map((_, i) => (
-                  <div key={i}>{i + 1}</div>
-                ))}
-              </div>
-              <textarea
-                value={pasteBody}
-                onChange={(e) => setPasteBody(e.target.value)}
-                spellCheck={false}
-                placeholder="Paste Terraform HCL, Kubernetes YAML, or Terraform JSON here…"
-                className="scrollbar-thin flex-1 resize-none bg-card p-3 font-mono text-xs leading-relaxed outline-none placeholder:text-muted-foreground/60"
-              />
-            </div>
-          </div>
-          <div className="mt-4">
-            <Button
-              variant="primary"
-              disabled={!pasteBody.trim() || !pasteName.trim() || analyze.isPending}
-              onClick={() => analyze.mutate({ text: { name: pasteName, body: pasteBody } })}
-            >
-              {analyze.isPending && <Spinner />}
-              {analyze.isPending ? "Analyzing…" : "Run analysis"}
-            </Button>
-          </div>
-        </TabsContent>
-      </Tabs>
-
-      {errMsg && (
-        <div className="mt-4 flex items-start gap-2.5 rounded-lg border border-danger/25 bg-danger/[0.07] px-3.5 py-3 text-sm text-danger animate-fade-in-up">
-          <AlertCircle className="mt-0.5 size-4 shrink-0" />
-          <span>{errMsg}</span>
+            Start an analysis <ArrowDown className="size-4" />
+          </a>
         </div>
-      )}
+      </section>
+
+      {/* ---- What the agents do ------------------------------------------- */}
+      <section>
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold tracking-tight">Six agents, one pass</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Each agent owns a governance dimension and contributes to your overall score.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {AGENTS.map(({ name, icon: Icon, blurb, checks }) => (
+            <div
+              key={name}
+              className="group surface-raised rounded-lg border border-border bg-card p-4 transition-all duration-175 ease-smooth hover:border-border-strong"
+            >
+              <div className="mb-3 flex size-9 items-center justify-center rounded-lg border border-border bg-surface text-muted-foreground transition-colors group-hover:border-primary/30 group-hover:text-primary">
+                <Icon className="size-4" />
+              </div>
+              <h3 className="text-sm font-semibold">{name}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{blurb}</p>
+              <p className="mt-3 border-t border-border pt-2.5 text-2xs font-medium uppercase tracking-wide text-muted-foreground/80">
+                {checks}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ---- How it works ------------------------------------------------- */}
+      <section>
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold tracking-tight">How it works</h2>
+        </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+          {STEPS.map((step, i) => (
+            <div key={step.title} className="relative">
+              <div className="mb-3 flex size-7 items-center justify-center rounded-full border border-border bg-card text-xs font-semibold tabular text-primary">
+                {i + 1}
+              </div>
+              <h3 className="text-sm font-semibold">{step.title}</h3>
+              <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 flex flex-wrap gap-2">
+          {CAPABILITIES.map((c) => (
+            <span
+              key={c}
+              className="rounded-md border border-border bg-surface px-2.5 py-1 text-xs text-muted-foreground"
+            >
+              {c}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* ---- The workspace ------------------------------------------------ */}
+      <section id="analyze" className="scroll-mt-6">
+        <div className="mb-6 border-t border-border pt-10">
+          <h2 className="text-xl font-semibold tracking-tight">Analyze infrastructure</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Upload files or paste content to run the review. Results open as a scored report.
+          </p>
+        </div>
+        <AnalyzeWorkspace />
+      </section>
     </div>
   );
 }
