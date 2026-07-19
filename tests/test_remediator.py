@@ -1382,6 +1382,29 @@ class TestNonPatchableFindings:
             "Must not fall through to the misleading locate error"
         )
 
+    def test_resilience_spof_raises_non_patchable(self, mock_llm):
+        """Phase 4.5 bug: the Resilience Agent emits SPOF findings (category
+        'resilience'). These are architectural observations, not config defects,
+        so 'Generate fix' must refuse cleanly instead of falling through to the
+        whole-file LLM (which dropped resources on a multi-doc Helm render)."""
+        bundle = {"chart.yaml": (
+            "apiVersion: apps/v1\nkind: Deployment\n"
+            "metadata: {name: release-good-chart, namespace: default}\n"
+            "spec: {template: {spec: {containers: [{name: c, image: x}]}}}\n"
+        )}
+        finding = _f(
+            category="resilience",
+            title="Single point of failure: Deployment/default/release-good-chart",
+            resource="Deployment/default/release-good-chart",
+            severity=Severity.LOW,
+            agent="Resilience Agent",
+        )
+        with pytest.raises(NonPatchableFinding) as exc_info:
+            remediate_sync(finding, 0, bundle)
+        msg = str(exc_info.value).lower()
+        assert "single point of failure" in msg or "redundancy" in msg
+        assert "dropped" not in msg, "Must not reach the whole-file LLM path"
+
 
 # ---------------------------------------------------------------------------
 # Bug fixes (post-Helm-chart user testing)

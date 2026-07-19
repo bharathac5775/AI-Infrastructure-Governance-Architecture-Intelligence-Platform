@@ -734,11 +734,15 @@ if "report" in st.session_state:
                 # resource. They are never individually patchable — the fix is to
                 # remediate the underlying findings mapped to the failing controls.
                 _is_rollup = finding.get("category") == "compliance-gap"
+                # Resilience/SPOF findings are architectural observations, not
+                # config defects — fixed by a design change, not a code patch.
+                _is_resilience = finding.get("category") == "resilience"
                 is_advisory = (
                     resource_lower in _NON_PATCHABLE
                     or _looks_like_path
                     or _is_advisory_lang
                     or _is_rollup
+                    or _is_resilience
                 )
 
                 if is_advisory:
@@ -749,6 +753,14 @@ if "report" in st.session_state:
                             "Generate fixes on the underlying Security / Reliability / "
                             "Cost findings mapped to the failing controls above; the "
                             "framework score rises as those are resolved."
+                        )
+                    elif _is_resilience:
+                        st.caption(
+                            "ℹ️ Architectural finding (single point of failure) — this "
+                            "is a design observation, not a config defect, so there's "
+                            "nothing to auto-patch. Address it by adding redundancy "
+                            "(replicas / Multi-AZ / a standby) or decoupling the "
+                            "dependents shown in the Architecture panel above."
                         )
                     elif _looks_like_path:
                         st.caption(
