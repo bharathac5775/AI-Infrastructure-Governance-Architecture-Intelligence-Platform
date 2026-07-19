@@ -40,8 +40,8 @@
     "semantic_hash": ""
   },
   "app/agents/supervisor.py": {
-    "mtime": 1784112741.2044604,
-    "ast_hash": "146c965d75fe8361d0e3be6f4db5a6b0",
+    "mtime": 1784457806.7520528,
+    "ast_hash": "ebb975a7509b59f0f1ecd8e81010becb",
     "semantic_hash": ""
   },
   "app/api/__init__.py": {
@@ -130,8 +130,8 @@
     "semantic_hash": ""
   },
   "app/models.py": {
-    "mtime": 1780217619.6711183,
-    "ast_hash": "df3b91cb62f5ce2a2234a2add17a25d4",
+    "mtime": 1784457806.7526302,
+    "ast_hash": "576fc022312793351d012cc8075cfba4",
     "semantic_hash": ""
   },
   "app/parsers/__init__.py": {
@@ -340,8 +340,8 @@
     "semantic_hash": ""
   },
   "DEVELOPMENT_PHASES.md": {
-    "mtime": 1784112741.2030284,
-    "ast_hash": "399faa2510b5dec8f99532660e4af1c5",
+    "mtime": 1784457806.7516708,
+    "ast_hash": "106f4fdbd1eb0d8fb508a2b32053966b",
     "semantic_hash": ""
   },
   "README.md": {
@@ -365,8 +365,8 @@
     "semantic_hash": ""
   },
   "requirements.txt": {
-    "mtime": 1780305501.2142472,
-    "ast_hash": "e99b81503c117322073848083333e871",
+    "mtime": 1784457806.752909,
+    "ast_hash": "7b7c5bd67b4a96ce458ddee5d0f49319",
     "semantic_hash": ""
   },
   "samples/critical-security-failure.yaml": {
@@ -527,6 +527,16 @@
   "tests/expected_scores.yaml": {
     "mtime": 1780303167.0953882,
     "ast_hash": "1d7293d0f87f311f406699454bfd83c6",
+    "semantic_hash": ""
+  },
+  "app/core/graph.py": {
+    "mtime": 1784457806.7523181,
+    "ast_hash": "dce12df8bd7449457f8078e5560829ab",
+    "semantic_hash": ""
+  },
+  "tests/test_graph.py": {
+    "mtime": 1784457806.7531898,
+    "ast_hash": "e1f84f346fc241d1c5f60247ac24bfcf",
     "semantic_hash": ""
   }
 }
