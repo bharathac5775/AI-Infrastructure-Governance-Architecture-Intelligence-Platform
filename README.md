@@ -19,9 +19,13 @@
 
 ## Overview
 
-Traditional IaC scanners (tfsec, checkov, kube-score) apply static rules and stop there. This platform pairs **deterministic rules with LLM-powered reasoning** across six specialized agents, so it catches issues rules can't express — *"this architecture has no defense-in-depth,"* *"this KMS key is a single point of failure for four resources"* — and returns a scored, prioritized, **remediable** governance report.
+Before you ship cloud infrastructure, you write it as code — Terraform, Kubernetes, or Helm files that describe your servers, databases, and networks. This platform reviews those files first and tells you what's wrong before it goes live.
 
-Upload an infrastructure bundle → six agents review it in one pass → you get a weighted score, findings ranked by severity, a dependency graph of what could break, compliance scorecards, and code-level fixes you can apply.
+Most tools that check infrastructure code (tfsec, checkov, kube-score) work off a fixed checklist: they match your files against a list of known rules and stop there. That catches the obvious mistakes, but it can't reason about how the pieces fit together.
+
+This platform does both. It runs the same reliable rule checks **and** adds AI that reasons about your setup the way an experienced reviewer would — spotting problems no checklist can describe, such as *"if this one encryption key fails, four different services go down with it"* or *"there's nothing to fall back on if this component breaks."* Six specialized reviewers each examine a different concern — security, reliability, cost, architecture, compliance, and resilience — in a single pass.
+
+What you get back is a **governance report**: an overall score, every problem ranked by how serious it is, a map of what would break if any one piece failed, compliance scorecards, and — for most issues — a ready-to-apply code fix.
 
 ## Highlights
 
