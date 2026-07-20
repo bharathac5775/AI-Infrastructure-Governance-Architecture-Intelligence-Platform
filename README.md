@@ -10,7 +10,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tests](https://img.shields.io/badge/tests-604%20passing-3FB950)](tests/)
+[![Tests](https://img.shields.io/badge/tests-610%20passing-3FB950)](tests/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
 </div>
@@ -185,6 +185,8 @@ Every analysis produces one **Governance Report**, returned as JSON and rendered
 - **Remediation** — a code patch (unified diff) per fixable finding
 - **Exports** — the full report as PDF or JSON
 
+> 📄 **See a real one:** [`docs/examples/governance-report-example.pdf`](docs/examples/governance-report-example.pdf) is a full governance report exported straight from the platform.
+
 ### API request flow
 
 ```mermaid
@@ -325,10 +327,11 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
-A **604-test** regression suite covers rule logic, dedup, scoring, parsers, the dependency graph, remediation, and per-sample regressions. Runs in seconds; no Ollama required (LLM is mocked). See [tests/README.md](tests/README.md).
+A **610-test** regression suite covers rule logic, dedup, scoring, parsers, the dependency graph, remediation, and per-sample regressions. Runs in seconds; no Ollama required (LLM is mocked). See [tests/README.md](tests/README.md).
 
 ## Documentation
 
+- [Example governance report (PDF)](docs/examples/governance-report-example.pdf) — a real report exported from the platform
 - [DEVELOPMENT_PHASES.md](DEVELOPMENT_PHASES.md) — development history and technical decisions
 - [web/README.md](web/README.md) — frontend architecture and development
 - [tests/README.md](tests/README.md) — test suite guide
