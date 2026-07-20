@@ -1,8 +1,7 @@
 import { useCallback, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
 import { UploadCloud, FileCode2, X, ClipboardType, AlertCircle } from "lucide-react";
-import { api, ApiError } from "@/lib/api";
+import { ApiError } from "@/lib/api";
+import { useRunAnalysis, useAnalysisRunState } from "@/lib/use-analysis";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Spinner } from "@/components/ui/states";
@@ -14,21 +13,23 @@ const ACCEPT_LABEL = "YAML · TF · JSON · HCL · TGZ";
 // The working surface: upload dropzone + VS Code-style paste editor, wired to
 // the real /analyze endpoints. Extracted from the page so the home screen can
 // compose an explanatory hero above it.
+//
+// The run itself is owned by a shared, keyed mutation (useRunAnalysis) so it
+// survives navigating away and back — the "Analyzing…" state and auto-navigate
+// come from the cache (useAnalysisRunState + the RunWatcher in AppShell), not
+// from this component's lifetime.
 export function AnalyzeWorkspace() {
-  const navigate = useNavigate();
   const [files, setFiles] = useState<File[]>([]);
   const [dragging, setDragging] = useState(false);
   const [pasteName, setPasteName] = useState("main.tf");
   const [pasteBody, setPasteBody] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const analyze = useMutation({
-    mutationFn: (payload: { files?: File[]; text?: { name: string; body: string } }) =>
-      payload.files
-        ? api.analyzeFiles(payload.files)
-        : api.analyzeText({ [payload.text!.name]: payload.text!.body }),
-    onSuccess: (report) => navigate(`/reports/${report.report_id}`),
-  });
+  const analyze = useRunAnalysis();
+  // Pending/error come from the cache so a remount after navigation still
+  // reflects an in-flight run started before we left the page.
+  const run = useAnalysisRunState();
+  const isPending = run?.isPending ?? false;
 
   const addFiles = useCallback((incoming: FileList | File[]) => {
     const arr = Array.from(incoming);
@@ -48,9 +49,9 @@ export function AnalyzeWorkspace() {
   );
 
   const errMsg =
-    analyze.error instanceof ApiError
-      ? analyze.error.message
-      : analyze.error
+    run?.isError && run.error instanceof ApiError
+      ? run.error.message
+      : run?.isError
         ? "Analysis failed. Is the API running?"
         : null;
 
@@ -146,14 +147,14 @@ export function AnalyzeWorkspace() {
         <div className="mt-6 flex items-center gap-3">
           <Button
             variant="primary"
-            disabled={files.length === 0 || analyze.isPending}
+            disabled={files.length === 0 || isPending}
             onClick={() => analyze.mutate({ files })}
           >
-            {analyze.isPending && <Spinner />}
-            {analyze.isPending ? "Analyzing…" : "Run analysis"}
+            {isPending && <Spinner />}
+            {isPending ? "Analyzing…" : "Run analysis"}
           </Button>
           {files.length > 0 && (
-            <Button variant="ghost" onClick={() => setFiles([])} disabled={analyze.isPending}>
+            <Button variant="ghost" onClick={() => setFiles([])} disabled={isPending}>
               Clear
             </Button>
           )}
@@ -202,11 +203,11 @@ export function AnalyzeWorkspace() {
         <div className="mt-4">
           <Button
             variant="primary"
-            disabled={!pasteBody.trim() || !pasteName.trim() || analyze.isPending}
+            disabled={!pasteBody.trim() || !pasteName.trim() || isPending}
             onClick={() => analyze.mutate({ text: { name: pasteName, body: pasteBody } })}
           >
-            {analyze.isPending && <Spinner />}
-            {analyze.isPending ? "Analyzing…" : "Run analysis"}
+            {isPending && <Spinner />}
+            {isPending ? "Analyzing…" : "Run analysis"}
           </Button>
         </div>
       </TabsContent>

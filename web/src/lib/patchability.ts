@@ -96,6 +96,16 @@ function looksLikePath(resourceLower: string): boolean {
   return FILE_EXTS.some((e) => prefix.endsWith(e)) || prefix.includes("/templates/");
 }
 
+// A resource is a "scope sentinel" when it names no concrete target. The LLM
+// often decorates these ("N/A (Global Opportunity)", "global - all resources"),
+// so we match both the raw value and its core (before any parenthetical /
+// bracket / dash / colon qualifier). Mirrors the backend is_non_patchable().
+function isScopeSentinel(resourceLower: string): boolean {
+  if (NON_PATCHABLE_RESOURCE.has(resourceLower)) return true;
+  const core = resourceLower.split(/[([\-–—:]/, 1)[0].trim();
+  return NON_PATCHABLE_RESOURCE.has(core);
+}
+
 export function getPatchability(finding: Finding): Patchability {
   const resourceStr = String(finding.resource ?? "").trim();
   const resourceLower = resourceStr.toLowerCase();
@@ -114,7 +124,7 @@ export function getPatchability(finding: Finding): Patchability {
     finding.category === "ai-analysis" &&
     (ADVISORY_VERBS.includes(firstWord) ||
       NO_ACTION_PHRASES.some((p) => recLower.startsWith(p)));
-  const isScope = NON_PATCHABLE_RESOURCE.has(resourceLower);
+  const isScope = isScopeSentinel(resourceLower);
 
   if (isRollup)
     return {

@@ -36,7 +36,7 @@
     --secondary-foreground: 240 6% 10%;
 
     --muted: 240 5% 96%;
-    --muted-foreground: 240 4% 44%;
+    --muted-foreground: 240 5% 34%;
 
     --accent: 240 5% 95%;
     --accent-foreground: 240 6% 10%;
@@ -75,7 +75,7 @@
     --secondary-foreground: 0 0% 95%;
 
     --muted: 240 5% 13%;
-    --muted-foreground: 240 5% 58%;
+    --muted-foreground: 240 6% 70%;
 
     --accent: 240 5% 15%;
     --accent-foreground: 0 0% 95%;
@@ -96,6 +96,10 @@
   }
 
   html {
+    /* Lift the whole rem-based type scale. 110% root ≈ 17.6px, so text-sm
+       (0.875rem, the app's body default) reads ~15.4px, and every other rem
+       size grows proportionally — clear and legible without feeling oversized. */
+    font-size: 110%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;

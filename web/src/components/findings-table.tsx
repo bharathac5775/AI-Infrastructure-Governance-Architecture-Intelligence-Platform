@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/states";
 import { FindingDetail } from "@/components/finding-detail";
 import { severityTone, SEVERITY_ORDER } from "@/lib/report-utils";
+import { agentVisual } from "@/lib/product-copy";
 import { cn } from "@/lib/utils";
 
 // A finding paired with its FLATTENED index across all agent reports (agent
@@ -120,16 +121,16 @@ export function FindingsTable({
                     {x.finding.severity}
                   </Badge>
                 </td>
-                <td className="px-4 py-3">
-                  <p className="font-medium leading-snug">{x.finding.title}</p>
+                <td className="px-4 py-3.5">
+                  <p className="text-[0.9375rem] font-medium leading-snug">{x.finding.title}</p>
                   {x.finding.resource && (
                     <p className="mt-0.5 font-mono text-xs text-muted-foreground">
                       {x.finding.resource}
                     </p>
                   )}
                 </td>
-                <td className="hidden px-4 py-3 align-top text-muted-foreground md:table-cell">
-                  {x.finding.agent}
+                <td className="hidden px-4 py-3 align-top md:table-cell">
+                  <AgentChip agent={x.finding.agent} />
                 </td>
                 <td className="px-4 py-3 align-top">
                   <ChevronRight className="size-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground" />
@@ -160,6 +161,26 @@ export function FindingsTable({
         )}
       </Dialog>
     </div>
+  );
+}
+
+// Compact colored agent identity — icon + name. Shared with finding-detail so
+// the same agent always looks the same across the report.
+export function AgentChip({ agent }: { agent: string }) {
+  const v = agentVisual(agent);
+  const Icon = v.icon;
+  return (
+    <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+      <span
+        className={cn(
+          "flex size-6 shrink-0 items-center justify-center rounded-md border",
+          v.tile
+        )}
+      >
+        <Icon className={cn("size-3.5", v.fg)} />
+      </span>
+      {agent}
+    </span>
   );
 }
 

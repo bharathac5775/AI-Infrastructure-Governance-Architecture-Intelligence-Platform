@@ -78,12 +78,20 @@ export function ReportPage() {
   const effectiveContents = { ...(r.file_contents ?? {}), ...reuploaded };
   const needsReupload = Object.keys(effectiveContents).length === 0 && r.files_analyzed.length > 0;
 
+  // Show the actual file(s) in the heading — more meaningful than the ID alone.
+  const fileTitle =
+    r.files_analyzed.length === 0
+      ? `Report ${r.report_id}`
+      : r.files_analyzed.length === 1
+        ? r.files_analyzed[0]
+        : `${r.files_analyzed[0]} + ${r.files_analyzed.length - 1} more`;
+
   return (
     <div>
       <PageHeader
-        title={`Report ${r.report_id}`}
+        title={fileTitle}
         crumbs={[{ label: "Reports", to: "/reports" }, { label: r.report_id }]}
-        description={`${r.files_analyzed.length} file${r.files_analyzed.length === 1 ? "" : "s"} · ${formatTimestamp(r.timestamp)}`}
+        description={`Report ${r.report_id} · ${r.files_analyzed.length} file${r.files_analyzed.length === 1 ? "" : "s"} · ${formatTimestamp(r.timestamp)}`}
         actions={
           <>
             <Button variant="secondary" onClick={() => downloadJson(r)}>

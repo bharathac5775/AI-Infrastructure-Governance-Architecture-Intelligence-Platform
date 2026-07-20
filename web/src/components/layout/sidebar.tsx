@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FileSearch, History, PanelLeftClose, PanelLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useAnalysisRunState } from "@/lib/use-analysis";
 
 const NAV = [
   { to: "/", label: "Analyze", icon: FileSearch, end: true },
@@ -13,6 +14,9 @@ const NAV = [
 // Icons are 16px — not oversized. No nested groups; the app has two sections.
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  // Surfaced from any page so a run started on Analyze stays visible after
+  // navigating away — the run itself lives in the shared mutation cache.
+  const running = useAnalysisRunState()?.isPending ?? false;
 
   return (
     <aside
@@ -52,13 +56,28 @@ export function Sidebar() {
                     isActive ? "opacity-100" : "opacity-0"
                   )}
                 />
-                <Icon
-                  className={cn(
-                    "size-4 shrink-0 transition-colors",
-                    isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                <span className="relative shrink-0">
+                  <Icon
+                    className={cn(
+                      "size-4 transition-colors",
+                      isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                    )}
+                  />
+                  {/* Pulsing dot marks an in-flight run when the label is hidden. */}
+                  {to === "/" && running && collapsed && (
+                    <span className="absolute -right-1 -top-1 flex size-2">
+                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-75" />
+                      <span className="relative inline-flex size-2 rounded-full bg-primary" />
+                    </span>
                   )}
-                />
+                </span>
                 {!collapsed && <span>{label}</span>}
+                {to === "/" && running && !collapsed && (
+                  <span className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2 py-0.5 text-2xs font-medium text-primary">
+                    <span className="size-1.5 animate-pulse rounded-full bg-primary" />
+                    Analyzing
+                  </span>
+                )}
               </>
             )}
           </NavLink>
