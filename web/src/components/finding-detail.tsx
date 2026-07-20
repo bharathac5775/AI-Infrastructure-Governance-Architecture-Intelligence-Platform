@@ -3,6 +3,8 @@ import { Drawer } from "@/components/ui/drawer";
 import { Badge } from "@/components/ui/badge";
 import { RemediationPanel } from "@/components/remediation-panel";
 import { severityTone } from "@/lib/report-utils";
+import { agentVisual } from "@/lib/product-copy";
+import { cn } from "@/lib/utils";
 
 // Slide-in detail for one finding: full description, recommendation, compliance
 // mappings, and the remediation surface.
@@ -25,7 +27,18 @@ export function FindingDetail({
             <Badge tone={severityTone(finding.severity)} dot>
               {finding.severity}
             </Badge>
-            <Badge tone="neutral">{finding.agent}</Badge>
+            <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface py-0.5 pl-1 pr-2 text-xs font-medium text-muted-foreground">
+              {(() => {
+                const v = agentVisual(finding.agent);
+                const Icon = v.icon;
+                return (
+                  <span className={cn("flex size-4 items-center justify-center rounded", v.tile)}>
+                    <Icon className={cn("size-3", v.fg)} />
+                  </span>
+                );
+              })()}
+              {finding.agent}
+            </span>
             <Badge tone="neutral">{finding.category}</Badge>
           </div>
           <h2 className="pr-8 text-base font-semibold leading-snug tracking-tight">

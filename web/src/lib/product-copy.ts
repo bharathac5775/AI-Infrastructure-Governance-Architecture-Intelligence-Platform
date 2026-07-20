@@ -5,6 +5,7 @@ import {
   Building2,
   ClipboardCheck,
   Network,
+  Bot,
   type LucideIcon,
 } from "lucide-react";
 
@@ -16,6 +17,65 @@ export interface AgentCopy {
   icon: LucideIcon;
   blurb: string;
   checks: string;
+}
+
+// Per-agent identity: icon + a distinct hue. One place so the home cards, the
+// findings table agent column, and the finding detail all render agents the
+// same way — a colored glyph is far easier to scan than repeated plain text.
+export interface AgentVisual {
+  icon: LucideIcon;
+  /** Icon color. */
+  fg: string;
+  /** Tinted tile background + hairline, tuned for both themes. */
+  tile: string;
+}
+
+const AGENT_VISUALS: Record<string, AgentVisual> = {
+  Security: {
+    icon: Shield,
+    fg: "text-rose-500 dark:text-rose-400",
+    tile: "bg-rose-500/10 border-rose-500/20",
+  },
+  Reliability: {
+    icon: Activity,
+    fg: "text-emerald-500 dark:text-emerald-400",
+    tile: "bg-emerald-500/10 border-emerald-500/20",
+  },
+  Cost: {
+    icon: DollarSign,
+    fg: "text-amber-500 dark:text-amber-400",
+    tile: "bg-amber-500/10 border-amber-500/20",
+  },
+  Architecture: {
+    icon: Building2,
+    fg: "text-violet-500 dark:text-violet-400",
+    tile: "bg-violet-500/10 border-violet-500/20",
+  },
+  Compliance: {
+    icon: ClipboardCheck,
+    fg: "text-sky-500 dark:text-sky-400",
+    tile: "bg-sky-500/10 border-sky-500/20",
+  },
+  Resilience: {
+    icon: Network,
+    fg: "text-teal-500 dark:text-teal-400",
+    tile: "bg-teal-500/10 border-teal-500/20",
+  },
+};
+
+const FALLBACK_VISUAL: AgentVisual = {
+  icon: Bot,
+  fg: "text-indigo-500 dark:text-indigo-400",
+  tile: "bg-indigo-500/10 border-indigo-500/20",
+};
+
+// Accepts either the short name ("Security") or the full finding agent label
+// ("Security Agent"), so callers don't have to normalize first.
+export function agentVisual(agent: string): AgentVisual {
+  for (const key of Object.keys(AGENT_VISUALS)) {
+    if (agent.includes(key)) return AGENT_VISUALS[key];
+  }
+  return FALLBACK_VISUAL;
 }
 
 // The six finding-producing agents (Supervisor + Remediator are infrastructure,
