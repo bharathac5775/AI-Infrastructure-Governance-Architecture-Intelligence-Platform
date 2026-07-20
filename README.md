@@ -60,31 +60,84 @@ Upload an infrastructure bundle → six agents review it in one pass → you get
 
 ## Architecture
 
+```mermaid
+flowchart TB
+    subgraph client["Client"]
+        UI["React SPA<br/><small>Analyze · Report · History</small>"]
+    end
+
+    subgraph api["API Layer · FastAPI"]
+        RT["REST Routes<br/><small>/analyze · /reports · /remediate<br/>/blast-radius · /diagram · /drift · /export</small>"]
+        ST["Static Server<br/><small>serves the built web UI</small>"]
+    end
+
+    subgraph ingest["Ingestion & Parsing"]
+        HELM["Helm Renderer<br/><small>.tgz → helm template</small>"]
+        KP["Kubernetes Parser<br/><small>PyYAML</small>"]
+        TP["Terraform Parser<br/><small>python-hcl2</small>"]
+    end
+
+    subgraph pipeline["Analysis Pipeline · LangGraph"]
+        direction TB
+        SEC["🛡️ Security"]
+        REL["📈 Reliability"]
+        COST["💰 Cost"]
+        ARCH["🏛️ Architecture"]
+        COMP["✅ Compliance"]
+        RES["🔗 Resilience"]
+        PLG["Plugin Agents<br/><small>discovered at runtime</small>"]
+        SUP["Supervisor<br/><small>dedup · synthesis · scoring</small>"]
+        SEC --> SUP
+        REL --> SUP
+        COST --> SUP
+        ARCH --> SUP
+        COMP --> SUP
+        RES --> SUP
+        PLG --> SUP
+    end
+
+    subgraph core["Core Services"]
+        GRAPH["Dependency Graph<br/><small>NetworkX · SPOF · blast radius</small>"]
+        CMPL["Compliance Engine<br/><small>CIS scorecards</small>"]
+        DRIFT["Drift Engine"]
+        SCORE["Scoring"]
+        REM["Remediator<br/><small>deterministic-first + LLM fallback</small>"]
+        PDF["PDF / JSON Export"]
+    end
+
+    subgraph ext["Providers & Storage"]
+        LLM["LLM Provider<br/><small>Ollama · Anthropic · OpenAI · Google</small>"]
+        DB[("ChromaDB<br/><small>report history · vectors</small>")]
+    end
+
+    UI -->|multipart / JSON| RT
+    ST -.serves.-> UI
+    RT --> HELM & KP & TP
+    HELM --> KP
+    KP --> pipeline
+    TP --> pipeline
+    SEC & REL & COST & ARCH & COMP -.->|reason| LLM
+    SUP --> GRAPH & CMPL & SCORE
+    SUP --> DB
+    RT --> REM
+    RT --> DRIFT
+    RT --> PDF
+    REM -.->|fallback| LLM
+    DRIFT --> DB
+    GRAPH --> DB
+    RT -->|history| DB
 ```
-┌────────────────────────────┐
-│   React Web UI             │   Analyze · Report · History
-│   (served by the API)      │
-└──────────────┬─────────────┘
-               │  HTTP  (multipart / JSON)
-               ▼
-┌────────────────────────────┐
-│   FastAPI Backend          │   /api/v1/…  +  serves the built web UI
-│   .tgz → helm template      │
-└──────────────┬─────────────┘
-               ▼
-┌────────────────────────────────────────────┐
-│   LangGraph Analysis Pipeline              │
-│   Parse → Security → Reliability → Cost →   │
-│   Architecture → Compliance → Resilience → │
-│   Supervisor (synthesis + scoring)         │
-└──────────────┬─────────────────────────────┘
-               ▼
-┌────────────────────────────┐        ┌────────────────────────────┐
-│   Governance Report (JSON) │───────▶│   ChromaDB (history)       │
-│   score · findings · graph │        │   drift · similar reports  │
-│   compliance · remediation │        └────────────────────────────┘
-└────────────────────────────┘
-```
+
+<details>
+<summary><b>Text view of the flow</b></summary>
+
+1. **Upload** — the React UI sends files to `/api/v1/analyze`. Helm charts are rendered server-side; Kubernetes and Terraform files are parsed into a normalized resource model.
+2. **Analyze** — the LangGraph pipeline runs six agents (plus any runtime-discovered plugin agents). Finding-producing agents reason with the configured LLM; the Supervisor deduplicates, synthesizes, and scores.
+3. **Enrich** — core services build the dependency graph (SPOF + blast radius), compute CIS compliance scorecards, and calculate the weighted overall score.
+4. **Persist** — the report (with its dependency graph) is stored in ChromaDB for history, drift comparison, and similarity search.
+5. **Act** — from a report, the user can generate remediation patches (deterministic first, LLM fallback), view drift vs. a prior scan, and export PDF/JSON.
+
+</details>
 
 ## Supported File Types
 
