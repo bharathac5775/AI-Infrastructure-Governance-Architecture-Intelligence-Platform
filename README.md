@@ -119,11 +119,12 @@ flowchart TB
     KP --> pipeline
     TP --> pipeline
 
-    SEC -.-> LLM
-    REL -.-> LLM
-    COST -.-> LLM
-    ARCH -.-> LLM
-    COMP -.-> LLM
+    SEC <-.-> LLM
+    REL <-.-> LLM
+    COST <-.-> LLM
+    ARCH <-.-> LLM
+    COMP <-.-> LLM
+    SUP <-.->|synthesis| LLM
 
     SUP --> GRAPH
     SUP --> CMPL
@@ -137,7 +138,7 @@ flowchart TB
     RT --> REM
     RT --> DRIFT
     RT --> EXPORT
-    REM -.->|fallback| LLM
+    REM <-.->|fallback| LLM
     OUT --> UI
     DRIFT --> DB
     RT -->|history| DB
