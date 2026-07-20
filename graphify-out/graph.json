@@ -560,7 +560,7 @@
       "source_location": "L250",
       "_origin": "ast",
       "id": "agents_remediator_filename_kind",
-      "community": 23,
+      "community": 117,
       "norm_label": "_filename_kind()"
     },
     {
@@ -620,7 +620,7 @@
       "source_location": "L602",
       "_origin": "ast",
       "id": "agents_remediator_locate_terraform_file",
-      "community": 23,
+      "community": 117,
       "norm_label": "_locate_terraform_file()"
     },
     {
@@ -630,7 +630,7 @@
       "source_location": "L641",
       "_origin": "ast",
       "id": "agents_remediator_locate_kubernetes_file",
-      "community": 23,
+      "community": 117,
       "norm_label": "_locate_kubernetes_file()"
     },
     {
@@ -670,7 +670,7 @@
       "source_location": "L917",
       "_origin": "ast",
       "id": "agents_remediator_make_unified_diff",
-      "community": 23,
+      "community": 36,
       "norm_label": "_make_unified_diff()"
     },
     {
@@ -740,7 +740,7 @@
       "source_location": "L1079",
       "_origin": "ast",
       "id": "agents_remediator_detect_json_indent",
-      "community": 124,
+      "community": 23,
       "norm_label": "_detect_json_indent()"
     },
     {
@@ -870,7 +870,7 @@
       "source_location": "L2012",
       "_origin": "ast",
       "id": "agents_remediator_tfjson_get_resource_block",
-      "community": 38,
+      "community": 124,
       "norm_label": "_tfjson_get_resource_block()"
     },
     {
@@ -880,7 +880,7 @@
       "source_location": "L2030",
       "_origin": "ast",
       "id": "agents_remediator_tfjson_add_companion_resource",
-      "community": 61,
+      "community": 124,
       "norm_label": "_tfjson_add_companion_resource()"
     },
     {
@@ -900,7 +900,7 @@
       "source_location": "L2061",
       "_origin": "ast",
       "id": "agents_remediator_fix_tf_json",
-      "community": 36,
+      "community": 124,
       "norm_label": "_fix_tf_json()"
     },
     {
@@ -1090,7 +1090,7 @@
       "source_location": "L251",
       "_origin": "ast",
       "id": "agents_remediator_rationale_251",
-      "community": 23,
+      "community": 117,
       "norm_label": "return one of: 'kubernetes_yaml', 'terraform_hcl', 'terraform_json',     or 'unk"
     },
     {
@@ -1150,7 +1150,7 @@
       "source_location": "L605",
       "_origin": "ast",
       "id": "agents_remediator_rationale_605",
-      "community": 23,
+      "community": 117,
       "norm_label": "locate the .tf/.hcl/.json file containing ``aws_foo.bar``."
     },
     {
@@ -1160,7 +1160,7 @@
       "source_location": "L644",
       "_origin": "ast",
       "id": "agents_remediator_rationale_644",
-      "community": 23,
+      "community": 117,
       "norm_label": "locate the .yaml/.yml file containing the named k8s resource.      the canonical"
     },
     {
@@ -1200,7 +1200,7 @@
       "source_location": "L918",
       "_origin": "ast",
       "id": "agents_remediator_rationale_918",
-      "community": 23,
+      "community": 36,
       "norm_label": "return a unified-diff string. empty if the contents are identical."
     },
     {
@@ -1270,7 +1270,7 @@
       "source_location": "L1080",
       "_origin": "ast",
       "id": "agents_remediator_rationale_1080",
-      "community": 124,
+      "community": 23,
       "norm_label": "sniff the indent width of the source json so we round-trip with     the same sha"
     },
     {
@@ -1380,7 +1380,7 @@
       "source_location": "L2013",
       "_origin": "ast",
       "id": "agents_remediator_rationale_2013",
-      "community": 38,
+      "community": 124,
       "norm_label": "return the per-resource config dict from parsed terraform json.      shape: ``pa"
     },
     {
@@ -1390,7 +1390,7 @@
       "source_location": "L2033",
       "_origin": "ast",
       "id": "agents_remediator_rationale_2033",
-      "community": 61,
+      "community": 124,
       "norm_label": "add a new entry under parsed[\"resource\"][rtype][rname] = config.      creates th"
     },
     {
@@ -1410,7 +1410,7 @@
       "source_location": "L2062",
       "_origin": "ast",
       "id": "agents_remediator_rationale_2062",
-      "community": 36,
+      "community": 124,
       "norm_label": "apply a deterministic fix to a terraform json file.      same category coverage"
     },
     {
@@ -1520,7 +1520,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "users_i768724_documents_ai_infrastructure_governance_architecture_intelligence_platform_app_agents_security_py",
-      "community": 10,
+      "community": 44,
       "norm_label": "security.py"
     },
     {
@@ -1560,7 +1560,7 @@
       "source_location": "L838",
       "_origin": "ast",
       "id": "agents_security_detect_infra_type",
-      "community": 10,
+      "community": 44,
       "norm_label": "_detect_infra_type()"
     },
     {
@@ -1570,7 +1570,7 @@
       "source_location": "L873",
       "_origin": "ast",
       "id": "agents_security_analyze_security",
-      "community": 10,
+      "community": 44,
       "norm_label": "analyze_security()"
     },
     {
@@ -1610,7 +1610,7 @@
       "source_location": "L839",
       "_origin": "ast",
       "id": "agents_security_rationale_839",
-      "community": 10,
+      "community": 44,
       "norm_label": "detect whether files are kubernetes, terraform, mixed, or none (non-infra)."
     },
     {
@@ -1620,7 +1620,7 @@
       "source_location": "L876",
       "_origin": "ast",
       "id": "agents_security_rationale_876",
-      "community": 10,
+      "community": 44,
       "norm_label": "run security analysis using rules + llm reasoning."
     },
     {
@@ -1740,7 +1740,7 @@
       "source_location": "L255",
       "_origin": "ast",
       "id": "stategraph",
-      "community": 44,
+      "community": 10,
       "norm_label": "stategraph"
     },
     {
@@ -1760,7 +1760,7 @@
       "source_location": "L287",
       "_origin": "ast",
       "id": "app_agents_supervisor_py_analysisreport",
-      "community": 44,
+      "community": 10,
       "norm_label": "analysisreport"
     },
     {
@@ -1870,7 +1870,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "api_routes_parse_tf_resources",
-      "community": 125,
+      "community": 9,
       "norm_label": "_parse_tf_resources()"
     },
     {
@@ -1910,7 +1910,7 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "api_routes_analyze_text",
-      "community": 125,
+      "community": 53,
       "norm_label": "analyze_text()"
     },
     {
@@ -1960,7 +1960,7 @@
       "source_location": "L259",
       "_origin": "ast",
       "id": "api_routes_list_reports_endpoint",
-      "community": 13,
+      "community": 21,
       "norm_label": "list_reports_endpoint()"
     },
     {
@@ -1970,7 +1970,7 @@
       "source_location": "L265",
       "_origin": "ast",
       "id": "api_routes_compare_reports_endpoint",
-      "community": 126,
+      "community": 13,
       "norm_label": "compare_reports_endpoint()"
     },
     {
@@ -1990,7 +1990,7 @@
       "source_location": "L283",
       "_origin": "ast",
       "id": "api_routes_similar_reports_endpoint",
-      "community": 13,
+      "community": 21,
       "norm_label": "similar_reports_endpoint()"
     },
     {
@@ -2000,7 +2000,7 @@
       "source_location": "L299",
       "_origin": "ast",
       "id": "api_routes_drift_endpoint",
-      "community": 58,
+      "community": 116,
       "norm_label": "drift_endpoint()"
     },
     {
@@ -2070,7 +2070,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "api_routes_rationale_27",
-      "community": 125,
+      "community": 9,
       "norm_label": "parse all terraform-flavored files in the bundle into a flat resource     list."
     },
     {
@@ -2090,7 +2090,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "api_routes_rationale_175",
-      "community": 125,
+      "community": 53,
       "norm_label": "analyze infrastructure from text content (for programmatic access)."
     },
     {
@@ -2130,7 +2130,7 @@
       "source_location": "L260",
       "_origin": "ast",
       "id": "api_routes_rationale_260",
-      "community": 13,
+      "community": 21,
       "norm_label": "list recent reports with metadata."
     },
     {
@@ -2140,7 +2140,7 @@
       "source_location": "L266",
       "_origin": "ast",
       "id": "api_routes_rationale_266",
-      "community": 126,
+      "community": 13,
       "norm_label": "compare two reports and return score deltas."
     },
     {
@@ -2160,7 +2160,7 @@
       "source_location": "L286",
       "_origin": "ast",
       "id": "api_routes_rationale_286",
-      "community": 13,
+      "community": 21,
       "norm_label": "find past reports with similar risk profiles."
     },
     {
@@ -2170,7 +2170,7 @@
       "source_location": "L300",
       "_origin": "ast",
       "id": "api_routes_rationale_300",
-      "community": 58,
+      "community": 116,
       "norm_label": "compare a report against the most recent prior scan of the same bundle.      pha"
     },
     {
@@ -2360,7 +2360,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "core_compliance_detect_clouds_from_resource",
-      "community": 16,
+      "community": 32,
       "norm_label": "_detect_clouds_from_resource()"
     },
     {
@@ -2390,7 +2390,7 @@
       "source_location": "L273",
       "_origin": "ast",
       "id": "core_compliance_is_control_assessable",
-      "community": 1,
+      "community": 16,
       "norm_label": "_is_control_assessable()"
     },
     {
@@ -2490,7 +2490,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "core_compliance_rationale_144",
-      "community": 16,
+      "community": 32,
       "norm_label": "identify the cloud from a single finding.resource string, or none.      k8s reso"
     },
     {
@@ -2520,7 +2520,7 @@
       "source_location": "L278",
       "_origin": "ast",
       "id": "core_compliance_rationale_278",
-      "community": 1,
+      "community": 16,
       "norm_label": "a control is assessable iff cross-cloud or any of its domains is a     detected"
     },
     {
@@ -2660,7 +2660,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "core_drift_finding_signature",
-      "community": 94,
+      "community": 76,
       "norm_label": "_finding_signature()"
     },
     {
@@ -2670,7 +2670,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "core_drift_find_baseline",
-      "community": 76,
+      "community": 116,
       "norm_label": "find_baseline()"
     },
     {
@@ -2800,7 +2800,7 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "core_drift_rationale_73",
-      "community": 94,
+      "community": 76,
       "norm_label": "stable identity for a finding across runs.      tuple of (agent, category, title"
     },
     {
@@ -2810,7 +2810,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "core_drift_rationale_83",
-      "community": 76,
+      "community": 116,
       "norm_label": "return the most recent prior report with the same bundle_fingerprint.      retur"
     },
     {
@@ -3110,7 +3110,7 @@
       "source_location": "L367",
       "_origin": "ast",
       "id": "core_graph_dependents_of",
-      "community": 40,
+      "community": 12,
       "norm_label": "dependents_of()"
     },
     {
@@ -3120,7 +3120,7 @@
       "source_location": "L379",
       "_origin": "ast",
       "id": "core_graph_find_spofs",
-      "community": 40,
+      "community": 12,
       "norm_label": "find_spofs()"
     },
     {
@@ -3130,7 +3130,7 @@
       "source_location": "L432",
       "_origin": "ast",
       "id": "core_graph_spof_severity",
-      "community": 40,
+      "community": 12,
       "norm_label": "_spof_severity()"
     },
     {
@@ -3150,7 +3150,7 @@
       "source_location": "L440",
       "_origin": "ast",
       "id": "core_graph_spof_findings",
-      "community": 40,
+      "community": 12,
       "norm_label": "spof_findings()"
     },
     {
@@ -3340,7 +3340,7 @@
       "source_location": "L368",
       "_origin": "ast",
       "id": "core_graph_rationale_368",
-      "community": 40,
+      "community": 12,
       "norm_label": "every resource that (transitively) depends on ``node``.      edges point depende"
     },
     {
@@ -3350,7 +3350,7 @@
       "source_location": "L380",
       "_origin": "ast",
       "id": "core_graph_rationale_380",
-      "community": 40,
+      "community": 12,
       "norm_label": "identify single points of failure in the dependency graph.      two independent"
     },
     {
@@ -3360,7 +3360,7 @@
       "source_location": "L441",
       "_origin": "ast",
       "id": "core_graph_rationale_441",
-      "community": 40,
+      "community": 12,
       "norm_label": "turn detected spofs into resilience-category findings.      deterministic \u2014 no l"
     },
     {
@@ -3610,7 +3610,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "app_core_llm_agent_py_agentreport",
-      "community": 55,
+      "community": 10,
       "norm_label": "agentreport"
     },
     {
@@ -3700,7 +3700,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "app_core_pdf_export_py_analysisreport",
-      "community": 63,
+      "community": 10,
       "norm_label": "analysisreport"
     },
     {
@@ -3990,7 +3990,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "app_core_report_py_agentreport",
-      "community": 2,
+      "community": 10,
       "norm_label": "agentreport"
     },
     {
@@ -4000,7 +4000,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "app_core_report_py_architecturereview",
-      "community": 2,
+      "community": 10,
       "norm_label": "architecturereview"
     },
     {
@@ -4020,7 +4020,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "app_core_report_py_analysisreport",
-      "community": 79,
+      "community": 10,
       "norm_label": "analysisreport"
     },
     {
@@ -4070,7 +4070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "users_i768724_documents_ai_infrastructure_governance_architecture_intelligence_platform_app_core_skills_py",
-      "community": 117,
+      "community": 0,
       "norm_label": "skills.py"
     },
     {
@@ -4080,7 +4080,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "core_skills_load_skill",
-      "community": 117,
+      "community": 0,
       "norm_label": "load_skill()"
     },
     {
@@ -4090,7 +4090,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "app_core_skills_py_path",
-      "community": 117,
+      "community": 0,
       "norm_label": "path"
     },
     {
@@ -4100,7 +4100,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "app_core_skills_py_any",
-      "community": 117,
+      "community": 0,
       "norm_label": "any"
     },
     {
@@ -4110,7 +4110,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "core_skills_get_agent_prompt",
-      "community": 10,
+      "community": 0,
       "norm_label": "get_agent_prompt()"
     },
     {
@@ -4120,7 +4120,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "core_skills_list_skills",
-      "community": 117,
+      "community": 0,
       "norm_label": "list_skills()"
     },
     {
@@ -4130,7 +4130,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_skills_rationale_1",
-      "community": 117,
+      "community": 0,
       "norm_label": "skill file loader \u2014 reads agent behavior from markdown skill files."
     },
     {
@@ -4140,7 +4140,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "core_skills_rationale_12",
-      "community": 117,
+      "community": 0,
       "norm_label": "load a skill file and return its metadata + prompt content.      skill files use"
     },
     {
@@ -4150,7 +4150,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "core_skills_rationale_56",
-      "community": 10,
+      "community": 0,
       "norm_label": "get the prompt for a specific agent and infrastructure type.      args:"
     },
     {
@@ -4160,7 +4160,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "core_skills_rationale_79",
-      "community": 117,
+      "community": 0,
       "norm_label": "list all available skill files with their metadata."
     },
     {
@@ -4210,7 +4210,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "app_core_store_py_analysisreport",
-      "community": 58,
+      "community": 116,
       "norm_label": "analysisreport"
     },
     {
@@ -4220,7 +4220,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "core_store_get_report",
-      "community": 58,
+      "community": 116,
       "norm_label": "get_report()"
     },
     {
@@ -4240,7 +4240,7 @@
       "source_location": "L151",
       "_origin": "ast",
       "id": "core_store_compare_reports",
-      "community": 126,
+      "community": 63,
       "norm_label": "compare_reports()"
     },
     {
@@ -4310,7 +4310,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "core_store_rationale_101",
-      "community": 58,
+      "community": 116,
       "norm_label": "retrieve a report by id."
     },
     {
@@ -4330,7 +4330,7 @@
       "source_location": "L152",
       "_origin": "ast",
       "id": "core_store_rationale_152",
-      "community": 126,
+      "community": 63,
       "norm_label": "compare two reports and return score deltas."
     },
     {
@@ -4500,7 +4500,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "app_models_crosscuttinggap",
-      "community": 10,
+      "community": 27,
       "norm_label": "crosscuttinggap"
     },
     {
@@ -4510,7 +4510,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "app_models_architecturereview",
-      "community": 2,
+      "community": 10,
       "norm_label": "architecturereview"
     },
     {
@@ -4580,7 +4580,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "app_models_analysisreport",
-      "community": 58,
+      "community": 10,
       "norm_label": "analysisreport"
     },
     {
@@ -4590,7 +4590,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "app_models_analysisreport_init",
-      "community": 58,
+      "community": 10,
       "norm_label": ".__init__()"
     },
     {
@@ -5260,7 +5260,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "fixtures_findings_make_finding",
-      "community": 94,
+      "community": 2,
       "norm_label": "make_finding()"
     },
     {
@@ -5790,7 +5790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "users_i768724_documents_ai_infrastructure_governance_architecture_intelligence_platform_tests_test_compliance_py",
-      "community": 116,
+      "community": 74,
       "norm_label": "test_compliance.py"
     },
     {
@@ -5800,7 +5800,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "tests_test_compliance_full_report",
-      "community": 32,
+      "community": 1,
       "norm_label": "_full_report()"
     },
     {
@@ -5810,7 +5810,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "tests_test_compliance_py_finding",
-      "community": 46,
+      "community": 10,
       "norm_label": "finding"
     },
     {
@@ -5820,7 +5820,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "tests_test_compliance_py_analysisreport",
-      "community": 46,
+      "community": 10,
       "norm_label": "analysisreport"
     },
     {
@@ -6160,7 +6160,7 @@
       "source_location": "L314",
       "_origin": "ast",
       "id": "tests_test_compliance_testdetectclouds_test_aws_only_upload_with_llm_na_finding_excludes_cis_kubernetes",
-      "community": 32,
+      "community": 1,
       "norm_label": ".test_aws_only_upload_with_llm_na_finding_excludes_cis_kubernetes()"
     },
     {
@@ -6330,7 +6330,7 @@
       "source_location": "L579",
       "_origin": "ast",
       "id": "tests_test_compliance_testcomputescorecardsemantics",
-      "community": 116,
+      "community": 1,
       "norm_label": "testcomputescorecardsemantics"
     },
     {
@@ -6340,7 +6340,7 @@
       "source_location": "L580",
       "_origin": "ast",
       "id": "tests_test_compliance_testcomputescorecardsemantics_test_clean_k8s_report_yields_100_pct_for_applicable_frameworks",
-      "community": 116,
+      "community": 1,
       "norm_label": ".test_clean_k8s_report_yields_100_pct_for_applicable_frameworks()"
     },
     {
@@ -6350,7 +6350,7 @@
       "source_location": "L589",
       "_origin": "ast",
       "id": "tests_test_compliance_testcomputescorecardsemantics_test_failed_finding_drops_score",
-      "community": 116,
+      "community": 1,
       "norm_label": ".test_failed_finding_drops_score()"
     },
     {
@@ -6360,7 +6360,7 @@
       "source_location": "L602",
       "_origin": "ast",
       "id": "tests_test_compliance_testcomputescorecardsemantics_test_score_formula_passed_over_total",
-      "community": 116,
+      "community": 1,
       "norm_label": ".test_score_formula_passed_over_total()"
     },
     {
@@ -6370,7 +6370,7 @@
       "source_location": "L616",
       "_origin": "ast",
       "id": "tests_test_compliance_testcomputescorecardsemantics_test_unmapped_finding_does_not_affect_score",
-      "community": 116,
+      "community": 1,
       "norm_label": ".test_unmapped_finding_does_not_affect_score()"
     },
     {
@@ -6450,7 +6450,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_compliance_rationale_1",
-      "community": 116,
+      "community": 74,
       "norm_label": "tests for compliance framework mapping (phase 3.3, cloud-aware).  reference: app"
     },
     {
@@ -6560,7 +6560,7 @@
       "source_location": "L315",
       "_origin": "ast",
       "id": "tests_test_compliance_rationale_315",
-      "community": 32,
+      "community": 1,
       "norm_label": "end-to-end pin: a real-world aws-only upload that includes an         llm adviso"
     },
     {
@@ -6690,7 +6690,7 @@
       "source_location": "L581",
       "_origin": "ast",
       "id": "tests_test_compliance_rationale_581",
-      "community": 116,
+      "community": 1,
       "norm_label": "k8s upload, no findings \u2192 all assessable controls pass \u2192 100%."
     },
     {
@@ -6700,7 +6700,7 @@
       "source_location": "L617",
       "_origin": "ast",
       "id": "tests_test_compliance_rationale_617",
-      "community": 116,
+      "community": 1,
       "norm_label": "a finding with empty compliance_controls is neutral."
     },
     {
@@ -7230,7 +7230,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_test_drift_py_finding",
-      "community": 2,
+      "community": 10,
       "norm_label": "finding"
     },
     {
@@ -7240,7 +7240,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_test_drift_py_analysisreport",
-      "community": 2,
+      "community": 10,
       "norm_label": "analysisreport"
     },
     {
@@ -7260,7 +7260,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "tests_test_drift_testisdeterministic",
-      "community": 94,
+      "community": 76,
       "norm_label": "testisdeterministic"
     },
     {
@@ -7270,7 +7270,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_test_drift_testisdeterministic_test_rule_finding_is_deterministic",
-      "community": 94,
+      "community": 76,
       "norm_label": ".test_rule_finding_is_deterministic()"
     },
     {
@@ -7280,7 +7280,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "tests_test_drift_testisdeterministic_test_ai_analysis_finding_is_not_deterministic",
-      "community": 94,
+      "community": 76,
       "norm_label": ".test_ai_analysis_finding_is_not_deterministic()"
     },
     {
@@ -7290,7 +7290,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "tests_test_drift_testfindingsignature",
-      "community": 94,
+      "community": 76,
       "norm_label": "testfindingsignature"
     },
     {
@@ -7300,7 +7300,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "tests_test_drift_testfindingsignature_test_signature_match_ignores_severity_and_description",
-      "community": 94,
+      "community": 76,
       "norm_label": ".test_signature_match_ignores_severity_and_description()"
     },
     {
@@ -7310,7 +7310,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "tests_test_drift_testfindingsignature_test_signature_breaks_on_resource_change",
-      "community": 94,
+      "community": 76,
       "norm_label": ".test_signature_breaks_on_resource_change()"
     },
     {
@@ -7320,7 +7320,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "tests_test_drift_testfindingsignature_test_signature_breaks_on_title_change",
-      "community": 94,
+      "community": 76,
       "norm_label": ".test_signature_breaks_on_title_change()"
     },
     {
@@ -7440,7 +7440,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "tests_test_drift_testruleonlyoverallscore",
-      "community": 2,
+      "community": 10,
       "norm_label": "testruleonlyoverallscore"
     },
     {
@@ -7450,7 +7450,7 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "tests_test_drift_testruleonlyoverallscore_test_three_clean_agents_returns_100",
-      "community": 2,
+      "community": 76,
       "norm_label": ".test_three_clean_agents_returns_100()"
     },
     {
@@ -7650,7 +7650,7 @@
       "source_location": "L436",
       "_origin": "ast",
       "id": "tests_test_drift_testcomputedriftmetadata",
-      "community": 2,
+      "community": 10,
       "norm_label": "testcomputedriftmetadata"
     },
     {
@@ -7750,7 +7750,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_testpersistenceexclusion",
-      "community": 58,
+      "community": 10,
       "norm_label": "testpersistenceexclusion"
     },
     {
@@ -7760,7 +7760,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_testpersistenceexclusion_test_save_report_drops_file_contents",
-      "community": 58,
+      "community": 10,
       "norm_label": ".test_save_report_drops_file_contents()"
     },
     {
@@ -7770,7 +7770,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_testpersistenceexclusion_test_get_report_returns_empty_file_contents_for_legacy_data",
-      "community": 58,
+      "community": 116,
       "norm_label": ".test_get_report_returns_empty_file_contents_for_legacy_data()"
     },
     {
@@ -7790,7 +7790,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_testanalyzetextecho_test_analyze_text_returns_file_contents",
-      "community": 89,
+      "community": 116,
       "norm_label": ".test_analyze_text_returns_file_contents()"
     },
     {
@@ -7860,7 +7860,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_rationale_36",
-      "community": 58,
+      "community": 10,
       "norm_label": "even if a report carries file_contents in memory, it must not         land in ch"
     },
     {
@@ -7870,7 +7870,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "tests_test_file_contents_echo_rationale_59",
-      "community": 58,
+      "community": 116,
       "norm_label": "a report saved before this feature existed (or any report         cleanly persis"
     },
     {
@@ -8370,7 +8370,7 @@
       "source_location": "L262",
       "_origin": "ast",
       "id": "tests_test_graph_testmixedandnamespacing",
-      "community": 40,
+      "community": 50,
       "norm_label": "testmixedandnamespacing"
     },
     {
@@ -8390,7 +8390,7 @@
       "source_location": "L274",
       "_origin": "ast",
       "id": "tests_test_graph_testmixedandnamespacing_test_empty_inputs_yield_empty_graph",
-      "community": 40,
+      "community": 50,
       "norm_label": ".test_empty_inputs_yield_empty_graph()"
     },
     {
@@ -8410,7 +8410,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "tests_test_graph_testspof",
-      "community": 40,
+      "community": 20,
       "norm_label": "testspof"
     },
     {
@@ -8420,7 +8420,7 @@
       "source_location": "L295",
       "_origin": "ast",
       "id": "tests_test_graph_testspof_test_high_fanin_is_spof",
-      "community": 40,
+      "community": 20,
       "norm_label": ".test_high_fanin_is_spof()"
     },
     {
@@ -8430,7 +8430,7 @@
       "source_location": "L304",
       "_origin": "ast",
       "id": "tests_test_graph_testspof_test_below_threshold_not_high_fanin",
-      "community": 40,
+      "community": 20,
       "norm_label": ".test_below_threshold_not_high_fanin()"
     },
     {
@@ -8440,7 +8440,7 @@
       "source_location": "L312",
       "_origin": "ast",
       "id": "tests_test_graph_testspof_test_dependents_direction",
-      "community": 40,
+      "community": 20,
       "norm_label": ".test_dependents_direction()"
     },
     {
@@ -8450,7 +8450,7 @@
       "source_location": "L321",
       "_origin": "ast",
       "id": "tests_test_graph_testspof_test_spof_findings_shape",
-      "community": 40,
+      "community": 20,
       "norm_label": ".test_spof_findings_shape()"
     },
     {
@@ -8460,7 +8460,7 @@
       "source_location": "L331",
       "_origin": "ast",
       "id": "tests_test_graph_testspof_test_severity_scales_with_dependents",
-      "community": 40,
+      "community": 20,
       "norm_label": ".test_severity_scales_with_dependents()"
     },
     {
@@ -8800,7 +8800,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "tests_test_graph_endpoints_testdiagramendpoint",
-      "community": 122,
+      "community": 119,
       "norm_label": "testdiagramendpoint"
     },
     {
@@ -8810,7 +8810,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "tests_test_graph_endpoints_testdiagramendpoint_test_returns_mermaid",
-      "community": 122,
+      "community": 119,
       "norm_label": ".test_returns_mermaid()"
     },
     {
@@ -8820,7 +8820,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "tests_test_graph_endpoints_testdiagramendpoint_test_highlight_param",
-      "community": 122,
+      "community": 119,
       "norm_label": ".test_highlight_param()"
     },
     {
@@ -8830,7 +8830,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "tests_test_graph_endpoints_testdiagramendpoint_test_unsupported_format_400",
-      "community": 122,
+      "community": 119,
       "norm_label": ".test_unsupported_format_400()"
     },
     {
@@ -8840,7 +8840,7 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "tests_test_graph_endpoints_testdiagramendpoint_test_report_not_found_404",
-      "community": 122,
+      "community": 119,
       "norm_label": ".test_report_not_found_404()"
     },
     {
@@ -8850,7 +8850,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "tests_test_graph_endpoints_testdiagramendpoint_test_report_without_graph_404",
-      "community": 122,
+      "community": 119,
       "norm_label": ".test_report_without_graph_404()"
     },
     {
@@ -9170,7 +9170,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "tests_test_mock_llm_test_mock_llm_can_override_architecture_response",
-      "community": 53,
+      "community": 121,
       "norm_label": "test_mock_llm_can_override_architecture_response()"
     },
     {
@@ -9210,7 +9210,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "tests_test_mock_llm_rationale_64",
-      "community": 53,
+      "community": 121,
       "norm_label": "verify mock_llm.set() actually changes architecture review output."
     },
     {
@@ -9530,7 +9530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "users_i768724_documents_ai_infrastructure_governance_architecture_intelligence_platform_tests_test_plugin_harness_py",
-      "community": 0,
+      "community": 58,
       "norm_label": "test_plugin_harness.py"
     },
     {
@@ -9740,7 +9740,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_run",
-      "community": 0,
+      "community": 58,
       "norm_label": "_run()"
     },
     {
@@ -9750,7 +9750,7 @@
       "source_location": "L195",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_testpluginexecution",
-      "community": 10,
+      "community": 58,
       "norm_label": "testpluginexecution"
     },
     {
@@ -9760,7 +9760,7 @@
       "source_location": "L196",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_testpluginexecution_test_compliance_adapter_returns_valid_report",
-      "community": 10,
+      "community": 58,
       "norm_label": ".test_compliance_adapter_returns_valid_report()"
     },
     {
@@ -9770,7 +9770,7 @@
       "source_location": "L219",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_testpluginexecution_test_compliance_no_framework_scores_100",
-      "community": 0,
+      "community": 58,
       "norm_label": ".test_compliance_no_framework_scores_100()"
     },
     {
@@ -9780,7 +9780,7 @@
       "source_location": "L233",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_testpluginexecution_test_missing_adapter_is_skipped",
-      "community": 0,
+      "community": 58,
       "norm_label": ".test_missing_adapter_is_skipped()"
     },
     {
@@ -9790,7 +9790,7 @@
       "source_location": "L245",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_testpluginexecution_test_run_all_plugins_empty_registry",
-      "community": 0,
+      "community": 58,
       "norm_label": ".test_run_all_plugins_empty_registry()"
     },
     {
@@ -9800,7 +9800,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_rationale_1",
-      "community": 0,
+      "community": 58,
       "norm_label": "tests for the phase 3.5 plugin harness.  covers: - registry discovery gate (fron"
     },
     {
@@ -9850,7 +9850,7 @@
       "source_location": "L197",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_rationale_197",
-      "community": 10,
+      "community": 58,
       "norm_label": "the compliance plugin runs against core findings and yields a report."
     },
     {
@@ -9860,7 +9860,7 @@
       "source_location": "L220",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_rationale_220",
-      "community": 0,
+      "community": 58,
       "norm_label": "a report with no applicable framework is not penalized."
     },
     {
@@ -9870,7 +9870,7 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_rationale_234",
-      "community": 0,
+      "community": 58,
       "norm_label": "a rule_based plugin with no registered adapter returns none (skipped)."
     },
     {
@@ -9880,7 +9880,7 @@
       "source_location": "L246",
       "_origin": "ast",
       "id": "tests_test_plugin_harness_rationale_246",
-      "community": 0,
+      "community": 58,
       "norm_label": "no skills -> no reports (pass-through behavior)."
     },
     {
@@ -13490,7 +13490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "users_i768724_documents_ai_infrastructure_governance_architecture_intelligence_platform_tests_test_scoring_py",
-      "community": 91,
+      "community": 52,
       "norm_label": "test_scoring.py"
     },
     {
@@ -13720,7 +13720,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_scoring_rationale_1",
-      "community": 91,
+      "community": 52,
       "norm_label": "tests for scoring math.  reference code: - app/core/report.py::calculate_overall"
     },
     {
@@ -14674,13 +14674,63 @@
       "norm_label": "architecturepanel()"
     },
     {
+      "label": "architecture-review-panel.tsx",
+      "file_type": "code",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "components_architecture_review_panel",
+      "community": 40,
+      "norm_label": "architecture-review-panel.tsx"
+    },
+    {
+      "label": "patternTone()",
+      "file_type": "code",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L16",
+      "_origin": "ast",
+      "id": "components_architecture_review_panel_patterntone",
+      "community": 40,
+      "norm_label": "patterntone()"
+    },
+    {
+      "label": "SectionHeading()",
+      "file_type": "code",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L26",
+      "_origin": "ast",
+      "id": "components_architecture_review_panel_sectionheading",
+      "community": 40,
+      "norm_label": "sectionheading()"
+    },
+    {
+      "label": "ArchitectureReviewPanel()",
+      "file_type": "code",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "components_architecture_review_panel_architecturereviewpanel",
+      "community": 40,
+      "norm_label": "architecturereviewpanel()"
+    },
+    {
+      "label": "scoreTextClass()",
+      "file_type": "code",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L230",
+      "_origin": "ast",
+      "id": "components_architecture_review_panel_scoretextclass",
+      "community": 40,
+      "norm_label": "scoretextclass()"
+    },
+    {
       "label": "compliance-panel.tsx",
       "file_type": "code",
       "source_file": "web/src/components/compliance-panel.tsx",
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_compliance_panel",
-      "community": 22,
+      "community": 26,
       "norm_label": "compliance-panel.tsx"
     },
     {
@@ -14690,7 +14740,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "components_compliance_panel_tone_text",
-      "community": 22,
+      "community": 26,
       "norm_label": "tone_text"
     },
     {
@@ -14700,7 +14750,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "components_compliance_panel_compliancepanel",
-      "community": 22,
+      "community": 26,
       "norm_label": "compliancepanel()"
     },
     {
@@ -14750,7 +14800,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "components_drift_panel_deltavalue",
-      "community": 19,
+      "community": 26,
       "norm_label": "deltavalue()"
     },
     {
@@ -15020,7 +15070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_reupload_panel",
-      "community": 19,
+      "community": 57,
       "norm_label": "reupload-panel.tsx"
     },
     {
@@ -15030,7 +15080,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "components_reupload_panel_reuploadpanel",
-      "community": 19,
+      "community": 57,
       "norm_label": "reuploadpanel()"
     },
     {
@@ -15060,7 +15110,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "components_score_header",
-      "community": 22,
+      "community": 40,
       "norm_label": "score-header.tsx"
     },
     {
@@ -15070,7 +15120,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "components_score_header_tone_text",
-      "community": 22,
+      "community": 40,
       "norm_label": "tone_text"
     },
     {
@@ -15080,7 +15130,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "components_score_header_scoreheader",
-      "community": 22,
+      "community": 40,
       "norm_label": "scoreheader()"
     },
     {
@@ -15170,7 +15220,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_badge",
-      "community": 22,
+      "community": 40,
       "norm_label": "badge.tsx"
     },
     {
@@ -15180,7 +15230,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "ui_badge_badgevariants",
-      "community": 22,
+      "community": 40,
       "norm_label": "badgevariants"
     },
     {
@@ -15190,7 +15240,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "ui_badge_badgeprops",
-      "community": 22,
+      "community": 40,
       "norm_label": "badgeprops"
     },
     {
@@ -15200,7 +15250,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "ui_badge_badge",
-      "community": 22,
+      "community": 40,
       "norm_label": "badge()"
     },
     {
@@ -15210,7 +15260,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_button",
-      "community": 19,
+      "community": 57,
       "norm_label": "button.tsx"
     },
     {
@@ -15220,7 +15270,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "ui_button_buttonvariants",
-      "community": 19,
+      "community": 57,
       "norm_label": "buttonvariants"
     },
     {
@@ -15230,7 +15280,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "ui_button_buttonprops",
-      "community": 19,
+      "community": 57,
       "norm_label": "buttonprops"
     },
     {
@@ -15240,7 +15290,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "ui_button_button",
-      "community": 19,
+      "community": 57,
       "norm_label": "button"
     },
     {
@@ -15250,7 +15300,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "ui_card",
-      "community": 19,
+      "community": 22,
       "norm_label": "card.tsx"
     },
     {
@@ -15260,7 +15310,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "ui_card_card",
-      "community": 19,
+      "community": 22,
       "norm_label": "card()"
     },
     {
@@ -15270,7 +15320,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "ui_card_cardheader",
-      "community": 19,
+      "community": 22,
       "norm_label": "cardheader()"
     },
     {
@@ -15280,7 +15330,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "ui_card_cardtitle",
-      "community": 19,
+      "community": 22,
       "norm_label": "cardtitle()"
     },
     {
@@ -15290,7 +15340,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "ui_card_carddescription",
-      "community": 19,
+      "community": 22,
       "norm_label": "carddescription()"
     },
     {
@@ -15300,7 +15350,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "ui_card_cardcontent",
-      "community": 19,
+      "community": 22,
       "norm_label": "cardcontent()"
     },
     {
@@ -15430,7 +15480,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "lib_api_apierror",
-      "community": 41,
+      "community": 19,
       "norm_label": "apierror"
     },
     {
@@ -15440,7 +15490,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "lib_api_apierror_constructor",
-      "community": 41,
+      "community": 19,
       "norm_label": ".constructor()"
     },
     {
@@ -15660,7 +15710,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_report_utils",
-      "community": 22,
+      "community": 40,
       "norm_label": "report-utils.ts"
     },
     {
@@ -15670,7 +15720,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "lib_report_utils_isadvisoryagent",
-      "community": 22,
+      "community": 40,
       "norm_label": "isadvisoryagent()"
     },
     {
@@ -15680,7 +15730,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "lib_report_utils_severity_order",
-      "community": 22,
+      "community": 40,
       "norm_label": "severity_order"
     },
     {
@@ -15700,7 +15750,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "lib_report_utils_scoretone",
-      "community": 22,
+      "community": 40,
       "norm_label": "scoretone()"
     },
     {
@@ -15710,7 +15760,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "lib_report_utils_scorelabel",
-      "community": 22,
+      "community": 40,
       "norm_label": "scorelabel()"
     },
     {
@@ -15810,7 +15860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "lib_utils",
-      "community": 19,
+      "community": 22,
       "norm_label": "utils.ts"
     },
     {
@@ -15820,7 +15870,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "lib_utils_cn",
-      "community": 19,
+      "community": 22,
       "norm_label": "cn()"
     },
     {
@@ -15877,7 +15927,7 @@
       "label": "downloadJson()",
       "file_type": "code",
       "source_file": "web/src/pages/report.tsx",
-      "source_location": "L22",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "pages_report_downloadjson",
       "community": 26,
@@ -15887,7 +15937,7 @@
       "label": "ReportPage()",
       "file_type": "code",
       "source_file": "web/src/pages/report.tsx",
-      "source_location": "L35",
+      "source_location": "L36",
       "_origin": "ast",
       "id": "pages_report_reportpage",
       "community": 26,
@@ -15970,7 +16020,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "types_api_severity",
-      "community": 22,
+      "community": 40,
       "norm_label": "severity"
     },
     {
@@ -16010,7 +16060,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "types_api_patterndetected",
-      "community": 34,
+      "community": 40,
       "norm_label": "patterndetected"
     },
     {
@@ -55254,9 +55304,9 @@
       "source_file": "web/package.json",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "web_package",
-      "target": "web_package_dependencies",
-      "confidence_score": 1.0
+      "target": "web_package_dependencies"
     },
     {
       "relation": "contains",
@@ -55264,9 +55314,9 @@
       "source_file": "web/package.json",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "web_package",
-      "target": "web_package_devdependencies",
-      "confidence_score": 1.0
+      "target": "web_package_devdependencies"
     },
     {
       "relation": "contains",
@@ -55274,9 +55324,9 @@
       "source_file": "web/package.json",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "web_package",
-      "target": "web_package_name",
-      "confidence_score": 1.0
+      "target": "web_package_name"
     },
     {
       "relation": "contains",
@@ -55284,9 +55334,9 @@
       "source_file": "web/package.json",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "web_package",
-      "target": "web_package_private",
-      "confidence_score": 1.0
+      "target": "web_package_private"
     },
     {
       "relation": "contains",
@@ -55294,9 +55344,9 @@
       "source_file": "web/package.json",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "web_package",
-      "target": "web_package_scripts",
-      "confidence_score": 1.0
+      "target": "web_package_scripts"
     },
     {
       "relation": "contains",
@@ -55304,9 +55354,9 @@
       "source_file": "web/package.json",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "web_package",
-      "target": "web_package_type",
-      "confidence_score": 1.0
+      "target": "web_package_type"
     },
     {
       "relation": "contains",
@@ -55314,9 +55364,9 @@
       "source_file": "web/package.json",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "web_package",
-      "target": "web_package_version",
-      "confidence_score": 1.0
+      "target": "web_package_version"
     },
     {
       "relation": "contains",
@@ -55544,9 +55594,9 @@
       "source_file": "web/package.json",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "web_package_devdependencies",
-      "target": "web_package_devdependencies_types_node",
-      "confidence_score": 1.0
+      "target": "web_package_devdependencies_types_node"
     },
     {
       "relation": "contains",
@@ -56141,6 +56191,277 @@
       "confidence_score": 1.0,
       "source": "pages_report",
       "target": "components_architecture_panel_architecturepanel"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "components_architecture_review_panel_architecturereviewpanel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "components_architecture_review_panel_patterntone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L230",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "components_architecture_review_panel_scoretextclass",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "components_architecture_review_panel_sectionheading",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "lib_report_utils",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "lib_report_utils_scorelabel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "lib_report_utils_scoretone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "lib_report_utils_severitytone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "lib_utils",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "lib_utils_cn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "types_api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "types_api_analysisreport",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "types_api_patterndetected",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "ui_badge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "ui_badge_badge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "ui_badge_badgeprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "ui_states",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel",
+      "target": "ui_states_emptystate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/pages/report.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "pages_report",
+      "target": "components_architecture_review_panel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel_sectionheading",
+      "target": "lib_utils_cn"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L93",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel_architecturereviewpanel",
+      "target": "components_architecture_review_panel_scoretextclass",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel_architecturereviewpanel",
+      "target": "lib_report_utils_scorelabel"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L88",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel_architecturereviewpanel",
+      "target": "lib_report_utils_scoretone"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "web/src/components/architecture-review-panel.tsx",
+      "source_location": "L93",
+      "weight": 1.0,
+      "source": "components_architecture_review_panel_architecturereviewpanel",
+      "target": "lib_utils_cn"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "web/src/pages/report.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "pages_report",
+      "target": "components_architecture_review_panel_architecturereviewpanel",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -61126,9 +61447,9 @@
       "source_file": "README.md",
       "source_location": "L242",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_quick_start",
-      "target": "readme_option_1_run_the_published_image_no_build_no_source_checkout",
-      "confidence_score": 1.0
+      "target": "readme_option_1_run_the_published_image_no_build_no_source_checkout"
     },
     {
       "relation": "contains",
@@ -61136,9 +61457,9 @@
       "source_file": "README.md",
       "source_location": "L273",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_quick_start",
-      "target": "readme_option_2_docker_compose_from_source",
-      "confidence_score": 1.0
+      "target": "readme_option_2_docker_compose_from_source"
     },
     {
       "relation": "contains",
@@ -61146,9 +61467,9 @@
       "source_file": "README.md",
       "source_location": "L291",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_quick_start",
-      "target": "readme_option_3_local_development_hot_reload",
-      "confidence_score": 1.0
+      "target": "readme_option_3_local_development_hot_reload"
     },
     {
       "relation": "contains",
@@ -61442,5 +61763,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b219912c4e9866e5cb9a8beae1c56a002635b125"
+  "built_at_commit": "9cfe86fd2919776225ef8728c48d5b11a29d7378"
 }

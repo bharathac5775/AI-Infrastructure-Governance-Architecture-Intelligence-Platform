@@ -1,16 +1,16 @@
 # Graph Report - graphify-data-wt  (2026-07-20)
 
 ## Corpus Check
-- 128 files · ~114,342 words
+- 129 files · ~115,116 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1799 nodes · 4144 edges · 127 communities (120 shown, 7 thin omitted)
+- 1804 nodes · 4169 edges · 124 communities (118 shown, 6 thin omitted)
 - Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 499 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b219912c`
+- Built from commit: `9cfe86fd`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -118,11 +118,8 @@
 - [[_COMMUNITY_Community 119|Community 119]]
 - [[_COMMUNITY_Community 120|Community 120]]
 - [[_COMMUNITY_Community 121|Community 121]]
-- [[_COMMUNITY_Community 122|Community 122]]
 - [[_COMMUNITY_Community 123|Community 123]]
 - [[_COMMUNITY_Community 124|Community 124]]
-- [[_COMMUNITY_Community 125|Community 125]]
-- [[_COMMUNITY_Community 126|Community 126]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `_f()` - 133 edges
@@ -151,19 +148,19 @@
 ## Import Cycles
 - None detected.
 
-## Communities (127 total, 7 thin omitted)
+## Communities (124 total, 6 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.08
-Nodes (23): Any, Path, _derive_agent_name(), discover_plugins(), _plugin_from_meta(), PluginAgent, Plugin registry — discovers agent plugins from ``skills/*.md`` frontmatter.  Pha, A dynamically-registered analysis agent described by a skill file. (+15 more)
+Nodes (27): Any, Path, Any, Path, _derive_agent_name(), discover_plugins(), _plugin_from_meta(), PluginAgent (+19 more)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.12
-Nodes (13): compute_compliance_scorecard(), _is_control_assessable(), A control is assessable iff cross-cloud OR any of its domains is a     detected, Compute per-framework compliance scores for a report.      Phase 3.3 fix: cloud-, The bug regression test: an Azure-only upload must NOT show         CIS AWS Foun, GCP-only upload must NOT show CIS AWS or CIS K8s. (CIS GCP IS shown         — se, Azure-only upload MUST show CIS Azure Foundations Benchmark., GCP-only upload MUST show CIS GCP Foundations Benchmark. (+5 more)
+Nodes (16): compute_compliance_scorecard(), Compute per-framework compliance scores for a report.      Phase 3.3 fix: cloud-, _full_report(), End-to-end pin: a real-world AWS-only upload that includes an         LLM adviso, The bug regression test: an Azure-only upload must NOT show         CIS AWS Foun, GCP-only upload must NOT show CIS AWS or CIS K8s. (CIS GCP IS shown         — se, Azure-only upload MUST show CIS Azure Foundations Benchmark., GCP-only upload MUST show CIS GCP Foundations Benchmark. (+8 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.11
-Nodes (20): AgentReport, ArchitectureReview, ArchitectureReview, compute_drift(), Compute finding-level and score-level drift between two reports.      All compar, _full_report(), _llm_finding(), AnalysisReport (+12 more)
+Cohesion: 0.16
+Nodes (14): compute_drift(), Compute finding-level and score-level drift between two reports.      All compar, make_finding(), _full_report(), _llm_finding(), Tests for drift detection (Phase 3.2).  Reference: app/core/drift.py  These test, Critical regression test: LLM findings must not appear in any bucket.          T, Phase 3.2 fix: identical rule findings produce zero deltas, even if         LLM (+6 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.17
@@ -190,24 +187,24 @@ Cohesion: 0.11
 Nodes (9): Bug from k8s-api-deployment.json: clicking Generate fix on     'No HorizontalPod, Bug from hardened-production.yaml: 'Stateful workload using         ephemeral st, Even with an empty bundle, the data-persistence finding raises         Companion, If the description doesn't contain a quoted volume name, the         template st, The API endpoint catches NonPatchableFinding for 409.         CompanionResourceR, An empty bundle with an HPA finding still raises         CompanionResourceRequir, Probes findings ARE in-place patches (add to container spec) —         they shou, Resource with only Kind/name (no namespace) still produces a         valid HPA t (+1 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.22
-Nodes (9): Any, extract_tf_resources(), extract_tf_variables(), parse_terraform(), Extract resources from parsed Terraform.      Handles two formats:     - HCL2 pa, Extract variables from parsed Terraform., Parse Terraform HCL content., Phase 2 regression: extract_tf_resources must handle JSON dict format. (+1 more)
+Cohesion: 0.19
+Nodes (11): _parse_tf_resources(), Parse all Terraform-flavored files in the bundle into a flat resource     list., Any, extract_tf_resources(), extract_tf_variables(), parse_terraform(), Extract resources from parsed Terraform.      Handles two formats:     - HCL2 pa, Extract variables from parsed Terraform. (+3 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.13
-Nodes (35): analyze_cost(), Run cost analysis using rules + LLM reasoning., analyze_reliability(), Run reliability analysis using rules + LLM reasoning., analyze_security(), _detect_infra_type(), Detect whether files are kubernetes, terraform, mixed, or none (non-infra)., Run security analysis using rules + LLM reasoning. (+27 more)
+Cohesion: 0.12
+Nodes (43): analyze_cost(), Run cost analysis using rules + LLM reasoning., analyze_reliability(), Run reliability analysis using rules + LLM reasoning., AgentReport, Finding, AgentReport, Finding (+35 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.06
 Nodes (35): dependencies, class-variance-authority, clsx, lucide-react, mermaid, @radix-ui/react-dialog, @radix-ui/react-dropdown-menu, @radix-ui/react-slot (+27 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.14
-Nodes (22): _add_k8s_ingress_refs(), _add_k8s_nodes_and_edges(), _add_k8s_workload_refs(), _add_tf_nodes_and_edges(), _ensure_ref_node(), _expand_k8s_lists(), graph_from_model(), _k8s_namespace() (+14 more)
+Cohesion: 0.11
+Nodes (29): _add_k8s_ingress_refs(), _add_k8s_nodes_and_edges(), _add_k8s_workload_refs(), _add_tf_nodes_and_edges(), dependents_of(), _ensure_ref_node(), _expand_k8s_lists(), find_spofs() (+21 more)
 
 ### Community 13 - "Community 13"
-Cohesion: 0.12
-Nodes (17): blast_radius_endpoint(), diagram_endpoint(), export_report_pdf(), _flat_findings(), get_report_endpoint(), health_check(), list_reports_endpoint(), Retrieve a previously generated report. (+9 more)
+Cohesion: 0.13
+Nodes (15): blast_radius_endpoint(), compare_reports_endpoint(), diagram_endpoint(), export_report_pdf(), _flat_findings(), get_report_endpoint(), health_check(), Retrieve a previously generated report. (+7 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.14
@@ -219,7 +216,7 @@ Nodes (9): Run deterministic security checks on parsed K8s resources., run_secur
 
 ### Community 16 - "Community 16"
 Cohesion: 0.11
-Nodes (19): _build_control_assessability(), _classify_control(), _detect_clouds_from_resource(), _empty_mappings(), _entry_controls(), _entry_domain(), load_mappings(), Compliance framework mapping (Phase 3.3 — cloud-aware).  Tags every rule-based f (+11 more)
+Nodes (19): _build_control_assessability(), _classify_control(), _empty_mappings(), _entry_controls(), _entry_domain(), _is_control_assessable(), load_mappings(), Compliance framework mapping (Phase 3.3 — cloud-aware).  Tags every rule-based f (+11 more)
 
 ### Community 17 - "Community 17"
 Cohesion: 0.14
@@ -230,24 +227,24 @@ Cohesion: 0.10
 Nodes (15): _parse_llm_json_response(), _parse_sentinel_response(), Extract (patched_content, explanation) from the sentinel format.      Bulletproo, Best-effort extraction of (patched_content, explanation) from a     local-LLM re, Bug 2: the local LLM emits JSON with literal newlines inside string     values., The exact failure mode you saw: 'Invalid control character at: line 1 column 25', The LLM rambles before the JSON. Regex extraction rescues., The azure-average.tf failure: the model emitted patched_content with         a r (+7 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.18
-Nodes (16): AnalyzeWorkspace(), DeltaValue(), ReuploadPanel(), useRunAnalysis(), cn(), Button, ButtonProps, buttonVariants (+8 more)
+Cohesion: 0.33
+Nodes (6): AnalyzeWorkspace(), ApiError, useRunAnalysis(), TabsContent, TabsList, TabsTrigger
 
 ### Community 20 - "Community 20"
-Cohesion: 0.22
-Nodes (10): build_dependency_graph_model(), Convenience: build the graph and return the serialized model in one call., Render the dependency graph as a Mermaid ``flowchart LR`` string.      - Synthet, to_mermaid(), _fanin_tf(), Tests for the Phase 4.1 dependency graph + 4.5 SPOF detector.  Reference code: -, Real ids have dots/slashes; the synthetic ids used as Mermaid node         ident, TestMermaid (+2 more)
+Cohesion: 0.18
+Nodes (11): build_dependency_graph_model(), Convenience: build the graph and return the serialized model in one call., Render the dependency graph as a Mermaid ``flowchart LR`` string.      - Synthet, to_mermaid(), _fanin_tf(), Tests for the Phase 4.1 dependency graph + 4.5 SPOF detector.  Reference code: -, Real ids have dots/slashes; the synthetic ids used as Mermaid node         ident, TestMermaid (+3 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.24
-Nodes (10): Collection, find_by_bundle_fingerprint(), find_similar_reports(), _get_collection(), list_reports(), Report store backed by ChromaDB for persistent storage and comparison., List recent reports with metadata (without full findings)., Find past reports with similar risk profiles using vector similarity search. (+2 more)
+Cohesion: 0.16
+Nodes (14): list_reports_endpoint(), List recent reports with metadata., Find past reports with similar risk profiles., similar_reports_endpoint(), Collection, find_by_bundle_fingerprint(), find_similar_reports(), _get_collection() (+6 more)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.13
-Nodes (22): CompliancePanel(), TONE_TEXT, FindingDetail(), AgentChip(), FilterSelect(), FindingsTable(), IndexedFinding, SEVERITIES (+14 more)
+Cohesion: 0.18
+Nodes (16): FindingDetail(), AgentChip(), FilterSelect(), FindingsTable(), IndexedFinding, SEVERITIES, severityTone(), cn() (+8 more)
 
 ### Community 23 - "Community 23"
-Cohesion: 0.10
-Nodes (28): _dump_docs_for_kind(), _ensure_pod_spec(), _filename_kind(), _find_workload_doc(), _fix_k8s(), _iter_containers(), _k8s_container_match(), _locate_kubernetes_file() (+20 more)
+Cohesion: 0.13
+Nodes (22): _detect_json_indent(), _dump_docs_for_kind(), _ensure_pod_spec(), _find_workload_doc(), _fix_k8s(), _iter_containers(), _k8s_container_match(), _new_ruamel_yaml() (+14 more)
 
 ### Community 24 - "Community 24"
 Cohesion: 0.14
@@ -258,12 +255,12 @@ Cohesion: 0.27
 Nodes (4): _filter_terraform_secrets_gap(), Drop secrets management gap if Terraform uses variable refs or manage_master_use, A gap with 'secret' alone but neither 'management' nor 'credential' is kept., TestTerraformSecretsGapFilter
 
 ### Community 26 - "Community 26"
-Cohesion: 0.18
-Nodes (13): ArchitecturePanel(), Mermaid, DriftPanel(), Crumb, PageHeader(), api, formatTimestamp(), ReportPage() (+5 more)
+Cohesion: 0.15
+Nodes (16): ArchitecturePanel(), Mermaid, CompliancePanel(), TONE_TEXT, DeltaValue(), DriftPanel(), Crumb, PageHeader() (+8 more)
 
 ### Community 27 - "Community 27"
 Cohesion: 0.20
-Nodes (15): analyze_architecture(), _build_infrastructure_summary(), _extract_k8s_resources(), _extract_tf_resources(), _format_findings(), Architecture Reviewer agent — cross-cutting tradeoff analysis across all agent f, Extract Kubernetes resource kinds and names from YAML content., Extract Terraform resource types and names from HCL content. (+7 more)
+Nodes (16): analyze_architecture(), _build_infrastructure_summary(), _extract_k8s_resources(), _extract_tf_resources(), _format_findings(), Architecture Reviewer agent — cross-cutting tradeoff analysis across all agent f, Extract Kubernetes resource kinds and names from YAML content., Extract Terraform resource types and names from HCL content. (+8 more)
 
 ### Community 28 - "Community 28"
 Cohesion: 0.12
@@ -282,8 +279,8 @@ Cohesion: 0.13
 Nodes (11): Run deterministic reliability checks., Run deterministic reliability checks on parsed Terraform resources., run_reliability_rules(), run_terraform_reliability_rules(), has_finding_with(), Tests for reliability rule-based checks (run_reliability_rules + run_terraform_r, HCL2 sometimes wraps single-instance config in a list., Phase 2 regression: queue named *_dlq must NOT flag for missing DLQ. (+3 more)
 
 ### Community 32 - "Community 32"
-Cohesion: 0.19
-Nodes (10): _detect_clouds(), Detect which clouds are present in the report.      Detection signals, in priori, _full_report(), Clean K8s upload (no findings) still detects kubernetes via extension., Phase 3.3 fix: a clean .tf file (no findings) must not falsely         imply AWS, Phase 3.3 regression: LLM-emitted findings sometimes use         ``resource="N/A, All-uppercase abbreviations like RDS, KMS, IAM, EC2, S3 are AWS         shorthan, Generic CapitalCase words like Infrastructure, Database, Storage         are not (+2 more)
+Cohesion: 0.15
+Nodes (10): _detect_clouds(), _detect_clouds_from_resource(), Identify the cloud from a single Finding.resource string, or None.      K8s reso, Detect which clouds are present in the report.      Detection signals, in priori, Clean K8s upload (no findings) still detects kubernetes via extension., Phase 3.3 fix: a clean .tf file (no findings) must not falsely         imply AWS, Phase 3.3 regression: LLM-emitted findings sometimes use         ``resource="N/A, All-uppercase abbreviations like RDS, KMS, IAM, EC2, S3 are AWS         shorthan (+2 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.15
@@ -291,35 +288,35 @@ Nodes (19): Return a callable that reads a sample file from the repo's samples/ 
 
 ### Community 34 - "Community 34"
 Cohesion: 0.13
-Nodes (17): AgentReport, ArchitectureReview, BlastRadius, CompareResult, ComplianceFrameworkScore, ComplianceScorecard, CrossCuttingGap, DependencyGraph (+9 more)
+Nodes (16): AgentReport, ArchitectureReview, BlastRadius, CompareResult, ComplianceFrameworkScore, ComplianceScorecard, CrossCuttingGap, DependencyGraph (+8 more)
 
 ### Community 35 - "Community 35"
 Cohesion: 0.21
 Nodes (5): Bug from terraform-serverless.json: clicking Generate fix on     'S3 bucket with, If a companion resource of the same name already exists, we         refuse to si, Categories without a deterministic JSON fixer flow to LLM         cleanly (no cr, End-to-end on the actual samples/terraform-serverless.json., TestTerraformJsonFixers
 
 ### Community 36 - "Community 36"
-Cohesion: 0.17
-Nodes (17): _companion_template(), _fix_tf(), _fix_tf_json(), _fix_with_llm(), _infer_rule_category(), _is_advisory_language(), _locate_file_for_finding(), Return (yaml_template, suggested_filename) for the companion     resource implie (+9 more)
+Cohesion: 0.16
+Nodes (17): _companion_template(), _fix_tf(), _fix_with_llm(), _infer_rule_category(), _is_advisory_language(), _locate_file_for_finding(), _make_unified_diff(), Return (yaml_template, suggested_filename) for the companion     resource implie (+9 more)
 
 ### Community 37 - "Community 37"
 Cohesion: 0.16
 Nodes (8): _is_cosmetic_drift(), Return True iff the difference between the two lines is cosmetic only:      - Pu, Walk original/patched in lockstep and revert lines that differ only     cosmetic, _strip_cosmetic_drift(), The filter strips dash-rule comment drift and trailing-whitespace     drift from, Different decoration character means it's an intentional change., Inserted lines (no original counterpart) flow through unchanged., TestCosmeticDriftFilter
 
 ### Community 38 - "Community 38"
-Cohesion: 0.17
-Nodes (9): apply_structured_edit(), _parse_structured_edit(), Return the per-resource config dict from parsed Terraform JSON.      Shape: ``pa, Extract a structured-edit JSON object from an LLM response.      Returns the dic, Apply a structured edit to file content using the deterministic editors.      Su, _tfjson_get_resource_block(), Phase 4 follow-up: the LLM fallback for Terraform asks the model for a     SMALL, The whole point: applying an edit must NOT drop other resources. (+1 more)
+Cohesion: 0.20
+Nodes (7): apply_structured_edit(), _parse_structured_edit(), Extract a structured-edit JSON object from an LLM response.      Returns the dic, Apply a structured edit to file content using the deterministic editors.      Su, Phase 4 follow-up: the LLM fallback for Terraform asks the model for a     SMALL, The whole point: applying an edit must NOT drop other resources., TestStructuredEditFallback
 
 ### Community 39 - "Community 39"
 Cohesion: 0.09
 Nodes (18): is_non_patchable(), Return True for findings that don't map to any file-level edit.      These are t, _f(), End-to-end: LLM emits a patch with dash-line drift; the cleaned         diff has, Findings whose resource is N/A, empty, or a whole-infrastructure     sentinel ca, The LLM decorates sentinels — 'N/A (Global Opportunity)',         'Global (all r, A real resource that happens to carry a parenthetical note must stay         pat, The exact screenshot bug: 'Missing Commitment Discounts' with         resource=' (+10 more)
 
 ### Community 40 - "Community 40"
-Cohesion: 0.18
-Nodes (9): dependents_of(), find_spofs(), Every resource that (transitively) depends on ``node``.      Edges point depende, Identify single points of failure in the dependency graph.      Two independent, Turn detected SPOFs into resilience-category Findings.      Deterministic — no L, spof_findings(), _spof_severity(), TestMixedAndNamespacing (+1 more)
+Cohesion: 0.20
+Nodes (14): ArchitectureReviewPanel(), scoreTextClass(), SectionHeading(), ScoreHeader(), TONE_TEXT, isAdvisoryAgent(), scoreLabel(), scoreTone() (+6 more)
 
 ### Community 41 - "Community 41"
-Cohesion: 0.13
-Nodes (14): DiffView(), CompanionDetail, RemediationPanel(), ApiError, ADVISORY_VERBS, AdvisoryKind, FILE_EXTS, getPatchability() (+6 more)
+Cohesion: 0.15
+Nodes (13): DiffView(), CompanionDetail, RemediationPanel(), ADVISORY_VERBS, AdvisoryKind, FILE_EXTS, getPatchability(), isScopeSentinel() (+5 more)
 
 ### Community 42 - "Community 42"
 Cohesion: 0.24
@@ -330,16 +327,16 @@ Cohesion: 0.11
 Nodes (10): extract_k8s_resources(), get_containers(), get_pod_spec(), get_resource_name(), Group parsed K8s documents by resource kind., Extract containers from a pod spec., Get pod spec from various resource types., Get the name of a K8s resource. (+2 more)
 
 ### Community 44 - "Community 44"
-Cohesion: 0.14
-Nodes (19): AnalysisState, architecture_reviewer_node(), build_analysis_graph(), cost_node(), parse_files_node(), plugin_agents_node(), Run dynamically-registered plugin agents (Phase 3.5).      Discovers plugins fro, Synthesize all agent reports into final report. (+11 more)
+Cohesion: 0.12
+Nodes (21): analyze_security(), _detect_infra_type(), Detect whether files are kubernetes, terraform, mixed, or none (non-infra)., Run security analysis using rules + LLM reasoning., AnalysisState, architecture_reviewer_node(), build_analysis_graph(), cost_node() (+13 more)
 
 ### Community 45 - "Community 45"
 Cohesion: 0.16
 Nodes (7): extract_keywords(), Shared utility functions for agent deduplication., Insert spaces at camelCase and PascalCase boundaries.      'HorizontalPodAutosca, Extract significant keywords from text, with synonym expansion., _split_camelcase(), Tests for keyword extraction, finding-level dedup, and cross-cutting gap dedup., TestExtractKeywords
 
 ### Community 46 - "Community 46"
-Cohesion: 0.16
-Nodes (28): AnalysisRequest, Caller re-supplies the original file bundle at remediation time.      Reports ar, RemediationRequest, AnalysisReport, AnalysisReport, Finding, Any, Finding (+20 more)
+Cohesion: 0.18
+Nodes (26): AnalysisRequest, Caller re-supplies the original file bundle at remediation time.      Reports ar, RemediationRequest, AnalysisReport, AnalysisReport, Finding, Any, Finding (+18 more)
 
 ### Community 47 - "Community 47"
 Cohesion: 0.10
@@ -354,40 +351,40 @@ Cohesion: 0.14
 Nodes (15): AppShell(), AGENT_VISUALS, AgentCopy, AGENTS, agentVisual, CAPABILITIES, FALLBACK_VISUAL, StepCopy (+7 more)
 
 ### Community 50 - "Community 50"
-Cohesion: 0.24
-Nodes (7): build_dependency_graph(), Build a directed dependency graph from parsed resources.      Every node carries, _edge_set(), _k8s(), Ingress backend.service.name (networking.k8s.io/v1) must create an         Ingre, TestKubernetesGraph, TestTerraformGraph
+Cohesion: 0.21
+Nodes (8): build_dependency_graph(), Build a directed dependency graph from parsed resources.      Every node carries, _edge_set(), _k8s(), Ingress backend.service.name (networking.k8s.io/v1) must create an         Ingre, TestKubernetesGraph, TestMixedAndNamespacing, TestTerraformGraph
 
 ### Community 51 - "Community 51"
 Cohesion: 0.07
 Nodes (27): CompanionResourceRequired, NonPatchableFinding, PatchValidationError, The finding is advisory — it has no associated resource in any file     and is n, The finding requires creating a NEW Kubernetes resource alongside     the existi, Raised when a generated patch produces unparseable output., Finding, Severity (+19 more)
 
 ### Community 52 - "Community 52"
-Cohesion: 0.25
-Nodes (3): _calculate_architecture_score(), Calculate architecture score from gaps, capped by agent average.      The archit, TestArchitectureScore
+Cohesion: 0.21
+Nodes (4): _calculate_architecture_score(), Calculate architecture score from gaps, capped by agent average.      The archit, Tests for scoring math.  Reference code: - app/core/report.py::calculate_overall, TestArchitectureScore
 
 ### Community 53 - "Community 53"
-Cohesion: 0.14
-Nodes (14): Run the complete multi-agent analysis pipeline., run_analysis(), Sanity tests for the mock_llm fixture.  The mock must intercept all 5 agent get_, The full pipeline runs end-to-end with no Ollama process available., Default mock returns empty findings — score equals rule-only baseline., Verify mock_llm.set() actually changes architecture review output., test_mock_llm_can_override_architecture_response(), test_mock_llm_default_finds_nothing_extra() (+6 more)
+Cohesion: 0.13
+Nodes (14): Run the complete multi-agent analysis pipeline., run_analysis(), analyze_text(), Analyze infrastructure from text content (for programmatic access)., Sanity tests for the mock_llm fixture.  The mock must intercept all 5 agent get_, The full pipeline runs end-to-end with no Ollama process available., Default mock returns empty findings — score equals rule-only baseline., test_mock_llm_default_finds_nothing_extra() (+6 more)
 
 ### Community 54 - "Community 54"
 Cohesion: 0.32
 Nodes (5): _filter_k8s_platform_gaps(), Drop gaps that are platform/cluster-level concerns for K8s/Helm infrastructure., make_gap(), Non-'terraform' infra_type follows the K8s filtering path., TestK8sPlatformGapFilter
 
 ### Community 55 - "Community 55"
-Cohesion: 0.24
-Nodes (11): AgentReport, Finding, _format_infra_content(), parse_llm_findings(), Shared LLM-agent execution helper.  Phase 3.5 extracts the LLM invoke -> parse -, Compute a 0-100 agent score from findings via severity deductions.      Identica, Concatenate uploaded files into a single prompt-ready block.      Matches the ``, Parse an LLM JSON response into findings + summary.      Tolerates a leading/tra (+3 more)
+Cohesion: 0.27
+Nodes (10): Finding, _format_infra_content(), parse_llm_findings(), Shared LLM-agent execution helper.  Phase 3.5 extracts the LLM invoke -> parse -, Compute a 0-100 agent score from findings via severity deductions.      Identica, Concatenate uploaded files into a single prompt-ready block.      Matches the ``, Parse an LLM JSON response into findings + summary.      Tolerates a leading/tra, Run a single LLM-backed agent and return its ``AgentReport``.      This is the d (+2 more)
 
 ### Community 56 - "Community 56"
 Cohesion: 0.43
 Nodes (3): _delta(), Compute current minus baseline. Returns None if either side is missing., TestDeltaHelper
 
 ### Community 57 - "Community 57"
-Cohesion: 0.23
-Nodes (8): Mermaid(), ResolvedTheme, Theme, ThemeContext, ThemeContextValue, ThemeProvider(), useTheme(), Topbar()
+Cohesion: 0.15
+Nodes (12): Mermaid(), ReuploadPanel(), ResolvedTheme, Theme, ThemeContext, ThemeContextValue, ThemeProvider(), useTheme() (+4 more)
 
 ### Community 58 - "Community 58"
 Cohesion: 0.14
-Nodes (18): drift_endpoint(), Compare a report against the most recent prior scan of the same bundle.      Pha, AgentReport, AnalysisReport, AnalysisReport, _compliance_adapter(), Plugin loader — runs discovered plugin agents and returns their reports.  Phase, Run a single plugin agent and return its report (or None if skipped). (+10 more)
+Nodes (16): AgentReport, _compliance_adapter(), Plugin loader — runs discovered plugin agents and returns their reports.  Phase, Run a single plugin agent and return its report (or None if skipped)., Discover (or accept) plugins and run them sequentially.      Returns the list of, Wrap the existing compliance scorecard into an ``AgentReport``.      Reuses ``ap, run_all_plugins(), run_plugin() (+8 more)
 
 ### Community 59 - "Community 59"
 Cohesion: 0.17
@@ -398,16 +395,16 @@ Cohesion: 0.29
 Nodes (5): _dedup_cross_cutting_gaps(), Remove cross-cutting gaps that merely echo what individual agents already found., make_report(), Test fixture builders for Findings, CrossCuttingGaps, and AgentReports.  Default, TestDedupCrossCuttingGaps
 
 ### Community 61 - "Community 61"
-Cohesion: 0.13
-Nodes (18): _find_tf_block_span(), Locate the byte span ``[start, end)`` of a Terraform resource block in     HCL s, Insert ``argument_lines`` (one or more lines, no trailing newline) just     befo, Remove all lines in the block that match ``key_regex`` at the start     (whitesp, If ``key`` exists in the block, replace its value with ``new_value_literal``., Add a new entry under parsed["resource"][rtype][rname] = config.      Creates th, Raised when remediation cannot proceed (no file match, no fixer, etc.)., RemediationError (+10 more)
+Cohesion: 0.15
+Nodes (16): _find_tf_block_span(), Locate the byte span ``[start, end)`` of a Terraform resource block in     HCL s, Insert ``argument_lines`` (one or more lines, no trailing newline) just     befo, Remove all lines in the block that match ``key_regex`` at the start     (whitesp, If ``key`` exists in the block, replace its value with ``new_value_literal``., Raised when remediation cannot proceed (no file match, no fixer, etc.)., RemediationError, _tf_inject_argument_in_block() (+8 more)
 
 ### Community 62 - "Community 62"
 Cohesion: 0.25
 Nodes (4): Bug from k8s-api-deployment.json: a Kubernetes manifest uploaded as     .json wa, A 4-space-indented input should round-trip with 4 spaces., Hardcoded-secret fix on a JSON manifest: the env section is         rewritten an, TestK8sJsonRoundTrip
 
 ### Community 63 - "Community 63"
-Cohesion: 0.23
-Nodes (7): AnalysisReport, _agent_score(), generate_pdf_report(), PDF export for governance reports (Phase 3.3).  Renders an AnalysisReport to a P, Render an AnalysisReport to a PDF byte stream.      Returns the raw bytes of the, _severity_color_hex(), TestPDFExport
+Cohesion: 0.20
+Nodes (8): _agent_score(), generate_pdf_report(), PDF export for governance reports (Phase 3.3).  Renders an AnalysisReport to a P, Render an AnalysisReport to a PDF byte stream.      Returns the raw bytes of the, _severity_color_hex(), compare_reports(), Compare two reports and return score deltas., TestPDFExport
 
 ### Community 64 - "Community 64"
 Cohesion: 0.26
@@ -449,13 +446,17 @@ Nodes (9): API Added, Architecture Decisions, Challenges Addressed, Components D
 Cohesion: 0.29
 Nodes (4): _mermaid_html(), Wrap a Mermaid diagram string in a self-contained HTML doc that renders     it c, Phase 4 Architecture panel: SPOFs, dependency diagram, blast radius., _render_architecture_panel()
 
+### Community 74 - "Community 74"
+Cohesion: 0.31
+Nodes (3): Tests for compliance framework mapping (Phase 3.3, cloud-aware).  Reference: app, A bare K8s NetworkPolicy finding (no title override) only gets NIST., TestCloudAttributionCorrectness
+
 ### Community 75 - "Community 75"
 Cohesion: 0.22
 Nodes (9): Architecture Decisions, Build Order, Challenges Addressed, Components Delivered, Coverage, Phase 2 Regression Sentinels (Non-Negotiable), Phase 3.1 — Pytest Regression Test Harness, Verification (+1 more)
 
 ### Community 76 - "Community 76"
-Cohesion: 0.12
-Nodes (23): AnalysisReport, Finding, _agent_findings_by_prefix(), _agent_has_data(), _all_deterministic_findings(), find_baseline(), _is_deterministic(), Drift detection between successive analyses of the same infrastructure bundle. (+15 more)
+Cohesion: 0.09
+Nodes (25): AnalysisReport, Finding, _agent_findings_by_prefix(), _agent_has_data(), _all_deterministic_findings(), _finding_signature(), _is_deterministic(), Drift detection between successive analyses of the same infrastructure bundle. (+17 more)
 
 ### Community 77 - "Community 77"
 Cohesion: 0.29
@@ -466,8 +467,8 @@ Cohesion: 0.23
 Nodes (6): Return parent resource names that have a companion resource of the given type., resources_with_companion(), Tests for parsers — K8s YAML/JSON and Terraform HCL/JSON.  Reference: - app/pars, When the bucket field isn't standard, scan all string values., HCL2 sometimes wraps single string values in lists., TestResourcesWithCompanion
 
 ### Community 79 - "Community 79"
-Cohesion: 0.47
-Nodes (5): AnalysisReport, format_report_text(), Count findings by severity across all agents., Format report as readable text., severity_counts()
+Cohesion: 0.50
+Nodes (4): format_report_text(), Count findings by severity across all agents., Format report as readable text., severity_counts()
 
 ### Community 80 - "Community 80"
 Cohesion: 0.22
@@ -498,76 +499,64 @@ Cohesion: 0.50
 Nodes (3): Intentional issues (for analysis testing), my-chart, Package and test
 
 ### Community 89 - "Community 89"
-Cohesion: 0.18
+Cohesion: 0.20
 Nodes (7): delete_report_endpoint(), Delete a specific report., delete_report(), Delete a specific report from ChromaDB and the in-memory cache., End-to-end: live response has file_contents, but a subsequent         GET on the, End-to-end: a YAML upload analyses, the response echoes the         file_content, Skips automatically if `helm` CLI isn't installed — the chart         renderer n
 
 ### Community 90 - "Community 90"
 Cohesion: 0.33
 Nodes (6): Architecture Decisions, Challenges Addressed, Components Delivered, Phase 3.5 — Plugin Harness (Dynamic Agent Registration), Verification, What Was Built
 
-### Community 91 - "Community 91"
-Cohesion: 0.40
-Nodes (3): Tests for scoring math.  Reference code: - app/core/report.py::calculate_overall, Guard against drift between the test-side deductions table and prod., TestSeverityDeductionsInSync
-
 ### Community 92 - "Community 92"
 Cohesion: 0.33
 Nodes (6): Architecture Decisions, Challenges Addressed, Components Delivered, Phase 4.1 + 4.5 — Resource Dependency Graph & SPOF Detector, Verification, What Was Built
 
 ### Community 94 - "Community 94"
-Cohesion: 0.18
-Nodes (9): Finding, is_duplicate(), Check if an LLM finding duplicates any rule finding using keyword overlap., _finding_signature(), Stable identity for a finding across runs.      Tuple of (agent, category, title, make_finding(), TestIsDuplicate, TestFindingSignature (+1 more)
+Cohesion: 0.33
+Nodes (4): Finding, is_duplicate(), Check if an LLM finding duplicates any rule finding using keyword overlap., TestIsDuplicate
 
 ### Community 116 - "Community 116"
 Cohesion: 0.22
-Nodes (4): Tests for compliance framework mapping (Phase 3.3, cloud-aware).  Reference: app, K8s upload, no findings → all assessable controls pass → 100%., A finding with empty compliance_controls is neutral., TestComputeScorecardSemantics
+Nodes (8): drift_endpoint(), Compare a report against the most recent prior scan of the same bundle.      Pha, AnalysisReport, find_baseline(), Return the most recent prior report with the same bundle_fingerprint.      Retur, get_report(), Retrieve a report by ID., A report saved before this feature existed (or any report         cleanly persis
 
 ### Community 117 - "Community 117"
-Cohesion: 0.32
-Nodes (7): Any, Path, list_skills(), load_skill(), Skill file loader — reads agent behavior from markdown skill files., Load a skill file and return its metadata + prompt content.      Skill files use, List all available skill files with their metadata.
+Cohesion: 0.33
+Nodes (6): _filename_kind(), _locate_kubernetes_file(), _locate_terraform_file(), Return one of: 'kubernetes_yaml', 'terraform_hcl', 'terraform_json',     or 'unk, Locate the .tf/.hcl/.json file containing ``aws_foo.bar``., Locate the .yaml/.yml file containing the named K8s resource.      The canonical
 
 ### Community 118 - "Community 118"
 Cohesion: 0.29
 Nodes (7): _coerce_llm_payload(), _json_value_from_edit(), Normalize a parsed LLM payload to (patched_content, explanation)., Convert a JSON edit value to an HCL literal.      - Python bool -> true/false, Coerce an edit value into a native JSON value for Terraform-JSON., _value_to_hcl_literal(), Any
 
 ### Community 119 - "Community 119"
-Cohesion: 0.38
-Nodes (6): Persist a report to ChromaDB. Returns report_id., save_report(), _fanin_tf(), Tests for the Phase 4.2 blast-radius and 4.4 diagram API endpoints.  Served from, report_with_graph(), report_without_graph()
+Cohesion: 0.18
+Nodes (7): Persist a report to ChromaDB. Returns report_id., save_report(), _fanin_tf(), Tests for the Phase 4.2 blast-radius and 4.4 diagram API endpoints.  Served from, report_with_graph(), report_without_graph(), TestDiagramEndpoint
 
 ### Community 120 - "Community 120"
 Cohesion: 0.29
 Nodes (4): The 'Overly Permissive Egress on Security Group' finding (LLM-emitted     title), The rule-based 'Security group open to 0.0.0.0/0' finding (which         is ingr, If the SG has no literal 0.0.0.0/0 (e.g. it uses var.allowed_cidrs),         the, TestEgressFixer
 
 ### Community 121 - "Community 121"
-Cohesion: 0.33
-Nodes (5): make_agent_finding(), make_arch_response(), Canned LLM responses keyed by agent type.  Each agent's `chain.ainvoke(...)` is, Build an architecture-reviewer response. Useful for testing dedup filters     by, Build an agent finding for use inside an LLM-mocked response.
+Cohesion: 0.25
+Nodes (7): make_agent_finding(), make_arch_response(), Canned LLM responses keyed by agent type.  Each agent's `chain.ainvoke(...)` is, Build an architecture-reviewer response. Useful for testing dedup filters     by, Build an agent finding for use inside an LLM-mocked response., Verify mock_llm.set() actually changes architecture review output., test_mock_llm_can_override_architecture_response()
 
 ### Community 123 - "Community 123"
 Cohesion: 0.40
 Nodes (4): analyze_infrastructure(), Upload infrastructure files and run multi-agent analysis., Run helm template on a packaged .tgz chart and return rendered Kubernetes YAML., render_helm_chart()
 
 ### Community 124 - "Community 124"
-Cohesion: 0.50
-Nodes (4): _detect_json_indent(), Sniff the indent width of the source JSON so we round-trip with     the same sha, Re-emit parsed Terraform JSON, preserving the original indent and     trailing-n, _tfjson_dump()
-
-### Community 125 - "Community 125"
-Cohesion: 0.50
-Nodes (4): analyze_text(), _parse_tf_resources(), Analyze infrastructure from text content (for programmatic access)., Parse all Terraform-flavored files in the bundle into a flat resource     list.
-
-### Community 126 - "Community 126"
-Cohesion: 0.50
-Nodes (4): compare_reports_endpoint(), Compare two reports and return score deltas., compare_reports(), Compare two reports and return score deltas.
+Cohesion: 0.25
+Nodes (8): _fix_tf_json(), Return the per-resource config dict from parsed Terraform JSON.      Shape: ``pa, Add a new entry under parsed["resource"][rtype][rname] = config.      Creates th, Re-emit parsed Terraform JSON, preserving the original indent and     trailing-n, Apply a deterministic fix to a Terraform JSON file.      Same category coverage, _tfjson_add_companion_resource(), _tfjson_dump(), _tfjson_get_resource_block()
 
 ## Knowledge Gaps
-- **218 isolated node(s):** `Settings`, `Any`, `Path`, `Path`, `Any` (+213 more)
+- **217 isolated node(s):** `Settings`, `Any`, `Path`, `Path`, `Any` (+212 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Severity` connect `Community 10` to `Community 0`, `Community 2`, `Community 3`, `Community 5`, `Community 6`, `Community 8`, `Community 12`, `Community 15`, `Community 17`, `Community 18`, `Community 20`, `Community 23`, `Community 24`, `Community 25`, `Community 27`, `Community 31`, `Community 35`, `Community 36`, `Community 37`, `Community 38`, `Community 39`, `Community 40`, `Community 42`, `Community 45`, `Community 46`, `Community 50`, `Community 51`, `Community 52`, `Community 54`, `Community 55`, `Community 56`, `Community 58`, `Community 59`, `Community 60`, `Community 61`, `Community 62`, `Community 66`, `Community 68`, `Community 69`, `Community 76`, `Community 79`, `Community 84`, `Community 85`, `Community 91`, `Community 94`, `Community 118`, `Community 120`?**
-  _High betweenness centrality (0.164) - this node is a cross-community bridge._
-- **Why does `Finding` connect `Community 10` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 5`, `Community 6`, `Community 8`, `Community 12`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 18`, `Community 23`, `Community 24`, `Community 31`, `Community 32`, `Community 35`, `Community 36`, `Community 37`, `Community 38`, `Community 39`, `Community 40`, `Community 42`, `Community 46`, `Community 51`, `Community 55`, `Community 56`, `Community 58`, `Community 59`, `Community 61`, `Community 62`, `Community 63`, `Community 74`, `Community 76`, `Community 84`, `Community 85`, `Community 94`, `Community 116`, `Community 118`, `Community 120`?**
+- **Why does `Severity` connect `Community 10` to `Community 0`, `Community 2`, `Community 3`, `Community 5`, `Community 6`, `Community 8`, `Community 12`, `Community 15`, `Community 17`, `Community 18`, `Community 20`, `Community 23`, `Community 24`, `Community 25`, `Community 27`, `Community 31`, `Community 35`, `Community 36`, `Community 37`, `Community 38`, `Community 39`, `Community 42`, `Community 44`, `Community 45`, `Community 46`, `Community 50`, `Community 51`, `Community 52`, `Community 54`, `Community 55`, `Community 56`, `Community 58`, `Community 59`, `Community 60`, `Community 61`, `Community 62`, `Community 66`, `Community 68`, `Community 69`, `Community 76`, `Community 84`, `Community 85`, `Community 91`, `Community 94`, `Community 118`, `Community 120`?**
+  _High betweenness centrality (0.163) - this node is a cross-community bridge._
+- **Why does `Finding` connect `Community 10` to `Community 0`, `Community 1`, `Community 2`, `Community 3`, `Community 5`, `Community 6`, `Community 8`, `Community 12`, `Community 14`, `Community 15`, `Community 16`, `Community 17`, `Community 18`, `Community 23`, `Community 24`, `Community 31`, `Community 32`, `Community 35`, `Community 36`, `Community 37`, `Community 38`, `Community 39`, `Community 42`, `Community 44`, `Community 46`, `Community 51`, `Community 55`, `Community 56`, `Community 58`, `Community 59`, `Community 61`, `Community 62`, `Community 63`, `Community 74`, `Community 76`, `Community 84`, `Community 85`, `Community 94`, `Community 118`, `Community 120`?**
   _High betweenness centrality (0.143) - this node is a cross-community bridge._
 - **Why does `_f()` connect `Community 39` to `Community 35`, `Community 5`, `Community 6`, `Community 7`, `Community 8`, `Community 10`, `Community 51`, `Community 84`, `Community 85`, `Community 120`, `Community 59`, `Community 62`?**
   _High betweenness centrality (0.035) - this node is a cross-community bridge._
@@ -576,6 +565,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Are the 82 inferred relationships involving `Finding` (e.g. with `CompanionResourceRequired` and `NonPatchableFinding`) actually correct?**
   _`Finding` has 82 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `Architecture Reviewer agent — cross-cutting tradeoff analysis across all agent f`, `Drop gaps that are platform/cluster-level concerns for K8s/Helm infrastructure.`, `Drop Terraform gaps that flag absence of strategies rather than misconfiguration` to the rest of the system?**
-  _636 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _635 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.08292682926829269 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07665505226480836 - nodes in this community are weakly interconnected._
