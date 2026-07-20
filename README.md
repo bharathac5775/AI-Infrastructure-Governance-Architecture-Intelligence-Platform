@@ -52,6 +52,80 @@ What you get back is a **governance report**: an overall score, every problem ra
 - **Auditor-ready exports** — PDF and JSON
 - **Pluggable LLM** — local Ollama by default; Anthropic, OpenAI, or Google can be configured
 
+## Screenshots
+
+A visual tour of the product — the landing dashboard, a scored report, the analysis of a single finding, the remediation flow, and how a fix moves the numbers across the compliance and drift tabs.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/01-dashboard-hero.png" alt="Landing dashboard" /><br/><sub><b>Landing dashboard</b> — the six governance agents and what each reviews, in one pass.</sub></td>
+    <td width="50%"><img src="docs/screenshots/02-dashboard-light.png" alt="Light theme" /><br/><sub><b>Light theme</b> — the same dashboard with the built-in light/dark/system theme switcher.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/03-upload-workspace.png" alt="Analyze workspace" /><br/><sub><b>Analyze workspace</b> — drop Terraform, Kubernetes, or Helm files (or paste config) to run a review.</sub></td>
+    <td width="50%"><img src="docs/screenshots/04-reports-history.png" alt="Reports history" /><br/><sub><b>Reports history</b> — every past analysis, scored and searchable; select two to compare.</sub></td>
+  </tr>
+</table>
+
+<details>
+<summary><b>📊 The governance report</b> — score, findings, and per-agent breakdown</summary>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/05-report-findings.png" alt="Report findings (AWS)" /><br/><sub><b>Findings (AWS)</b> — weighted score, executive summary, per-agent cards, and findings ranked by severity.</sub></td>
+    <td width="50%"><img src="docs/screenshots/06-report-azure.png" alt="Report findings (Azure)" /><br/><sub><b>Findings (Azure)</b> — the same review applied to an Azure Terraform bundle, in light theme.</sub></td>
+  </tr>
+</table>
+
+</details>
+
+<details>
+<summary><b>🏛️ Architecture review & dependency graph</b> — cross-cutting reasoning and blast radius</summary>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/07-architecture-review.png" alt="Architecture review" /><br/><sub><b>Architecture review</b> — trade-off conflicts, detected patterns, cross-cutting gaps, and prioritized actions.</sub></td>
+    <td width="50%"><img src="docs/screenshots/08-dependencies-azure.png" alt="Dependencies tab" /><br/><sub><b>Dependencies</b> — single points of failure flagged, with an interactive resource dependency diagram.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/09-dependencies-spof.png" alt="Single points of failure" /><br/><sub><b>SPOF detection</b> — articulation points and high-fan-in resources, each with a blast-radius trace.</sub></td>
+    <td width="50%"><img src="docs/screenshots/10-dependency-graph.png" alt="Full dependency graph" /><br/><sub><b>Full dependency graph</b> — every resource and reference edge for one IaC bundle, SPOFs highlighted in red.</sub></td>
+  </tr>
+</table>
+
+</details>
+
+<details>
+<summary><b>🔧 Remediation</b> — from a single finding to an applied code fix</summary>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/11-finding-detail.png" alt="Finding detail" /><br/><sub><b>Finding detail</b> — description, recommendation, mapped compliance controls, and a <i>Generate fix</i> action.</sub></td>
+    <td width="50%"><img src="docs/screenshots/12-fix-deterministic-encryption.png" alt="Deterministic fix" /><br/><sub><b>Deterministic fix</b> — an S3 encryption patch generated with no LLM call, re-parsed cleanly as a unified diff.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/13-fix-llm-lifecycle.png" alt="LLM lifecycle fix" /><br/><sub><b>LLM fallback</b> — a lifecycle-rule patch produced by the local model when no deterministic fixer applies.</sub></td>
+    <td width="50%"><img src="docs/screenshots/14-fix-llm-asg.png" alt="LLM ASG fix" /><br/><sub><b>Companion resource</b> — a standalone EC2 instance gets a generated Auto Scaling Group to fix the finding.</sub></td>
+  </tr>
+</table>
+
+</details>
+
+<details>
+<summary><b>✅ Compliance & drift</b> — how a fix moves the numbers</summary>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/15-compliance-before.png" alt="Compliance before fix" /><br/><sub><b>Compliance — before</b> — CIS AWS at 64% and NIST 800-53 at 53%, with the failing controls listed.</sub></td>
+    <td width="50%"><img src="docs/screenshots/16-compliance-after.png" alt="Compliance after fix" /><br/><sub><b>Compliance — after</b> — the same bundle re-scanned after fixes: both frameworks at 100%.</sub></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshots/17-drift.png" alt="Drift detection" /><br/><sub><b>Drift</b> — the re-scan compared against its baseline: <b>+18.1</b> overall, with 10 findings resolved and 3 introduced.</sub></td>
+  </tr>
+</table>
+
+</details>
+
 ## The six agents
 
 | Agent | What it reviews |
