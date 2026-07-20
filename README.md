@@ -63,29 +63,29 @@ Upload an infrastructure bundle → six agents review it in one pass → you get
 ```mermaid
 flowchart TB
     subgraph client["Client"]
-        UI["React Web UI"]
+        UI["🖥️ React Web UI"]
     end
 
     subgraph api["API Layer — FastAPI"]
-        RT["REST API /api/v1"]
+        RT["🔌 REST API /api/v1"]
     end
 
     subgraph ingest["Ingestion &amp; Parsing"]
-        HELM["Helm Renderer"]
-        KP["Kubernetes Parser"]
-        TP["Terraform Parser"]
+        HELM["📦 Helm Renderer"]
+        KP["☸️ Kubernetes Parser"]
+        TP["🏗️ Terraform Parser"]
     end
 
     subgraph pipeline["Analysis Pipeline — LangGraph"]
         direction TB
-        SEC["Security Agent"]
-        REL["Reliability Agent"]
-        COST["Cost Agent"]
-        ARCH["Architecture Agent"]
-        COMP["Compliance Agent"]
-        RES["Resilience Agent"]
-        PLG["Plugin Agents"]
-        SUP["Supervisor"]
+        SEC["🛡️ Security Agent"]
+        REL["📈 Reliability Agent"]
+        COST["💰 Cost Agent"]
+        ARCH["🏛️ Architecture Agent"]
+        COMP["✅ Compliance Agent"]
+        RES["🔗 Resilience Agent"]
+        PLG["🧩 Plugin Agents"]
+        SUP["🧭 Supervisor"]
         SEC --> SUP
         REL --> SUP
         COST --> SUP
@@ -96,18 +96,20 @@ flowchart TB
     end
 
     subgraph core["Core Services"]
-        GRAPH["Dependency Graph"]
-        CMPL["Compliance Engine"]
-        DRIFT["Drift Engine"]
-        SCORE["Scoring Engine"]
-        REM["Remediator"]
-        EXPORT["PDF / JSON Export"]
+        GRAPH["🕸️ Dependency Graph"]
+        CMPL["📋 Compliance Engine"]
+        DRIFT["📉 Drift Engine"]
+        SCORE["🎯 Scoring Engine"]
+        REM["🔧 Remediator"]
+        EXPORT["📄 PDF / JSON Export"]
     end
 
     subgraph ext["Providers &amp; Storage"]
-        LLM["LLM Provider"]
-        DB[("ChromaDB")]
+        LLM["🤖 LLM Provider"]
+        DB[("🗄️ ChromaDB")]
     end
+
+    OUT["📊 Governance Report"]
 
     UI -->|upload| RT
     RT --> HELM
@@ -126,14 +128,18 @@ flowchart TB
     SUP --> GRAPH
     SUP --> CMPL
     SUP --> SCORE
-    SUP --> DB
+    SUP --> OUT
+    GRAPH --> OUT
+    CMPL --> OUT
+    SCORE --> OUT
+    OUT --> DB
 
     RT --> REM
     RT --> DRIFT
     RT --> EXPORT
     REM -.->|fallback| LLM
+    OUT --> UI
     DRIFT --> DB
-    GRAPH --> DB
     RT -->|history| DB
 ```
 
@@ -160,6 +166,48 @@ flowchart TB
 5. **Act** — from a report, the user generates remediation patches (deterministic first, LLM fallback), views drift vs. a prior scan, and exports PDF/JSON.
 
 </details>
+
+### What you get — the Governance Report
+
+Every analysis produces one **Governance Report**, returned as JSON and rendered in the UI:
+
+- **Overall governance score** (0–100) with a per-agent breakdown
+- **Findings** ranked by severity, each with resource, description, recommendation, and mapped compliance controls
+- **Dependency graph** — nodes/edges, single points of failure, and blast radius per resource
+- **Compliance scorecards** — CIS AWS/Azure/GCP/Kubernetes with pass/fail control lists
+- **Architecture review** — trade-offs, patterns, cross-cutting gaps, prioritized actions
+- **Executive & risk summaries**
+- **Remediation** — a code patch (unified diff) per fixable finding
+- **Exports** — the full report as PDF or JSON
+
+### API request flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as Web UI
+    participant A as FastAPI
+    participant P as Pipeline
+    participant D as ChromaDB
+
+    U->>A: POST /api/v1/analyze  (files)
+    A->>P: run analysis (6 agents + supervisor)
+    P-->>A: Governance Report
+    A->>D: save report + dependency graph
+    A-->>U: 200  Governance Report (JSON)
+
+    U->>A: GET /api/v1/reports/{id}
+    A->>D: fetch report
+    A-->>U: 200  report
+
+    U->>A: POST /api/v1/reports/{id}/remediate/{i}
+    A-->>U: 200  patch  ·  409 not patchable  ·  422 failed
+
+    U->>A: GET /api/v1/reports/{id}/export/pdf
+    A-->>U: 200  application/pdf
+```
+
+
 
 ## Supported File Types
 
