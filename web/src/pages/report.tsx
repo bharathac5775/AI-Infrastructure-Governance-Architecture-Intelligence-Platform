@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ScoreHeader } from "@/components/score-header";
 import { FindingsTable } from "@/components/findings-table";
 import { ArchitecturePanel } from "@/components/architecture-panel";
+import { ArchitectureReviewPanel } from "@/components/architecture-review-panel";
 import { CompliancePanel } from "@/components/compliance-panel";
 import { DriftPanel } from "@/components/drift-panel";
 import { ReuploadPanel } from "@/components/reupload-panel";
@@ -118,8 +119,9 @@ export function ReportPage() {
               {findingCount}
             </span>
           </TabsTrigger>
-          <TabsTrigger value="architecture">
-            Architecture
+          <TabsTrigger value="architecture">Architecture</TabsTrigger>
+          <TabsTrigger value="dependencies">
+            Dependencies
             {spofCount > 0 && (
               <span className="ml-1 rounded bg-danger/15 px-1.5 py-0.5 text-2xs tabular text-danger">
                 {spofCount}
@@ -154,6 +156,9 @@ export function ReportPage() {
           <FindingsTable report={r} fileContents={effectiveContents} />
         </TabsContent>
         <TabsContent value="architecture">
+          <ArchitectureReviewPanel report={r} />
+        </TabsContent>
+        <TabsContent value="dependencies">
           <ArchitecturePanel report={r} />
         </TabsContent>
         <TabsContent value="compliance">
