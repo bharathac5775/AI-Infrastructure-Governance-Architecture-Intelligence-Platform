@@ -56,6 +56,9 @@ What you get back is a **governance report**: an overall score, every problem ra
 
 A visual tour of the product — the landing dashboard, a scored report, the analysis of a single finding, the remediation flow, and how a fix moves the numbers across the compliance and drift tabs.
 
+> [!NOTE]
+> The four sections below (**The governance report**, **Architecture & dependencies**, **Remediation**, **Compliance & drift**) are collapsed — **click a section title to expand its screenshots.**
+
 <table>
   <tr>
     <td width="50%"><img src="docs/screenshots/01-dashboard-hero.png" alt="Landing dashboard" /><br/><sub><b>Landing dashboard</b> — the six governance agents and what each reviews, in one pass.</sub></td>
@@ -68,7 +71,7 @@ A visual tour of the product — the landing dashboard, a scored report, the ana
 </table>
 
 <details>
-<summary><b>📊 The governance report</b> — score, findings, and per-agent breakdown</summary>
+<summary>📊&nbsp; <b>The governance report</b> — score, findings, and per-agent breakdown &nbsp;·&nbsp; <kbd>click to expand ▸ 2 screenshots</kbd></summary>
 
 <table>
   <tr>
@@ -80,7 +83,7 @@ A visual tour of the product — the landing dashboard, a scored report, the ana
 </details>
 
 <details>
-<summary><b>🏛️ Architecture review & dependency graph</b> — cross-cutting reasoning and blast radius</summary>
+<summary>🏛️&nbsp; <b>Architecture review &amp; dependency graph</b> — cross-cutting reasoning and blast radius &nbsp;·&nbsp; <kbd>click to expand ▸ 4 screenshots</kbd></summary>
 
 <table>
   <tr>
@@ -96,7 +99,7 @@ A visual tour of the product — the landing dashboard, a scored report, the ana
 </details>
 
 <details>
-<summary><b>🔧 Remediation</b> — from a single finding to an applied code fix</summary>
+<summary>🔧&nbsp; <b>Remediation</b> — from a single finding to an applied code fix &nbsp;·&nbsp; <kbd>click to expand ▸ 4 screenshots</kbd></summary>
 
 <table>
   <tr>
@@ -112,7 +115,7 @@ A visual tour of the product — the landing dashboard, a scored report, the ana
 </details>
 
 <details>
-<summary><b>✅ Compliance & drift</b> — how a fix moves the numbers</summary>
+<summary>✅&nbsp; <b>Compliance &amp; drift</b> — how a fix moves the numbers &nbsp;·&nbsp; <kbd>click to expand ▸ 3 screenshots</kbd></summary>
 
 <table>
   <tr>
