@@ -60,7 +60,7 @@ What you get back is a **governance report**: an overall score, every problem ra
 | **Parsers** | PyYAML (Kubernetes) · python-hcl2 (Terraform) · Helm CLI (charts) |
 | **Storage** | ChromaDB (persistent report history + vector search) |
 | **Graph** | NetworkX (dependency analysis, SPOF detection) |
-| **Packaging** | Docker · Docker Compose |
+| **Packaging** | Docker · Docker Compose · published image on Docker Hub |
 
 ## Architecture
 
@@ -228,17 +228,59 @@ sequenceDiagram
 
 ## Quick Start
 
-### Option 1 — Docker (whole product, one command)
+The platform ships as a single container that serves both the API and the web UI on **one port (8000)**. It needs an LLM to reason with — by default a local [Ollama](https://ollama.com/download) model running on your host.
+
+**Prerequisites (all options):** [Docker](https://docs.docker.com/get-docker/) · [Ollama](https://ollama.com/download) on the host, with the model pulled:
 
 ```bash
-# Ollama runs on the host; pull the model once
-ollama serve
-ollama pull gemma4:E2B
+ollama serve             # start Ollama (skip if already running)
+ollama pull gemma4:E2B   # one-time model download
+```
 
+> **Why Ollama runs on the host, not in the container:** the container reaches it over `host.docker.internal` (see the run commands below). Inside a container, `localhost` means the container itself — so the LLM URL is overridden to point back at your host machine.
+
+### Option 1 — Run the published image (no build, no source checkout)
+
+The image is on Docker Hub as [`bacdocker/infra-governance`](https://hub.docker.com/r/bacdocker/infra-governance). Pull and run it directly:
+
+```bash
+docker run --rm -p 8000:8000 \
+  -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
+  -v "$(pwd)/data/chromadb:/app/data/chromadb" \
+  bacdocker/infra-governance:latest
+```
+
+If you have a local `.env` (copied from [`.env.example`](.env.example)) and want to use its settings — e.g. to switch to a cloud LLM provider — add `--env-file .env` before the image name:
+
+```bash
+docker run --rm -p 8000:8000 \
+  --env-file .env \
+  -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
+  -v "$(pwd)/data/chromadb:/app/data/chromadb" \
+  bacdocker/infra-governance:latest
+```
+
+What the flags do:
+
+| Flag | Purpose |
+|------|---------|
+| `-p 8000:8000` | Exposes the app on `localhost:8000` |
+| `-e OLLAMA_BASE_URL=http://host.docker.internal:11434` | Points the container at Ollama on your host (overrides the `localhost` default) |
+| `-v "$(pwd)/data/chromadb:/app/data/chromadb"` | Persists report history across container restarts (optional) |
+| `--env-file .env` | Loads LLM provider / model config from your `.env` (optional; sensible defaults apply without it) |
+| `--rm` | Removes the container when it stops (drop it to keep the container around) |
+
+### Option 2 — Docker Compose (from source)
+
+From a checkout of the repo, Compose captures the same settings so you don't type flags:
+
+```bash
 docker compose up --build
 ```
 
-A single image builds the React frontend and serves it from the FastAPI backend, so everything runs on **one port**:
+`docker-compose.yml` builds the image, maps port 8000, overrides `OLLAMA_BASE_URL` to reach the host, mounts the ChromaDB volume, and loads `.env`. Prefer this when developing against local source; prefer Option 1 to just run the released image.
+
+Once running, open:
 
 | Service | URL |
 |---------|-----|
@@ -246,22 +288,20 @@ A single image builds the React frontend and serves it from the FastAPI backend,
 | Backend API | http://localhost:8000/api/v1 |
 | API Docs | http://localhost:8000/docs |
 
-### Option 2 — Local development
+### Option 3 — Local development (hot reload)
 
-**Prerequisites:** Python 3.11+ · Node.js 18+ · [Ollama](https://ollama.com/download) · [Helm CLI](https://helm.sh/docs/intro/install/) (for `.tgz`)
+Run the backend and frontend as separate dev servers for live reload while editing.
+
+**Additional prerequisites:** Python 3.11+ · Node.js 18+ · [Helm CLI](https://helm.sh/docs/intro/install/) (for `.tgz` charts)
 
 ```bash
-# 1. Model
-ollama serve
-ollama pull gemma4:E2B
-
-# 2. Backend
+# 1. Backend
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 uvicorn app.main:app --reload --port 8001 --timeout-keep-alive 600
 
-# 3. Frontend (second terminal)
+# 2. Frontend (second terminal)
 cd web
 npm install
 npm run dev

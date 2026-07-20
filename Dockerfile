@@ -32,6 +32,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Application code.
 COPY app/ ./app/
 
+# Agent prompt skill files — loaded at runtime by app/core/skills.py
+# (SKILLS_DIR resolves to /app/skills). Without these the LLM agents can't
+# load their prompts, so analysis and remediation would fail in the container.
+COPY skills/ ./skills/
+
 # Built frontend from stage 1. app/main.py detects web/dist and serves it from
 # the same origin, so the entire product is reachable on one port.
 COPY --from=web-build /web/dist ./web/dist
