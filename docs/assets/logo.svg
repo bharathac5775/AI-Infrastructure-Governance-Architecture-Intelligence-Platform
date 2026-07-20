@@ -1,0 +1,19 @@
+<svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Infrastructure Governance logo">
+  <rect width="88" height="88" rx="20" fill="#0B0B0F"/>
+  <rect x="0.5" y="0.5" width="87" height="87" rx="19.5" stroke="#4F46E5" stroke-opacity="0.35"/>
+  <!-- dependency-graph glyph: nodes + edges, echoing the product's graph feature -->
+  <g stroke="#6366F1" stroke-width="2.4" stroke-linecap="round">
+    <line x1="44" y1="26" x2="28" y2="50"/>
+    <line x1="44" y1="26" x2="60" y2="50"/>
+    <line x1="28" y1="50" x2="44" y2="64"/>
+    <line x1="60" y1="50" x2="44" y2="64"/>
+  </g>
+  <g fill="#0B0B0F" stroke="#818CF8" stroke-width="2.6">
+    <circle cx="44" cy="26" r="7"/>
+    <circle cx="28" cy="50" r="6"/>
+    <circle cx="60" cy="50" r="6"/>
+    <circle cx="44" cy="64" r="6"/>
+  </g>
+  <!-- shield accent on the root node to signal governance -->
+  <circle cx="44" cy="26" r="3" fill="#818CF8"/>
+</svg>
