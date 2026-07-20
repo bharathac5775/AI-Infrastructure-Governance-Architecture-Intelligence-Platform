@@ -101,7 +101,7 @@ _NON_PATCHABLE_RESOURCE_VALUES: set[str] = {
 # ---------------------------------------------------------------------------
 
 
-_COMPANION_RESOURCE_CATEGORIES: set[str] = {"autoscaling", "pdb", "network-policy"}
+_COMPANION_RESOURCE_CATEGORIES: set[str] = {"autoscaling", "pdb", "network-policy", "data-persistence"}
 
 # Phase 3.5 — roll-up / meta findings emitted by plugin agents (e.g. the
 # Compliance Agent) summarize OTHER findings against a framework and point at a
@@ -164,6 +164,45 @@ def _companion_template(category: str, finding: Finding) -> tuple[str, str]:
             f"      app: {workload_name}  # CHANGE_ME — match your workload's pod labels\n"
         )
         return tmpl, f"{workload_name}-pdb.yaml"
+
+    if category == "data-persistence":
+        # emptyDir -> PVC is structurally a companion change: add a new
+        # PersistentVolumeClaim AND rewire the workload's volume to reference
+        # it. Best-effort parse the volume name from the finding description
+        # ("mounts volume 'redis-data' as emptyDir"); fall back to a placeholder.
+        vol_match = re.search(r"volume '([^']+)'", finding.description or "")
+        volume_name = vol_match.group(1) if vol_match else "CHANGE_ME_VOLUME"
+        # Avoid a redundant "redis-redis-data" when the volume is already named
+        # after its workload; otherwise namespace the claim by the workload.
+        claim_name = (
+            volume_name
+            if volume_name.startswith(workload_name)
+            else f"{workload_name}-{volume_name}"
+        )
+        tmpl = (
+            f"# 1) Create this PersistentVolumeClaim (durable storage for the workload).\n"
+            f"apiVersion: v1\n"
+            f"kind: PersistentVolumeClaim\n"
+            f"metadata:\n"
+            f"  name: {claim_name}\n"
+            f"  namespace: {namespace}\n"
+            f"spec:\n"
+            f"  accessModes:\n"
+            f"    - ReadWriteOnce  # CHANGE_ME — ReadWriteMany if multiple pods mount it\n"
+            f"  resources:\n"
+            f"    requests:\n"
+            f"      storage: 10Gi  # CHANGE_ME — size for your data\n"
+            f"  # storageClassName: CHANGE_ME  # uncomment to pin a specific StorageClass\n"
+            f"\n"
+            f"# 2) Then, in {workload_kind}/{workload_name}, replace the emptyDir volume\n"
+            f"#    named '{volume_name}' with this PVC reference:\n"
+            f"#\n"
+            f"#      volumes:\n"
+            f"#        - name: {volume_name}\n"
+            f"#          persistentVolumeClaim:\n"
+            f"#            claimName: {claim_name}\n"
+        )
+        return tmpl, f"{claim_name}-pvc.yaml"
 
     if category == "network-policy":
         tmpl = (
@@ -228,9 +267,23 @@ def is_non_patchable(finding: Finding) -> bool:
     whole-architecture concerns, or items where the LLM filled the resource
     field with a sentinel ("N/A", "infrastructure", etc.) because there's
     no specific resource to patch.
+
+    The LLM often *decorates* these sentinels — "N/A (Global Opportunity)",
+    "Global (all resources)", "infrastructure - multiple" — so we don't just
+    match the raw string against the sentinel set; we also strip any
+    parenthetical/qualifier decoration and re-check the core. A resource with
+    no concrete address (no dotted Terraform name, no ``Kind/name`` shape) that
+    reduces to a sentinel word is advisory, not a patch target.
     """
     resource = (finding.resource or "").strip().lower()
-    return resource in _NON_PATCHABLE_RESOURCE_VALUES
+    if resource in _NON_PATCHABLE_RESOURCE_VALUES:
+        return True
+    # Strip parenthetical/bracketed decoration and trailing qualifiers so
+    # "n/a (global opportunity)" -> "n/a", "global (all resources)" -> "global".
+    core = re.split(r"[(\[\-–—:]", resource, maxsplit=1)[0].strip()
+    if core in _NON_PATCHABLE_RESOURCE_VALUES:
+        return True
+    return False
 
 
 # Words that signal the LLM produced a *decision* finding rather than a
@@ -2728,6 +2781,15 @@ async def _fix_with_llm(
         try:
             response = await get_llm().ainvoke(messages)
             response_text = (response.content or "").strip()
+            if not response_text:
+                # The local model returned nothing at all — a distinct failure
+                # from a malformed response. Common with small local models on
+                # large files (context pressure) or a stalled Ollama server.
+                last_error = (
+                    "the model returned an empty response — the local model may be "
+                    "overloaded by the file size or the LLM server may be unavailable"
+                )
+                continue
             patched, explanation = _parse_llm_json_response(response_text)
         except Exception as e:
             last_error = f"LLM response parse error: {e}"

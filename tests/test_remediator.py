@@ -1318,6 +1318,53 @@ class TestNonPatchableFindings:
             f = _f(category="ai-analysis", title="x", resource=r)
             assert is_non_patchable(f) is True, f"{r!r} should be non-patchable"
 
+    def test_is_non_patchable_for_decorated_sentinels(self):
+        """The LLM decorates sentinels — 'N/A (Global Opportunity)',
+        'Global (all resources)', 'infrastructure - multiple'. The core word
+        before any parenthetical/dash/colon qualifier is still a sentinel, so
+        these are advisory, not patch targets. (Regression: 'N/A (Global
+        Opportunity)' was slipping through to the Kubernetes locator.)"""
+        for r in (
+            "N/A (Global Opportunity)",
+            "Global (all resources)",
+            "infrastructure - multiple",
+            "none: whole account",
+            "various [see recommendation]",
+        ):
+            f = _f(category="ai-analysis", title="x", resource=r)
+            assert is_non_patchable(f) is True, f"{r!r} should be non-patchable"
+
+    def test_decorated_sentinel_does_not_flag_real_resource(self):
+        """A real resource that happens to carry a parenthetical note must stay
+        patchable — the core before '(' is a concrete address, not a sentinel."""
+        for r in (
+            "aws_s3_bucket.data (encryption)",
+            "aws_db_instance.main - Multi-AZ",
+        ):
+            f = _f(category="encryption", title="x", resource=r)
+            assert is_non_patchable(f) is False, f"{r!r} should stay patchable"
+
+    def test_decorated_na_raises_non_patchable_not_kubernetes(self, mock_llm):
+        """The exact screenshot bug: 'Missing Commitment Discounts' with
+        resource='N/A (Global Opportunity)' returned 'Could not locate
+        Kubernetes resource' on a Terraform-only upload. It must now raise
+        NonPatchableFinding with an advisory message and never mention K8s."""
+        bundle = {"main.tf": 'resource "aws_s3_bucket" "data" { bucket = "x" }\n'}
+        finding = _f(
+            category="ai-analysis",
+            title="Missing Commitment Discounts (Savings Plans/RIs)",
+            resource="N/A (Global Opportunity)",
+            severity=Severity.HIGH,
+            agent="Cost Agent",
+        )
+        with pytest.raises(NonPatchableFinding) as exc_info:
+            remediate_sync(finding, 0, bundle)
+        msg = str(exc_info.value).lower()
+        assert "advisory" in msg
+        assert "kubernetes" not in msg, (
+            "Error must not mention Kubernetes for an AWS-only advisory"
+        )
+
     def test_is_patchable_for_real_resource(self):
         for r in ("aws_s3_bucket.data", "Deployment/default/api",
                   "azurerm_storage_account.x", "google_compute_firewall.allow"):
@@ -2309,6 +2356,68 @@ class TestCompanionResourceRequired:
         assert "NetworkPolicy" in exc.value.template
         assert "podSelector" in exc.value.template
         assert exc.value.filename == "api-netpol.yaml"
+
+    def test_data_persistence_finding_returns_pvc_template(self, mock_llm):
+        """Bug from hardened-production.yaml: 'Stateful workload using
+        ephemeral storage' (emptyDir) fell through to the LLM whole-file
+        path and failed with 'LLM response is empty' on the local model.
+        emptyDir->PVC is a companion change (add a PVC + rewire the volume),
+        so it must return a copy-paste PVC template instead of hitting the LLM."""
+        bundle = {"hardened-production.yaml": (
+            "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: redis\n"
+            "  namespace: production\nspec:\n  template:\n    spec:\n"
+            "      volumes:\n        - name: redis-data\n          emptyDir: {}\n"
+        )}
+        finding = _f(
+            agent="Reliability Agent",
+            category="data-persistence",
+            title="Stateful workload using ephemeral storage",
+            resource="Deployment/production/redis",
+            description="Deployment/production/redis mounts volume 'redis-data' as emptyDir. Data is lost on pod restart.",
+            severity=Severity.HIGH,
+        )
+        with pytest.raises(CompanionResourceRequired) as exc:
+            remediate_sync(finding, 0, bundle)
+        t = exc.value.template
+        assert "PersistentVolumeClaim" in t
+        assert "accessModes" in t
+        # The emptyDir volume name is parsed out of the description and used in
+        # both the claim and the rewrite hint.
+        assert "redis-data" in t
+        assert "claimName:" in t
+        assert "production" in t  # namespace preserved
+        assert exc.value.filename.endswith("-pvc.yaml")
+
+    def test_data_persistence_short_circuits_before_llm(self, mock_llm):
+        """Even with an empty bundle, the data-persistence finding raises
+        CompanionResourceRequired — proving it never reaches the file locator
+        or the LLM (the source of the 'empty response' failure)."""
+        finding = _f(
+            agent="Reliability Agent",
+            category="data-persistence",
+            title="Stateful workload using ephemeral storage",
+            resource="Deployment/production/redis",
+            description="mounts volume 'cache' as emptyDir.",
+            severity=Severity.HIGH,
+        )
+        with pytest.raises(CompanionResourceRequired):
+            remediate_sync(finding, 0, {"x.yaml": "kind: Pod\napiVersion: v1\n"})
+
+    def test_data_persistence_missing_volume_name_uses_placeholder(self, mock_llm):
+        """If the description doesn't contain a quoted volume name, the
+        template still renders with a CHANGE_ME placeholder rather than
+        crashing."""
+        finding = _f(
+            agent="Reliability Agent",
+            category="data-persistence",
+            title="Stateful workload using ephemeral storage",
+            resource="Deployment/production/redis",
+            description="This workload uses ephemeral storage.",
+            severity=Severity.HIGH,
+        )
+        with pytest.raises(CompanionResourceRequired) as exc:
+            remediate_sync(finding, 0, {"k8s.yaml": "kind: Deployment\napiVersion: apps/v1\n"})
+        assert "CHANGE_ME" in exc.value.template
 
     def test_companion_required_is_caught_by_nonpatchable_handler(self, mock_llm):
         """The API endpoint catches NonPatchableFinding for 409.
