@@ -6,10 +6,24 @@
 
 **A multi-agent platform that reviews your Terraform, Kubernetes, and Helm before it ships — scoring it for security, reliability, cost, architecture, compliance, and resilience, then handing you fixable findings.**
 
+[![Agentic AI](https://img.shields.io/badge/Agentic_AI-multi--agent-6E56CF)](#the-six-agents)
+[![LangGraph](https://img.shields.io/badge/LangGraph-orchestration-1C3C3C?logo=langchain&logoColor=white)](https://langchain-ai.github.io/langgraph/)
+[![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?logo=langchain&logoColor=white)](https://www.langchain.com/)
+[![LLM](https://img.shields.io/badge/LLM-pluggable-412991)](#configuration)
+[![Ollama](https://img.shields.io/badge/Ollama-local_by_default-000000?logo=ollama&logoColor=white)](https://ollama.com/)
+
+[![DevOps](https://img.shields.io/badge/DevOps-shift--left_governance-0db7ed)](#overview)
+[![Infrastructure as Code](https://img.shields.io/badge/Infrastructure_as_Code-Terraform_·_K8s_·_Helm-844FBA)](#supported-file-types)
+[![Terraform](https://img.shields.io/badge/Terraform-7B42BC?logo=terraform&logoColor=white)](https://www.terraform.io/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white)](https://kubernetes.io/)
+[![Helm](https://img.shields.io/badge/Helm-0F1689?logo=helm&logoColor=white)](https://helm.sh/)
+[![CIS Benchmarks](https://img.shields.io/badge/CIS_Benchmarks-AWS_·_Azure_·_GCP_·_K8s-CC0000)](#the-six-agents)
+
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/r/bacdocker/infra-governance)
 [![Tests](https://img.shields.io/badge/tests-610%20passing-3FB950)](tests/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](#license)
 
