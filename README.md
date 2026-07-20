@@ -63,30 +63,29 @@ Upload an infrastructure bundle → six agents review it in one pass → you get
 ```mermaid
 flowchart TB
     subgraph client["Client"]
-        UI["React SPA<br/><small>Analyze · Report · History</small>"]
+        UI["React Web UI"]
     end
 
-    subgraph api["API Layer · FastAPI"]
-        RT["REST Routes<br/><small>/analyze · /reports · /remediate<br/>/blast-radius · /diagram · /drift · /export</small>"]
-        ST["Static Server<br/><small>serves the built web UI</small>"]
+    subgraph api["API Layer — FastAPI"]
+        RT["REST API /api/v1"]
     end
 
-    subgraph ingest["Ingestion & Parsing"]
-        HELM["Helm Renderer<br/><small>.tgz → helm template</small>"]
-        KP["Kubernetes Parser<br/><small>PyYAML</small>"]
-        TP["Terraform Parser<br/><small>python-hcl2</small>"]
+    subgraph ingest["Ingestion &amp; Parsing"]
+        HELM["Helm Renderer"]
+        KP["Kubernetes Parser"]
+        TP["Terraform Parser"]
     end
 
-    subgraph pipeline["Analysis Pipeline · LangGraph"]
+    subgraph pipeline["Analysis Pipeline — LangGraph"]
         direction TB
-        SEC["🛡️ Security"]
-        REL["📈 Reliability"]
-        COST["💰 Cost"]
-        ARCH["🏛️ Architecture"]
-        COMP["✅ Compliance"]
-        RES["🔗 Resilience"]
-        PLG["Plugin Agents<br/><small>discovered at runtime</small>"]
-        SUP["Supervisor<br/><small>dedup · synthesis · scoring</small>"]
+        SEC["Security Agent"]
+        REL["Reliability Agent"]
+        COST["Cost Agent"]
+        ARCH["Architecture Agent"]
+        COMP["Compliance Agent"]
+        RES["Resilience Agent"]
+        PLG["Plugin Agents"]
+        SUP["Supervisor"]
         SEC --> SUP
         REL --> SUP
         COST --> SUP
@@ -97,45 +96,68 @@ flowchart TB
     end
 
     subgraph core["Core Services"]
-        GRAPH["Dependency Graph<br/><small>NetworkX · SPOF · blast radius</small>"]
-        CMPL["Compliance Engine<br/><small>CIS scorecards</small>"]
+        GRAPH["Dependency Graph"]
+        CMPL["Compliance Engine"]
         DRIFT["Drift Engine"]
-        SCORE["Scoring"]
-        REM["Remediator<br/><small>deterministic-first + LLM fallback</small>"]
-        PDF["PDF / JSON Export"]
+        SCORE["Scoring Engine"]
+        REM["Remediator"]
+        EXPORT["PDF / JSON Export"]
     end
 
-    subgraph ext["Providers & Storage"]
-        LLM["LLM Provider<br/><small>Ollama · Anthropic · OpenAI · Google</small>"]
-        DB[("ChromaDB<br/><small>report history · vectors</small>")]
+    subgraph ext["Providers &amp; Storage"]
+        LLM["LLM Provider"]
+        DB[("ChromaDB")]
     end
 
-    UI -->|multipart / JSON| RT
-    ST -.serves.-> UI
-    RT --> HELM & KP & TP
+    UI -->|upload| RT
+    RT --> HELM
+    RT --> KP
+    RT --> TP
     HELM --> KP
     KP --> pipeline
     TP --> pipeline
-    SEC & REL & COST & ARCH & COMP -.->|reason| LLM
-    SUP --> GRAPH & CMPL & SCORE
+
+    SEC -.-> LLM
+    REL -.-> LLM
+    COST -.-> LLM
+    ARCH -.-> LLM
+    COMP -.-> LLM
+
+    SUP --> GRAPH
+    SUP --> CMPL
+    SUP --> SCORE
     SUP --> DB
+
     RT --> REM
     RT --> DRIFT
-    RT --> PDF
+    RT --> EXPORT
     REM -.->|fallback| LLM
     DRIFT --> DB
     GRAPH --> DB
     RT -->|history| DB
 ```
 
-<details>
-<summary><b>Text view of the flow</b></summary>
+**How it fits together**
 
-1. **Upload** — the React UI sends files to `/api/v1/analyze`. Helm charts are rendered server-side; Kubernetes and Terraform files are parsed into a normalized resource model.
-2. **Analyze** — the LangGraph pipeline runs six agents (plus any runtime-discovered plugin agents). Finding-producing agents reason with the configured LLM; the Supervisor deduplicates, synthesizes, and scores.
+| Component | Role |
+|-----------|------|
+| **React Web UI** | Analyze, Report, and History screens. In production it's served by the API on the same origin. |
+| **REST API** | FastAPI endpoints for analysis, reports, remediation, blast-radius, diagram, drift, and export. |
+| **Helm Renderer** | Renders uploaded `.tgz` charts with `helm template`, then feeds the YAML to the Kubernetes parser. |
+| **Kubernetes / Terraform Parsers** | Normalize `.yaml`/`.json` and `.tf`/`.hcl`/`.json` into a common resource model. |
+| **Analysis Pipeline** | Six agents (plus any runtime-discovered plugin agents) analyze the resources; the **Supervisor** deduplicates findings, synthesizes summaries, and computes scores. |
+| **LLM Provider** | Finding-producing agents reason with the configured model (Ollama by default; Anthropic / OpenAI / Google supported). The Remediator uses it only as a fallback. |
+| **Core Services** | Dependency graph (SPOF + blast radius), compliance scorecards, drift comparison, weighted scoring, remediation, and PDF/JSON export. |
+| **ChromaDB** | Persists reports (with their dependency graph) for history, drift, and similarity search. |
+
+<details>
+<summary><b>Request flow, step by step</b></summary>
+
+1. **Upload** — the UI sends files to `/api/v1/analyze`. Helm charts render server-side; Kubernetes and Terraform files parse into a normalized resource model.
+2. **Analyze** — the LangGraph pipeline runs six agents (plus plugin agents). Finding-producing agents reason with the configured LLM; the Supervisor deduplicates, synthesizes, and scores.
 3. **Enrich** — core services build the dependency graph (SPOF + blast radius), compute CIS compliance scorecards, and calculate the weighted overall score.
-4. **Persist** — the report (with its dependency graph) is stored in ChromaDB for history, drift comparison, and similarity search.
-5. **Act** — from a report, the user can generate remediation patches (deterministic first, LLM fallback), view drift vs. a prior scan, and export PDF/JSON.
+4. **Persist** — the report and its dependency graph are stored in ChromaDB for history, drift, and similarity search.
+5. **Act** — from a report, the user generates remediation patches (deterministic first, LLM fallback), views drift vs. a prior scan, and exports PDF/JSON.
 
 </details>
 
