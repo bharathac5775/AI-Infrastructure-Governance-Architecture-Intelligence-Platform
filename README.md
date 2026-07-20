@@ -280,13 +280,13 @@ docker compose up --build
 
 `docker-compose.yml` builds the image, maps port 8000, overrides `OLLAMA_BASE_URL` to reach the host, mounts the ChromaDB volume, and loads `.env`. Prefer this when developing against local source; prefer Option 1 to just run the released image.
 
-Once running, open:
+Once running, open **http://localhost:8000** in your browser for the web UI.
 
-| Service | URL |
-|---------|-----|
-| Web UI | http://localhost:8000 |
-| Backend API | http://localhost:8000/api/v1 |
-| API Docs | http://localhost:8000/docs |
+| Open in browser | URL | Notes |
+|-----------------|-----|-------|
+| **Web UI** | http://localhost:8000 | The app — start here |
+| **API docs** | http://localhost:8000/docs | Interactive Swagger reference |
+| **Health check** | http://localhost:8000/api/v1/health | Returns `{"status":"healthy",...}` |
 
 ### Option 3 — Local development (hot reload)
 
